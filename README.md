@@ -1,6 +1,6 @@
 # AFH Product Signal
 
-Answers one question every Monday: **what is broken in the Zocdoc app, and which
+Answers one question every month: **what is broken in the Zocdoc app, and which
 product area owns it?**
 
 Not a triage report. Nothing here measures the QA team — no close rates, no
@@ -117,8 +117,39 @@ Slack digest without posting: add `--dry-run` to `notify_slack.py`.
 
 ## Schedule
 
-Mondays 11:00 UTC. Manual runs: Actions → "AFH Product Signal" → Run workflow,
-optionally overriding the date window or skipping Slack.
+**09:00 UTC on the 2nd of every month**, covering the month that just closed.
+The 2nd rather than the 1st so late-arriving tickets are counted.
+
+Manual runs: **Actions → AFH Product Signal → Run workflow**. Two inputs:
+
+| Input | Effect |
+|---|---|
+| `month` | `YYYY-MM`. Blank = last complete month. Give it the current month for a month-to-date read; the window clamps to today and the page is labelled *(month to date)*. |
+| `skip_slack` | Regenerate the dashboard without posting to `#afh-jira`. Use this when re-running after a taxonomy change. |
+
+Backfilling an older month is the same thing: pass its `YYYY-MM`.
+
+### What "monthly" actually means for the numbers
+
+Only the **end** of the window moves. `start` is pinned to `FIRST_DAY`, because
+the trend column, the sparklines and the level-shift detector all need the whole
+history — a report that only saw one month could not tell a new problem from an
+old one. See `scripts/resolve_window.py`.
+
+Ending on the last day of a complete month (rather than "today") is what makes
+the month-over-month column trustworthy. A run that ended today would compare a
+partial month against a complete one and read negative every single time.
+
+### Archive
+
+Each run publishes twice:
+
+- `https://<org>.github.io/<repo>/` — always the newest month
+- `https://<org>.github.io/<repo>/archive/2026-08/` — that month, frozen
+
+The Slack digest links to the **permalink**, so a message posted in June still
+shows June's numbers a year later. Old months are never overwritten
+(`keep_files: true`).
 
 ## Known data quirks
 

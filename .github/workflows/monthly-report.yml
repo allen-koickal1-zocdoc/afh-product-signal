@@ -2,28 +2,31 @@ name: AFH Product Signal
 
 on:
   schedule:
-    - cron: "0 11 * * 1"   # Mondays 11:00 UTC (16:30 IST)
+    # 09:00 UTC on the 2nd of each month. The 2nd, not the 1st, so the previous
+    # month is genuinely closed out and late-arriving tickets are counted.
+    - cron: "0 9 2 * *"
   workflow_dispatch:
     inputs:
-      start_date:
-        description: "Window start (YYYY-MM-DD). Blank = FIRST_DAY."
-        required: false
-        type: string
-      end_date:
-        description: "Window end (YYYY-MM-DD). Blank = today."
+      month:
+        description: "Month to report on (YYYY-MM). Blank = last complete month."
         required: false
         type: string
       skip_slack:
-        description: "Skip the Slack digest"
+        description: "Generate the dashboard but do not post to Slack"
         required: false
         type: boolean
         default: false
+
+# Two scheduled runs overlapping would race the gh-pages push. Let the newer win.
+concurrency:
+  group: afh-report
+  cancel-in-progress: false
 
 permissions:
   contents: write   # push to gh-pages
 
 env:
-  FIRST_DAY: "2025-12-01"   # first AFH ticket
+  FIRST_DAY: "2025-12-01"   # date of the first AFH ticket; history starts here
   WORKDIR: /tmp/afh         # PHI lives here for the life of the job only
 
 jobs:
@@ -37,20 +40,22 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Cheap insurance: a broken classifier should fail here, not silently
+      # publish wrong numbers to a dashboard people make decisions from.
+      - name: Test
+        run: python -m pytest tests/ -q
+
       - name: Resolve window
         id: window
         run: |
-          START="${{ github.event.inputs.start_date }}"
-          END="${{ github.event.inputs.end_date }}"
-          [ -z "$START" ] && START="${FIRST_DAY}"
-          [ -z "$END" ] && END="$(date -u +%F)"
-          echo "start=${START}" >> $GITHUB_OUTPUT
-          echo "end=${END}" >> $GITHUB_OUTPUT
-          echo "Window: ${START} -> ${END}"
+          python3 scripts/resolve_window.py \
+            --month "${{ inputs.month }}" \
+            --first-day "${FIRST_DAY}"
 
       - name: Fetch tickets (PHI, job-local only)
         env:
@@ -85,26 +90,34 @@ jobs:
             --report     "${WORKDIR}/report.json" \
             --output-dir "${WORKDIR}/pages"
 
+      # The root page always shows the newest month; each month also keeps a
+      # permalink, so a Slack link posted in June still reads as June next year.
+      - name: Stage the month permalink
+        run: |
+          mkdir -p "${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}"
+          cp "${WORKDIR}/pages/index.html" "${WORKDIR}/pages/report.json" \
+             "${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}/"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.WORKDIR }}/pages
-          keep_files: false
+          keep_files: true   # never wipe older months out of archive/
+          commit_message: "AFH product signal — ${{ steps.window.outputs.label }}"
 
       - name: Slack digest
-        if: ${{ github.event.inputs.skip_slack != 'true' }}
+        if: ${{ inputs.skip_slack != true }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: |
-          sleep 30
           ORG=$(echo "${{ github.repository }}" | cut -d/ -f1)
           REPO=$(echo "${{ github.repository }}" | cut -d/ -f2)
           python3 scripts/notify_slack.py \
             --report "${WORKDIR}/report.json" \
             --config config/slack.json \
-            --base-url "https://${ORG}.github.io/${REPO}/" \
-            --label "week of ${{ steps.window.outputs.end }}"
+            --base-url "https://${ORG}.github.io/${REPO}/archive/${{ steps.window.outputs.month }}/" \
+            --label "${{ steps.window.outputs.label }}"
 
       - name: Shred the PHI workdir
         if: always()
