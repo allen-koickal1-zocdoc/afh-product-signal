@@ -115,8 +115,13 @@
   {% for t in report.themes %}
     <tr>
       <td>
-        <div class="theme-name">{{ t.label }}</div>
+        <div class="theme-name"><a href="themes/{{ t.id }}.html">{{ t.label }}</a></div>
         {% if t.why %}<div class="theme-why">{{ t.why }}</div>{% endif %}
+        {% if t.subthemes|length > 1 %}
+        <div class="theme-why sub">
+          {% for s in t.subthemes[:3] %}{{ s.label|lower }} ({{ s.total }}){% if not loop.last %} &middot; {% endif %}{% endfor %}
+        </div>
+        {% endif %}
       </td>
       <td><span class="area-chip">{{ t.area }}</span></td>
       <td class="num">{{ t.total }}</td>
@@ -140,7 +145,8 @@
         </div>
       </td>
       <td class="num">
-        {% if t.trend > 0 %}<span class="trend-up">+{{ t.trend }}</span>
+        {% if report.partial_last_month %}<span class="trend-flat" title="Final month is incomplete">&ndash;</span>
+        {% elif t.trend > 0 %}<span class="trend-up">+{{ t.trend }}</span>
         {% elif t.trend < 0 %}<span class="trend-down">{{ t.trend }}</span>
         {% else %}<span class="trend-flat">0</span>{% endif %}
       </td>
@@ -152,42 +158,120 @@
   </tbody>
 </table>
 
+{% if report.movers.suppressed %}
+<div class="section-title">Movers</div>
+<div class="section-note">
+  Suppressed. This window ends mid-month, so every theme would read as falling.
+  Month-over-month comparisons only appear on runs that cover a complete month.
+</div>
+{% elif report.movers.up or report.movers.down %}
+<div class="section-title">Movers</div>
+<div class="section-note">
+  Biggest month-over-month swings, ranked by ratio rather than raw delta &mdash;
+  a theme going 1&nbsp;&rarr;&nbsp;6 is news, one going 20&nbsp;&rarr;&nbsp;26 is not.
+  Swings smaller than 3 reports are ignored.
+</div>
 <div class="two-col">
   <div>
-    <div class="section-title">By product area</div>
-    <div class="section-note">Who owns the fix.</div>
     <table>
-      <thead><tr><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th><th class="num">Themes</th></tr></thead>
+      <thead><tr><th>Rising</th><th class="num">Was</th><th class="num">Now</th><th class="num">&times;</th></tr></thead>
       <tbody>
-      {% for a in report.areas %}
+      {% for m in report.movers.up %}
         <tr>
-          <td>{{ a.area }}</td>
-          <td class="num">{{ a.total }}</td>
-          <td class="num">{{ a.blocking }}</td>
-          <td class="num">{{ a.themes }}</td>
+          <td><a href="themes/{{ m.id }}.html">{{ m.label }}</a>
+              <span class="area-chip">{{ m.area }}</span></td>
+          <td class="num">{{ m.prev }}</td>
+          <td class="num"><span class="trend-up">{{ m.now }}</span></td>
+          <td class="num">{{ m.ratio if m.ratio else 'new' }}</td>
         </tr>
+      {% else %}
+        <tr><td colspan="4">Nothing rose by 3 or more reports.</td></tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
   <div>
-    <div class="section-title">Volume</div>
-    <div class="section-note">Total intake vs the part that carries product signal.</div>
     <table>
-      <thead><tr><th>Month</th><th class="num">Tickets</th><th class="num">Actionable</th><th class="num">Signal rate</th></tr></thead>
+      <thead><tr><th>Falling</th><th class="num">Was</th><th class="num">Now</th><th class="num">&Delta;</th></tr></thead>
       <tbody>
-      {% for v in report.volume %}
+      {% for m in report.movers.down %}
         <tr>
-          <td>{{ v.month }}</td>
-          <td class="num">{{ v.total }}</td>
-          <td class="num">{{ v.actionable }}</td>
-          <td class="num">{{ (100 * v.actionable / v.total)|round|int if v.total else 0 }}%</td>
+          <td><a href="themes/{{ m.id }}.html">{{ m.label }}</a>
+              <span class="area-chip">{{ m.area }}</span></td>
+          <td class="num">{{ m.prev }}</td>
+          <td class="num"><span class="trend-down">{{ m.now }}</span></td>
+          <td class="num">{{ m.delta }}</td>
         </tr>
+      {% else %}
+        <tr><td colspan="4">Nothing fell by 3 or more reports.</td></tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% endif %}
+
+{% if report.first_seen %}
+<div class="section-title">First seen this month</div>
+<div class="section-note">
+  No prior history, so the regression detectors have nothing to compare against.
+  Judge these on content, not trend.
+</div>
+<table>
+  <thead><tr><th>Theme</th><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th></tr></thead>
+  <tbody>
+  {% for f in report.first_seen %}
+    <tr>
+      <td><a href="themes/{{ f.id }}.html">{{ f.label }}</a></td>
+      <td><span class="area-chip">{{ f.area }}</span></td>
+      <td class="num">{{ f.total }}</td>
+      <td class="num">{{ f.blocking }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="section-title">By product area</div>
+<div class="section-note">Who owns the fix. Themes listed worst-first within each area.</div>
+<table>
+  <thead>
+    <tr><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th>
+        <th class="num">Requests</th><th>Themes</th></tr>
+  </thead>
+  <tbody>
+  {% for a in report.areas %}
+    <tr>
+      <td><strong>{{ a.area }}</strong></td>
+      <td class="num">{{ a.total }}</td>
+      <td class="num">{{ a.blocking }}</td>
+      <td class="num">{{ a.feature_requests }}</td>
+      <td class="theme-why">
+        {% for t in a.theme_list %}<a href="themes/{{ t.id }}.html">{{ t.label }}</a> ({{ t.total }}){% if not loop.last %} &middot; {% endif %}{% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="section-title">Volume</div>
+<div class="section-note">
+  Total intake vs the part that carries product signal. Month links open the
+  matching Jira query.
+</div>
+<table>
+  <thead><tr><th>Month</th><th class="num">Tickets</th><th class="num">Actionable</th><th class="num">Signal rate</th></tr></thead>
+  <tbody>
+  {% for v in report.volume %}
+    <tr>
+      <td><a href="{{ v.jql }}">{{ v.month }}</a>{% if report.partial_last_month and loop.last %} <span class="ver">(partial)</span>{% endif %}</td>
+      <td class="num">{{ v.total }}</td>
+      <td class="num">{{ v.actionable }}</td>
+      <td class="num">{{ (100 * v.actionable / v.total)|round|int if v.total else 0 }}%</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 
 <div class="section-title">Signal quality</div>
 <div class="section-note">
@@ -224,6 +308,13 @@
   which is permission-gated:
   <a href="{{ report.jira.all }}">all tickets in window</a> &middot;
   <a href="{{ report.jira.open }}">still open</a>.
+  <br><br>
+  <strong>Raw numbers:</strong>
+  <a href="report.json">report.json</a> &middot;
+  <a href="themes.csv">themes.csv</a> &middot;
+  <a href="subthemes.csv">subthemes.csv</a> &middot;
+  <a href="monthly.csv">monthly.csv</a> &mdash; aggregates only, safe to paste
+  into a sheet.
 </div>
 
 {% endblock %}

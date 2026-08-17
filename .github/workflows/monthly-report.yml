@@ -81,7 +81,7 @@ jobs:
             --start-date "${{ steps.window.outputs.start }}" \
             --end-date   "${{ steps.window.outputs.end }}"
 
-      - name: Assert no PHI in the published artefact
+      - name: Assert no PHI in the aggregate
         run: python3 scripts/assert_no_phi.py --report "${WORKDIR}/report.json"
 
       - name: Generate pages
@@ -90,13 +90,23 @@ jobs:
             --report     "${WORKDIR}/report.json" \
             --output-dir "${WORKDIR}/pages"
 
+      # The structural check above passes on report.json's shape. This one reads
+      # every byte that will actually be served -- HTML and CSV included, since
+      # a template or an export can leak something the aggregate never held.
+      - name: Assert no PHI in anything about to be published
+        run: |
+          python3 scripts/assert_no_phi.py \
+            --report    "${WORKDIR}/report.json" \
+            --pages-dir "${WORKDIR}/pages"
+
       # The root page always shows the newest month; each month also keeps a
       # permalink, so a Slack link posted in June still reads as June next year.
       - name: Stage the month permalink
         run: |
-          mkdir -p "${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}"
-          cp "${WORKDIR}/pages/index.html" "${WORKDIR}/pages/report.json" \
-             "${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}/"
+          DEST="${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}"
+          mkdir -p "${DEST}"
+          # Everything except the archive dir itself, so months do not nest.
+          rsync -a --exclude 'archive' "${WORKDIR}/pages/" "${DEST}/"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

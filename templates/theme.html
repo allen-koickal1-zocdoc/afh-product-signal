@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ theme.label }} &mdash; AFH Product Signal{% endblock %}
+{% block heading %}{{ theme.label }}{% endblock %}
+{% block subtitle %}
+  {{ theme.area }} &middot; {{ theme.total }} reports &middot;
+  {{ theme.blocking }} cost the patient the appointment or money
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{{ depth }}index.html">All themes</a>
+  <span class="sep">&rsaquo;</span>{{ theme.area }}
+  <span class="sep">&rsaquo;</span>{{ theme.label }}
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% if theme.why %}
+<div class="verdict{% if not theme.blocking %} calm{% endif %}">
+  <h2>Why this matters</h2>
+  <p>{{ theme.why }}</p>
+</div>
+{% endif %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">{{ theme.total }}</div>
+    <div class="kpi-label">Reports</div>
+    <div class="kpi-sub">{{ theme.months_active }} month{{ '' if theme.months_active == 1 else 's' }} active</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ theme.blocking }}</div>
+    <div class="kpi-label">Blocking</div>
+    <div class="kpi-sub">{{ theme.share_of_blocking }}% of all blocking feedback</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ theme.defects }}</div>
+    <div class="kpi-label">Defects</div>
+    <div class="kpi-sub">{{ theme.feature_requests }} feature requests</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ theme.first_month }}</div>
+    <div class="kpi-label">First seen</div>
+    <div class="kpi-sub">last seen {{ theme.last_month }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ theme.impact }}</div>
+    <div class="kpi-label">Impact score</div>
+    <div class="kpi-sub">3&times;blocking + 1&times;degrading</div>
+  </div>
+</div>
+
+{% if theme.severity_floored %}
+<div class="phi" style="margin-top:0">
+  <strong>Read the blocking count carefully.</strong> Every report in this theme is
+  counted as booking-blocking <em>by definition</em>, because the failure reliably
+  costs the patient the appointment or money whether or not they said so. It is
+  not {{ theme.blocking }} independent patient statements of harm.
+</div>
+{% endif %}
+
+{% if theme.subthemes|length > 1 %}
+<div class="section-title">What specifically is failing</div>
+<div class="section-note">
+  A second pass over the same text, first match wins.
+  {% if theme.subtheme_coverage_pct is not none %}
+    These patterns explain <strong>{{ theme.subtheme_coverage_pct }}%</strong> of the theme;
+    the rest sits in Other.
+    {% if theme.subtheme_coverage_pct < 50 %}
+      That is low enough that the split below is a hint, not a finding.
+    {% endif %}
+  {% endif %}
+</div>
+<table>
+  <thead>
+    <tr><th>Sub-theme</th><th class="num">Reports</th><th>Share of theme</th><th class="num">Blocking</th></tr>
+  </thead>
+  <tbody>
+  {% for s in theme.subthemes %}
+    <tr{% if s.id == 'other' %} class="muted"{% endif %}>
+      <td>{{ s.label }}</td>
+      <td class="num">{{ s.total }}</td>
+      <td>
+        <div class="bar" title="{{ s.pct }}% of {{ theme.total }}">
+          <span class="{{ 'a' if s.id == 'other' else 'd' }}" style="width: {{ s.pct }}%"></span>
+        </div>
+      </td>
+      <td class="num">{{ s.blocking }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="section-title">Over time</div>
+<div class="section-note">
+  Total reports per month, with the booking-blocking share in red.
+  {% if report.partial_last_month %}
+    The final month is incomplete &mdash; do not read its drop as a fall.
+  {% endif %}
+</div>
+<table>
+  <thead>
+    <tr><th>Month</th><th class="num">Reports</th><th class="num">Blocking</th><th>Shape</th></tr>
+  </thead>
+  <tbody>
+  {% for m in report.months %}
+    {% if theme.by_month[loop.index0] %}
+    <tr>
+      <td>{{ m }}{% if report.partial_last_month and loop.last %} <span class="ver">(partial)</span>{% endif %}</td>
+      <td class="num">{{ theme.by_month[loop.index0] }}</td>
+      <td class="num">{{ theme.blocking_by_month[loop.index0] }}</td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: {{ (100 * theme.blocking_by_month[loop.index0] / peak)|round|int }}%"></span>
+          <span class="d" style="width: {{ (100 * (theme.by_month[loop.index0] - theme.blocking_by_month[loop.index0]) / peak)|round|int }}%"></span>
+        </div>
+      </td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="two-col">
+  <div>
+    <div class="section-title">App versions</div>
+    <div class="section-note">
+      Only tickets carrying diagnostics appear here &mdash; that is
+      {{ report.diagnostics.coverage_pct }}% of intake, and none before April 2026.
+    </div>
+    <table>
+      <thead><tr><th>Version</th><th class="num">Reports</th></tr></thead>
+      <tbody>
+      {% for v in theme.all_versions[:12] %}
+        <tr><td class="ver">{{ v.version }}</td><td class="num">{{ v.count }}</td></tr>
+      {% else %}
+        <tr><td colspan="2">No diagnostics on any ticket in this theme.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Breakdown</div>
+    <div class="section-note">Platform is only known where diagnostics exist.</div>
+    <table>
+      <thead><tr><th>Facet</th><th class="num">Count</th></tr></thead>
+      <tbody>
+        <tr><td>Defect</td><td class="num">{{ theme.defects }}</td></tr>
+        <tr><td>Feature request</td><td class="num">{{ theme.feature_requests }}</td></tr>
+        <tr><td>Dissatisfaction</td><td class="num">{{ theme.dissatisfaction }}</td></tr>
+        <tr><td>Blocking / degrading / minor</td>
+            <td class="num">{{ theme.blocking }} / {{ theme.degrades }} / {{ theme.annoyance }}</td></tr>
+        {% for p in theme.platform %}
+        <tr><td>Platform &mdash; {{ p.platform }}</td><td class="num">{{ p.count }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="phi">
+  <strong>To read the tickets themselves</strong>, go to Jira &mdash; it is
+  permission-gated, this page is not. There is no theme field in Jira, so there
+  is no per-theme query; filter
+  <a href="{{ report.jira.all }}">the window</a> by hand.
+  Ticket keys are patient-level data and are never published here.
+</div>
+
+{% endblock %}

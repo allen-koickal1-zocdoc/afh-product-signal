@@ -90,6 +90,10 @@ def classify_one(ticket: dict, tax: dict) -> dict:
         "has_diagnostics": bool(ticket.get("has_diagnostics")),
         "platform": _platform(ticket),
         "status": ticket.get("status", ""),
+        # Overwritten below when a theme with sub-themes matches. Present on
+        # every row so downstream code never has to guard for the key.
+        "subtheme": "",
+        "subtheme_label": "",
     }
 
     if ticket.get("is_synthetic"):
@@ -119,11 +123,19 @@ def classify_one(ticket: dict, tax: dict) -> dict:
         return {**row, "area": "Unclassified", "theme": "unclassified",
                 "theme_label": "Unclassified", "type": _type_of(hay), "severity": _severity(hay, None)}
 
+    sub = next(
+        (s for s in theme.get("subthemes", []) if re.search(s["match"], hay, re.I | re.M)),
+        None,
+    )
     return {
         **row,
         "area": theme["area"],
         "theme": theme["id"],
         "theme_label": theme["label"],
+        # "other" is a real answer, not a gap to be padded away. A theme whose
+        # Other bucket dominates is a theme whose label is lying about it.
+        "subtheme": sub["id"] if sub else "other",
+        "subtheme_label": sub["label"] if sub else "Other / not broken out",
         "type": _type_of(hay),
         "severity": _severity(hay, theme),
     }

@@ -1,7 +1,22 @@
 #!/usr/bin/env python3
-"""generate_pages.py -- render report.json into the static dashboard."""
+"""
+generate_pages.py -- render report.json into the static dashboard.
+
+Emits:
+  index.html            the ranked overview
+  themes/<id>.html      one page per theme: sub-themes, versions, platform, trend
+  report.json           the full aggregate, for anything that wants to read it
+  themes.csv            one row per theme
+  subthemes.csv         one row per sub-theme
+  monthly.csv           theme x month matrix, long format
+
+The CSVs exist because the first thing anyone does with a dashboard is ask for
+the numbers in a spreadsheet. Better to publish them than to have people
+re-derive them by hand and get it wrong.
+"""
 
 import argparse
+import csv
 import json
 import os
 from pathlib import Path
@@ -13,31 +28,82 @@ TEMPLATE_DIR = os.path.join(
 )
 
 
-def render(report: dict, output_dir: str):
+def _env(report: dict) -> Environment:
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
         autoescape=select_autoescape(["html"]),
     )
-
     labels = {t["id"]: t["label"] for t in report["themes"]}
     env.globals["theme_label"] = lambda tid: labels.get(tid, tid.replace("-", " ").title())
+    env.globals["has_page"] = lambda tid: tid in labels
+    return env
+
+
+def write_csvs(report: dict, out: Path):
+    with (out / "themes.csv").open("w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["theme", "label", "area", "reports", "blocking", "degrades",
+                    "annoyance", "defects", "feature_requests", "impact",
+                    "share_of_blocking_pct", "first_month", "last_month",
+                    "months_active", "prev_month_count", "latest_month_count",
+                    "severity_floored"])
+        for t in report["themes"]:
+            w.writerow([t["id"], t["label"], t["area"], t["total"], t["blocking"],
+                        t["degrades"], t["annoyance"], t["defects"],
+                        t["feature_requests"], t["impact"], t["share_of_blocking"],
+                        t["first_month"], t["last_month"], t["months_active"],
+                        t["prev_month"], t["latest_month"], t["severity_floored"]])
+
+    with (out / "subthemes.csv").open("w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["theme", "theme_label", "area", "subtheme", "subtheme_label",
+                    "reports", "blocking", "pct_of_theme"])
+        for t in report["themes"]:
+            # A theme with no configured sub-themes yields one "other, 100%"
+            # row that says nothing. Skip it rather than pad the file.
+            if t["subtheme_coverage_pct"] is None:
+                continue
+            for s in t["subthemes"]:
+                w.writerow([t["id"], t["label"], t["area"], s["id"], s["label"],
+                            s["total"], s["blocking"], s["pct"]])
+
+    with (out / "monthly.csv").open("w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["month", "theme", "label", "area", "reports", "blocking"])
+        for t in report["themes"]:
+            for i, m in enumerate(report["months"]):
+                if t["by_month"][i]:
+                    w.writerow([m, t["id"], t["label"], t["area"],
+                                t["by_month"][i], t["blocking_by_month"][i]])
+
+
+def render(report: dict, output_dir: str):
+    env = _env(report)
 
     themes = report["themes"]
     top = themes[0] if themes else None
     blocking_total = report["totals"]["blocking"]
-    top3_blocking = sum(t["blocking"] for t in themes[:3])
-    top3_pct = round(100 * top3_blocking / blocking_total) if blocking_total else 0
+    top3_pct = (round(100 * sum(t["blocking"] for t in themes[:3]) / blocking_total)
+                if blocking_total else 0)
     max_month = max((max(t["by_month"]) for t in themes if t["by_month"]), default=0)
 
-    html = env.get_template("index.html").render(
-        report=report, top=top, top3_pct=top3_pct, max_month=max_month
-    )
-
     out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "index.html").write_text(html)
+    (out / "themes").mkdir(parents=True, exist_ok=True)
+
+    (out / "index.html").write_text(env.get_template("index.html").render(
+        report=report, top=top, top3_pct=top3_pct, max_month=max_month, depth=""
+    ))
+
+    tpl = env.get_template("theme.html")
+    for t in themes:
+        peak = max(t["by_month"]) or 1
+        (out / "themes" / f"{t['id']}.html").write_text(tpl.render(
+            report=report, theme=t, peak=peak, depth="../"
+        ))
+
     (out / "report.json").write_text(json.dumps(report, indent=2))
-    return out / "index.html"
+    write_csvs(report, out)
+    return out
 
 
 def main():
@@ -49,8 +115,9 @@ def main():
     with open(args.report) as fh:
         report = json.load(fh)
 
-    path = render(report, args.output_dir)
-    print(f"wrote {path}")
+    out = render(report, args.output_dir)
+    n = len(report["themes"])
+    print(f"wrote {out}/index.html + {n} theme pages + 3 CSVs")
 
 
 if __name__ == "__main__":

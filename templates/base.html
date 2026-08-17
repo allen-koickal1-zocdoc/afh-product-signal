@@ -132,7 +132,13 @@
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     tr:hover td { background: #fbfcfd; }
     .theme-name { font-weight: 600; }
+    .theme-name a { color: var(--dark); text-decoration: none; }
+    .theme-name a:hover { color: var(--primary); text-decoration: underline; }
     .theme-why { font-size: 0.82rem; color: var(--dark-light); }
+    .theme-why a { color: var(--primary); text-decoration: none; }
+    .theme-why a:hover { text-decoration: underline; }
+    .theme-why.sub { margin-top: 0.2rem; font-style: italic; opacity: 0.85; }
+    tr.muted td { color: var(--dark-light); }
     .area-chip {
       display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.5rem;
       border-radius: 10px; background: #eef2f7; color: var(--dark-light);

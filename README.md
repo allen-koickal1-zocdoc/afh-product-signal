@@ -8,20 +8,37 @@ time-to-resolution, no per-assignee counts. Every number is about the product.
 
 ## What it produces
 
-A single static page, published to GitHub Pages, that ranks product themes by
-patient harm rather than by ticket volume:
+A static site published to GitHub Pages, ranking product themes by patient harm
+rather than by ticket volume.
+
+**`index.html`** — the overview:
 
 - **Headline** — the largest single source of patient harm this window.
 - **Active regressions** — themes whose last-30-day rate is ≥2× their trailing
   baseline, plus whether the spike sits on one app version (release-driven) or
   is spread across many (backend or content change).
+- **New normals** — themes that stepped up to a new level rather than spiking,
+  which is the shape a phased rollout produces.
 - **Where it hurts** — every theme ranked by impact score, with a severity mix
-  bar, month-over-month trend, and the app versions carrying it.
-- **By product area** — who owns the fix.
-- **Signal quality** — how much of the intake was noise, how much the taxonomy
-  failed to classify, and what the feed is blind to.
+  bar, sparkline, MoM trend, its top sub-themes, and the app versions carrying it.
+- **Movers** — biggest MoM swings, ranked by ratio rather than raw delta.
+- **First seen this month** — themes with no history to compare against.
+- **By product area** — who owns the fix, with each area's themes listed.
+- **Signal quality** — how much intake was noise, how much the taxonomy failed
+  to classify, and what the feed is blind to.
 
-Plus a Slack digest to `#afh-jira` with the same top five.
+**`themes/<id>.html`** — one page per theme:
+
+- Sub-theme breakdown: *what specifically* is failing inside the theme, with an
+  explicit coverage figure so you know how much of it the breakdown explains.
+- Month-by-month table separating blocking from non-blocking.
+- Full app-version distribution, platform split, defect/request/dissatisfaction mix.
+- First seen, last seen, months active, share of all blocking feedback.
+
+**Exports** — `report.json`, `themes.csv`, `subthemes.csv`, `monthly.csv`
+(theme × month, long format). Linked from the page footer. All aggregates.
+
+Plus a Slack digest to `#afh-jira` with the top five.
 
 ## Ranking
 
@@ -69,9 +86,37 @@ Adding a theme:
   "area": "Search & Discovery",          // must exist in `areas`
   "why": "One sentence on the patient impact.",
   "severity_floor": "BLOCKS_BOOKING",    // optional; only if it reliably costs the appointment
-  "match": "regex|over|summary body and labels"
+  "match": "regex|over|summary body and labels",
+  "subthemes": [                         // optional second pass, first match wins
+    { "id": "kebab-id", "label": "What specifically failed", "match": "regex" }
+  ]
 }
 ```
+
+### Sub-themes
+
+A theme answers *which product area*; a sub-theme answers *what specifically*.
+Same mechanism — an ordered regex list, first match wins — run only against
+tickets that already matched the parent theme.
+
+Anything the parent matched but no sub-theme did is reported as **Other**, and
+each theme page prints its sub-theme coverage. Below 50% the page says outright
+that the split is a hint rather than a finding. **Never pad sub-themes to shrink
+Other** — a large Other bucket is telling you the theme label is broader than it
+claims, which is worth more than a tidy pie chart.
+
+To author them, use the phrase miner rather than reading ticket bodies:
+
+```bash
+python3 scripts/mine_phrases.py --workdir work                       # theme counts
+python3 scripts/mine_phrases.py --workdir work --theme <theme-id>    # recurring phrases
+python3 scripts/mine_phrases.py --workdir work --unclassified        # the coverage gap
+```
+
+It is a local authoring aid, not part of the pipeline. It counts by distinct
+ticket and hides anything appearing in fewer than `--min-tickets`, so you see
+product vocabulary rather than one patient's words. Its output is **not**
+publishable.
 
 ## PHI
 
@@ -82,8 +127,10 @@ reach the dashboard or Slack.
 - `fetch_data.py` strips `tracking_id` / `session_id` / `device_id` on parse.
 - `classify.py` emits no free text — only theme, type, severity, version.
 - `compute_report.py` is the boundary: counts and labels only.
-- `assert_no_phi.py` runs before publish and fails the build on any ticket key,
-  UUID, email, phone number or banned field name in `report.json`.
+- `assert_no_phi.py` runs twice. Once structurally over `report.json`
+  (banned field names at any depth), then again over **every file about to be
+  served** — HTML, CSV, JSON — because a template or an export can leak
+  something the aggregate never held. Either failure blocks the deploy.
 - The workflow writes PHI only to `/tmp/afh` and shreds it in an `always()` step.
 - `.gitignore` blocks `tickets.json`, `classified.json` and `work/`.
 
@@ -102,6 +149,7 @@ export JIRA_EMAIL=you@zocdoc.com JIRA_API_TOKEN=...
   --start-date 2025-12-01 --end-date $(date +%F)
 .venv/bin/python scripts/assert_no_phi.py --report work/report.json
 .venv/bin/python scripts/generate_pages.py --report work/report.json --output-dir work/pages
+.venv/bin/python scripts/assert_no_phi.py --report work/report.json --pages-dir work/pages
 open work/pages/index.html
 ```
 

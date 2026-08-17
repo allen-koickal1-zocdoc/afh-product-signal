@@ -1,10 +1,10 @@
 {
-  "_comment": "Product-signal taxonomy for AFH. `non_actionable` is checked BEFORE themes and short-circuits \u2014 reserve it for intake that can never carry signal. `non_actionable_fallback` is checked only AFTER every theme has missed, so a soft noise rule can never swallow a real defect. Themes are matched in order, first match wins. All regexes are case-insensitive (re.I|re.M) and applied to summary + body + labels.",
+  "_comment": "Product-signal taxonomy for AFH. `non_actionable` is checked BEFORE themes and short-circuits — reserve it for intake that can never carry signal. `non_actionable_fallback` is checked only AFTER every theme has missed, so a soft noise rule can never swallow a real defect. Themes are matched in order, first match wins. All regexes are case-insensitive (re.I|re.M) and applied to summary + body + labels. Themes may carry `subthemes`: a second pass, first-match-wins, over the same haystack. Anything a theme matches but no sub-theme does is reported as 'Other', which is the honest bucket -- never pad the sub-themes to make it disappear.",
   "non_actionable": [
     {
       "id": "csat-survey-blast",
       "label": "Automated CSAT survey blast",
-      "match": "we['\u2019]?d love your feedback|how did we do\\?|rate your (recent )?(visit|experience)|salesforce.*survey|\\[automated template\\]"
+      "match": "we['’]?d love your feedback|how did we do\\?|rate your (recent )?(visit|experience)|salesforce.*survey|\\[automated template\\]"
     },
     {
       "id": "empty-submission",
@@ -31,22 +31,22 @@
     {
       "id": "contact-info-only",
       "label": "Contact details only, no feedback content",
-      "match": "\\n\\s*[A-Za-z][A-Za-z.'\u2019 -]{1,30}\\s*\\(?\\d{3}\\)?[-. ]?\\d{3}[-. ]?\\d{4}\\s*\\n[a-z0-9,\\-_ ]*\\Z"
+      "match": "\\n\\s*[A-Za-z][A-Za-z.'’ -]{1,30}\\s*\\(?\\d{3}\\)?[-. ]?\\d{3}[-. ]?\\d{4}\\s*\\n[a-z0-9,\\-_ ]*\\Z"
     },
     {
       "id": "praise-only",
       "label": "Praise only, no defect reported",
-      "match": "\\A(?![\\s\\S]*(?:\\bbut\\b|however|unfortunately|problem|can['\u2019]?t|cannot|can not|won['\u2019]?t|doesn['\u2019]?t|didn['\u2019]?t|isn['\u2019]?t|wasn['\u2019]?t|unable|no way|not work|wrong|incorrect|error|disappoint|frustrat|fix|terrible|awful|horrible|hate|useless|sucks|refund|charged|cancel|complaint|glitch|crash|delete|remove|please|would be|add a|feature|suggest|request|should|\\bneed\\b))[\\s\\S]*\\b(i (would |highly |definitely )?recommend|very (nice|good|kind|attentive|thorough|helpful|professional|friendly)|great (app|experience|service|visit|doctor|provider)|excellent|wonderful|love (this|the) app|thank you)\\b"
+      "match": "\\A(?![\\s\\S]*(?:\\bbut\\b|however|unfortunately|problem|can['’]?t|cannot|can not|won['’]?t|doesn['’]?t|didn['’]?t|isn['’]?t|wasn['’]?t|unable|no way|not work|wrong|incorrect|error|disappoint|frustrat|fix|terrible|awful|horrible|hate|useless|sucks|refund|charged|cancel|complaint|glitch|crash|delete|remove|please|would be|add a|feature|suggest|request|should|\\bneed\\b))[\\s\\S]*\\b(i (would |highly |definitely )?recommend|very (nice|good|kind|attentive|thorough|helpful|professional|friendly)|great (app|experience|service|visit|doctor|provider)|excellent|wonderful|love (this|the) app|thank you)\\b"
     },
     {
       "id": "low-signal-rant",
       "label": "Pure dissatisfaction with no reproducible detail",
-      "match": "\\A(?![\\s\\S]*(?:can['\u2019]?t|cannot|can not|won['\u2019]?t|doesn['\u2019]?t|didn['\u2019]?t|unable|filter|search|book|log ?in|sign ?in|insurance|appointment|notification|email|reminder|load|crash|password|update|refund|charge|network|review|calendar|form))(?=[\\s\\S]{0,280}\\Z)[\\s\\S]*\\b(sucks?|what a joke|joke|ridiculous|not acceptable|trash|garbage|worst|useless|waste of (my )?time|scam|terrible|awful|horrible|hard to use|worthless|horrendous|not a good app)\\b"
+      "match": "\\A(?![\\s\\S]*(?:can['’]?t|cannot|can not|won['’]?t|doesn['’]?t|didn['’]?t|unable|filter|search|book|log ?in|sign ?in|insurance|appointment|notification|email|reminder|load|crash|password|update|refund|charge|network|review|calendar|form))(?=[\\s\\S]{0,280}\\Z)[\\s\\S]*\\b(sucks?|what a joke|joke|ridiculous|not acceptable|trash|garbage|worst|useless|waste of (my )?time|scam|terrible|awful|horrible|hard to use|worthless|horrendous|not a good app)\\b"
     },
     {
       "id": "out-of-scope-clinical",
       "label": "Clinical care / provider conduct, not a product defect",
-      "match": "\\b(prescri\\w+|refill\\w*|dosage|bedside manner|malpractice|misdiagnos\\w+|treatment plan|my meds\\b|pharmac\\w+|(call|contact|speak to) (the|your|their) (doctor|office|practice)['\u2019]?s? (office|directly)?|talk to your (doctor|provider))\\b|\\b(rude\\b|talked over me|diagnos\\w+|didn['\u2019]?t listen)"
+      "match": "\\b(prescri\\w+|refill\\w*|dosage|bedside manner|malpractice|misdiagnos\\w+|treatment plan|my meds\\b|pharmac\\w+|(call|contact|speak to) (the|your|their) (doctor|office|practice)['’]?s? (office|directly)?|talk to your (doctor|provider))\\b|\\b(rude\\b|talked over me|diagnos\\w+|didn['’]?t listen)"
     }
   ],
   "themes": [
@@ -56,42 +56,118 @@
       "area": "Insurance",
       "severity_floor": "BLOCKS_BOOKING",
       "why": "Patient books on a shown in-network status and is billed out-of-network. Direct financial harm.",
-      "match": "out.?of.?network|not in.?(my |the |their |your )?network|in.?network.{0,90}(wrong|incorrect|inaccurate|actually|turned out|but |only to|isn['\u2019]?t|is not|was not|wasn['\u2019]?t|not covered)|(said|says|listed|showed|shows|claimed|told me|confirmed|filtered).{0,80}in.?network|\\bin.?network\\b|(don['\u2019]?t|dont|doesn['\u2019]?t|didn['\u2019]?t|do not|does not|did not|won['\u2019]?t|will not|no longer|not|never) (take|takes|taking|accept|accepts|accepting|cover|covers|covered|honou?r).{0,50}(insurance|plan|medicaid|medicare|coverage|it\\b|my )|(insurance|plan|coverage|claim).{0,60}(was |got |been )?(denied|rejected|not accepted|isn['\u2019]?t accepted|wasn['\u2019]?t accepted|not covered|doesn['\u2019]?t cover)|denied (the |my )?claim|balance.{0,2}bill|unexpected bill|surprise bill|insurance filter.{0,40}(wrong|out)|not covered (by|under|in)|(referral (was |is )?(required|needed)|needed a referral)|(super.?bill|out.?of.?pocket).{0,40}(instead|because|since)|ran my insurance|(listed|shown|shows|show|says|say|say they).{0,70}accept.{0,50}(insurance|plan|medicaid|medicare)|(not one|none) of them (actually )?(do|does|did|accept|accepts)"
+      "match": "out.?of.?network|not in.?(my |the |their |your )?network|in.?network.{0,90}(wrong|incorrect|inaccurate|actually|turned out|but |only to|isn['’]?t|is not|was not|wasn['’]?t|not covered)|(said|says|listed|showed|shows|claimed|told me|confirmed|filtered).{0,80}in.?network|\\bin.?network\\b|(don['’]?t|dont|doesn['’]?t|didn['’]?t|do not|does not|did not|won['’]?t|will not|no longer|not|never) (take|takes|taking|accept|accepts|accepting|cover|covers|covered|honou?r).{0,50}(insurance|plan|medicaid|medicare|coverage|it\\b|my )|(insurance|plan|coverage|claim).{0,60}(was |got |been )?(denied|rejected|not accepted|isn['’]?t accepted|wasn['’]?t accepted|not covered|doesn['’]?t cover)|denied (the |my )?claim|balance.{0,2}bill|unexpected bill|surprise bill|insurance filter.{0,40}(wrong|out)|not covered (by|under|in)|(referral (was |is )?(required|needed)|needed a referral)|(super.?bill|out.?of.?pocket).{0,40}(instead|because|since)|ran my insurance|(listed|shown|shows|show|says|say|say they).{0,70}accept.{0,50}(insurance|plan|medicaid|medicare)|(not one|none) of them (actually )?(do|does|did|accept|accepts)",
+      "subthemes": [
+        {
+          "id": "billed-after-booking",
+          "label": "Billed after booking an in-network provider",
+          "match": "\\bbill(ed|ing|s)?\\b|\\bclaim\\b|charged|invoice|\\bowe[ds]?\\b|\\$\\d|out.?of.?pocket|cost me"
+        },
+        {
+          "id": "provider-does-not-take-plan",
+          "label": "Provider does not take the plan at all",
+          "match": "(don['’]?t|doesn['’]?t|didn['’]?t|do not|does not|no longer|never) (take|takes|accept|accepts|accepting|cover)"
+        },
+        {
+          "id": "shown-in-network-is-not",
+          "label": "Listed as in-network, turned out not to be",
+          "match": "out.?of.?network|not in.?(my |the |their |your )?network"
+        },
+        {
+          "id": "plan-mapping",
+          "label": "Right carrier, wrong plan mapping",
+          "match": "\\bppo\\b|\\bhmo\\b|\\bepo\\b|medicare|medicaid|marketplace|plan (type|name|not|isn)"
+        }
+      ]
     },
     {
       "id": "insurance-plan-picker",
       "label": "Plan missing or unselectable in the picker",
       "area": "Insurance",
       "why": "Patient cannot express their real coverage, so every downstream network answer is wrong.",
-      "match": "plan (is )?(not|isn['\u2019]?t) (listed|there|available|shown|showing)|can['\u2019]?t find my plan|missing.{0,25}plan|plan picker|secondary insurance|add (my )?second|(two|2|multiple|both) insurances|(can['\u2019]?t|cannot|can not|unable to|no way to|couldn['\u2019]?t|not able to|how do i) (update|add|change|edit|enter|input|select|choose|find|open).{0,40}(insurance|health plan|my plan)|insurance (tab|section|page|system|list|listing)|(insurance|health plan).{0,40}(drop.?down|dropdown|not visible|not showing|doesn['\u2019]?t have|no option)|(medicaid|medicare|medi.?cal).{0,80}(not (an )?option|doesn['\u2019]?t have|no option|lump\\w*|isn['\u2019]?t (an )?option|don['\u2019]?t (have|offer))|lists? my .{0,60}\\bas\\b|wrong (insurance|plan) (listed|shown|showing|on file)|not showing in (your|the) (listing|list)|registering my (health )?insurance"
+      "match": "plan (is )?(not|isn['’]?t) (listed|there|available|shown|showing)|can['’]?t find my plan|missing.{0,25}plan|plan picker|secondary insurance|add (my )?second|(two|2|multiple|both) insurances|(can['’]?t|cannot|can not|unable to|no way to|couldn['’]?t|not able to|how do i) (update|add|change|edit|enter|input|select|choose|find|open).{0,40}(insurance|health plan|my plan)|insurance (tab|section|page|system|list|listing)|(insurance|health plan).{0,40}(drop.?down|dropdown|not visible|not showing|doesn['’]?t have|no option)|(medicaid|medicare|medi.?cal).{0,80}(not (an )?option|doesn['’]?t have|no option|lump\\w*|isn['’]?t (an )?option|don['’]?t (have|offer))|lists? my .{0,60}\\bas\\b|wrong (insurance|plan) (listed|shown|showing|on file)|not showing in (your|the) (listing|list)|registering my (health )?insurance"
     },
     {
       "id": "ai-search-rollout",
       "label": "AI search replaced classic search and filters",
       "area": "Search & Discovery",
       "why": "Rollout regression: patients lose name lookup, map and filter controls with no opt-out.",
-      "match": "\\bai\\b|\\ba\\.i\\.|chat ?bot|new search|old search|classic search|conversational search|bring back.{0,40}(search|filter|map)|opt.?out.{0,25}(ai|search)|beta test\\w*"
+      "match": "\\bai\\b|\\ba\\.i\\.|chat ?bot|new search|old search|classic search|conversational search|bring back.{0,40}(search|filter|map)|opt.?out.{0,25}(ai|search)|beta test\\w*",
+      "subthemes": [
+        {
+          "id": "no-opt-out",
+          "label": "No way to opt out or get classic search back",
+          "match": "opt out|turn (it |this )?off|go back|old (search|version|interface|app)|bring back|revert|classic|prefer the old|used to"
+        },
+        {
+          "id": "ai-instead-of-results",
+          "label": "AI answers instead of a list of providers",
+          "match": "\\bai\\b|chat|assistant|prompt|conversational|natural language"
+        },
+        {
+          "id": "controls-gone",
+          "label": "Map, filter or sort controls disappeared",
+          "match": "\\bmap\\b|filter|sort|list view|browse"
+        },
+        {
+          "id": "no-name-search",
+          "label": "Cannot search by provider name",
+          "match": "by name|provider['’]?s? name|doctor['’]?s? name|search for a (specific|particular)|specific (doctor|provider|dentist)"
+        }
+      ]
     },
     {
       "id": "search-filter-correctness",
       "label": "Filters return the wrong providers",
       "area": "Search & Discovery",
       "why": "Specialty, distance, visit-type and day filters are not honoured; patient books the wrong care.",
-      "match": "(specialty|speciality|distance|radius|miles|visit type|day of|availability|date|gender|language|age|location) filter|filter.{0,40}(ignored|not working|doesn['\u2019]?t work|reset|resets|resetting)|filters? (reset|keep resetting|randomly)|(add|need|want|should (have|allow)|make it easy to|able to|way to|option (to|of)) .{0,30}filter|filter (for|by|to|specific|out|weekend|days)|exclude certain (areas|providers)|wrong (specialty|speciality|type of (doctor|provider|care)|doctor|provider|specialist)|different specialty|unrelated specialt|irrelevant results|results.{0,60}(too far|another state|hundreds of miles|miles away|the same)|\\b\\d{2,4}\\s*miles\\b|miles away|\\b\\d{1,2}\\s*hours away|(another|different|out of) (state|city|county)|not (even )?(near|close to) me|near me\\?|location services|keep getting (drs|doctors|providers|results) in|only (list|lists|listing|listed).{0,40}(providers|doctors|physicians) in|(show|shows|showing|showed|display\\w*|give|gives|gave|list|lists|listed|sent|sends|book|books|booked|booking|recommend\\w*|assigned) (me )?.{0,110}(instead|not (a|an|what)|unrelated|who (can['\u2019]?t|don['\u2019]?t|do not)|that (can['\u2019]?t|don['\u2019]?t|do not)|only doctors)|(turned out|found out|only to (find|learn|discover|have)|come to find|arrived to (find|learn))|(searched?|searching|looking) for .{0,60}(but|and (i|it|they)|only|instead|shows|showed|gives|gave|got|sent|your (program|app))|(first|top) (result|results).{0,40}(not relevant|irrelevant|not be relevant)|defaults to|switch(es|ed)? to a different (doctor|provider)|(men['\u2019]?s|women['\u2019]?s) (care|health).{0,30}(doctor|provider|only)|\\bspecialt\\w+|not the (actual|real) (doctor|provider|physician)|instead of (the |my )?(actual |real )?(doctor|provider|specialist|one i)|(while|when) (i['\u2019]?m|i am|im) (trying to|looking)|by distance|search\\w*.{0,30}by (distance|location)|\\bhours away\\b|(was|were|got) sent to (an?|the) |(sent|routed|directed) me to (an?|the) |filter\\w* (searches |results )?(for|by)|(primary care|family (medicine|physician|practice|doctor)|chiropract\\w*|urgent care|nurse practitioner|general practitioner)s?.{0,40}(show|shows|showing|showed|come|came|appear|instead)"
+      "match": "(specialty|speciality|distance|radius|miles|visit type|day of|availability|date|gender|language|age|location) filter|filter.{0,40}(ignored|not working|doesn['’]?t work|reset|resets|resetting)|filters? (reset|keep resetting|randomly)|(add|need|want|should (have|allow)|make it easy to|able to|way to|option (to|of)) .{0,30}filter|filter (for|by|to|specific|out|weekend|days)|exclude certain (areas|providers)|wrong (specialty|speciality|type of (doctor|provider|care)|doctor|provider|specialist)|different specialty|unrelated specialt|irrelevant results|results.{0,60}(too far|another state|hundreds of miles|miles away|the same)|\\b\\d{2,4}\\s*miles\\b|miles away|\\b\\d{1,2}\\s*hours away|(another|different|out of) (state|city|county)|not (even )?(near|close to) me|near me\\?|location services|keep getting (drs|doctors|providers|results) in|only (list|lists|listing|listed).{0,40}(providers|doctors|physicians) in|(show|shows|showing|showed|display\\w*|give|gives|gave|list|lists|listed|sent|sends|book|books|booked|booking|recommend\\w*|assigned) (me )?.{0,110}(instead|not (a|an|what)|unrelated|who (can['’]?t|don['’]?t|do not)|that (can['’]?t|don['’]?t|do not)|only doctors)|(turned out|found out|only to (find|learn|discover|have)|come to find|arrived to (find|learn))|(searched?|searching|looking) for .{0,60}(but|and (i|it|they)|only|instead|shows|showed|gives|gave|got|sent|your (program|app))|(first|top) (result|results).{0,40}(not relevant|irrelevant|not be relevant)|defaults to|switch(es|ed)? to a different (doctor|provider)|(men['’]?s|women['’]?s) (care|health).{0,30}(doctor|provider|only)|\\bspecialt\\w+|not the (actual|real) (doctor|provider|physician)|instead of (the |my )?(actual |real )?(doctor|provider|specialist|one i)|(while|when) (i['’]?m|i am|im) (trying to|looking)|by distance|search\\w*.{0,30}by (distance|location)|\\bhours away\\b|(was|were|got) sent to (an?|the) |(sent|routed|directed) me to (an?|the) |filter\\w* (searches |results )?(for|by)|(primary care|family (medicine|physician|practice|doctor)|chiropract\\w*|urgent care|nurse practitioner|general practitioner)s?.{0,40}(show|shows|showing|showed|come|came|appear|instead)",
+      "subthemes": [
+        {
+          "id": "filter-ignored",
+          "label": "Filter is ignored or resets itself",
+          "match": "filter.{0,40}(ignored|not working|doesn['’]?t work|reset|resets|resetting)|filters? (reset|keep resetting|randomly)|even though i (selected|chose)|despite (selecting|choosing)"
+        },
+        {
+          "id": "results-too-far",
+          "label": "Results are too far away",
+          "match": "\\bmiles?\\b|too far|another state|different (state|city)|hundreds of miles|\\bzip\\b|near me|distance|radius|\\blocation\\b"
+        },
+        {
+          "id": "wrong-specialty",
+          "label": "Wrong specialty returned",
+          "match": "wrong (specialty|speciality|type of (doctor|provider|care)|doctor|provider|specialist)|different specialt|unrelated specialt|irrelevant result"
+        },
+        {
+          "id": "missing-filter",
+          "label": "Asks for a filter that does not exist",
+          "match": "(add|need|want|should (have|allow)|make it easy to|able to|way to|option (to|of)) .{0,30}filter|filter (for|by|to|specific|out|weekend|days)|exclude certain"
+        },
+        {
+          "id": "availability-wrong",
+          "label": "Availability filter returns unbookable slots",
+          "match": "availab|open (slot|time)|day of|weekend|\\bdate\\b"
+        },
+        {
+          "id": "facet-gender-language",
+          "label": "Gender or language facet wrong",
+          "match": "\\bgender\\b|\\bfemale\\b|\\bmale\\b|language|spanish"
+        }
+      ]
     },
     {
       "id": "search-name-lookup",
       "label": "Cannot search for a provider by name",
       "area": "Search & Discovery",
       "why": "The most common intent (I know who I want) has no working entry point.",
-      "match": "search by name|by (doctor|provider|physician|dr)['\u2019]?s? name|can['\u2019]?t find (dr|doctor|my provider|my doctor|a doctor)|name search|(filter|search|look ?up|find).{0,25}by (dr|doctor|provider|physician|name)|doesn['\u2019]?t (appear|show up|come up) by name|search bar|(add|input|enter).{0,40}(my )?(current|already selected|existing) (doctors?|primary care|provider)|change my primary care"
+      "match": "search by name|by (doctor|provider|physician|dr)['’]?s? name|can['’]?t find (dr|doctor|my provider|my doctor|a doctor)|name search|(filter|search|look ?up|find).{0,25}by (dr|doctor|provider|physician|name)|doesn['’]?t (appear|show up|come up) by name|search bar|(add|input|enter).{0,40}(my )?(current|already selected|existing) (doctors?|primary care|provider)|change my primary care"
     },
     {
       "id": "search-no-results",
       "label": "Search returns nothing bookable",
       "area": "Search & Discovery",
       "why": "The patient searches and the product returns zero or unbookable providers, so they abandon care or go to a competitor.",
-      "match": "\\b(0|zero|no) (results|providers|doctors|physicians|dentists|specialists|options|availability|referrals)\\b|no (results|providers|doctors|physicians|specialists|dentists|options) (at all|found|available|in my|near|for|whatsoever)|none (found|available|for my)|not (a )?single (doctor|provider|dentist|specialist|dermatologist|option)|there (is|are) no ?(one|body) (in|near|available)|there['\u2019]?s no one in|doesn['\u2019]?t have any (referrals|providers|doctors|options)|does not have any (referrals|providers|doctors|options)|no availability|nothing (available|found|comes up)|(don['\u2019]?t|doesn['\u2019]?t|do not|does not) (offer|have) care for|no in.?network (doctors|providers)|isn['\u2019]?t (a |even a )?single"
+      "match": "\\b(0|zero|no) (results|providers|doctors|physicians|dentists|specialists|options|availability|referrals)\\b|no (results|providers|doctors|physicians|specialists|dentists|options) (at all|found|available|in my|near|for|whatsoever)|none (found|available|for my)|not (a )?single (doctor|provider|dentist|specialist|dermatologist|option)|there (is|are) no ?(one|body) (in|near|available)|there['’]?s no one in|doesn['’]?t have any (referrals|providers|doctors|options)|does not have any (referrals|providers|doctors|options)|no availability|nothing (available|found|comes up)|(don['’]?t|doesn['’]?t|do not|does not) (offer|have) care for|no in.?network (doctors|providers)|isn['’]?t (a |even a )?single"
     },
     {
       "id": "booking-office-sync",
@@ -99,7 +175,7 @@
       "area": "Booking",
       "severity_floor": "BLOCKS_BOOKING",
       "why": "Confirmed on Zocdoc, absent from the practice calendar. Patient is turned away at the door.",
-      "match": "office (had no|didn['\u2019]?t have|has no|have no|never received|wasn['\u2019]?t aware|was not aware|had no idea|has no idea|doesn['\u2019]?t have|dont have|don['\u2019]?t have)|(had no|have no|has no|didn['\u2019]?t have|don['\u2019]?t have|do not have|dont have|no) (idea|record|records|knowledge) (of|about) (my|the|any)|not (on|in) (their|the office['\u2019]?s?) (schedule|calendar|system)|turned away|no record of (my|the) appointment|double.?book|overlaps the schedule|slot.{0,40}(already|no longer) (taken|available)|(office|practice|they|nurses?|front desk).{0,50}(didn['\u2019]?t|did not|never|dont|don['\u2019]?t) (receive|received|get|got|have) .{0,40}(appointment|appt|document|insurance|form|record)|there (isn['\u2019]?t|wasn['\u2019]?t|is no|was no) (an )?availability (today|then)|showed up.{0,80}(no appointment|not on the|wasn['\u2019]?t on)|(don['\u2019]?t|do not|dont) have my appointment|(not|no|isn['\u2019]?t|aren['\u2019]?t|any) communicat\\\\w+ with (the |your )?(provider|providers|office|offices|practice|company)|(provider|office|practice|they|doctor) never (emailed|e-mailed|contacted|called|reached out|sent)"
+      "match": "office (had no|didn['’]?t have|has no|have no|never received|wasn['’]?t aware|was not aware|had no idea|has no idea|doesn['’]?t have|dont have|don['’]?t have)|(had no|have no|has no|didn['’]?t have|don['’]?t have|do not have|dont have|no) (idea|record|records|knowledge) (of|about) (my|the|any)|not (on|in) (their|the office['’]?s?) (schedule|calendar|system)|turned away|no record of (my|the) appointment|double.?book|overlaps the schedule|slot.{0,40}(already|no longer) (taken|available)|(office|practice|they|nurses?|front desk).{0,50}(didn['’]?t|did not|never|dont|don['’]?t) (receive|received|get|got|have) .{0,40}(appointment|appt|document|insurance|form|record)|there (isn['’]?t|wasn['’]?t|is no|was no) (an )?availability (today|then)|showed up.{0,80}(no appointment|not on the|wasn['’]?t on)|(don['’]?t|do not|dont) have my appointment|(not|no|isn['’]?t|aren['’]?t|any) communicat\\\\w+ with (the |your )?(provider|providers|office|offices|practice|company)|(provider|office|practice|they|doctor) never (emailed|e-mailed|contacted|called|reached out|sent)"
     },
     {
       "id": "provider-cancellations",
@@ -107,14 +183,14 @@
       "area": "Booking",
       "severity_floor": "BLOCKS_BOOKING",
       "why": "The appointment is confirmed and then killed by the practice or the platform, so the patient loses the care slot they planned around.",
-      "match": "(provider|providers|doctor|doctors|dr|office|practice|they|she|he|you|your app|zocdoc|it) .{0,40}(cancel(l)?ed|cancels)|(keeps?|kept) cancel(l)?ing|appointments? (was|were|got|been|has been|have been|keeps? being|automatically) cancel(l)?ed|cancel(l)?ed (my|the|three|several|multiple) (appointment|appt)|cancellation call|got a call.{0,80}(cancel|not available|don['\u2019]?t have time|wasn['\u2019]?t available)|no.?show(ed)?\\b|(doctor|provider|she|he|they|dr) (didn['\u2019]?t|did not|never) (show|showed|attend|attended|join|joined|enter|entered)|(that|the) (date|time|day|slot) (wasn['\u2019]?t|was not|isn['\u2019]?t|is not) available|doctor wasn['\u2019]?t in|(doesn['\u2019]?t|don['\u2019]?t) have time for (me|you)|appointments? that (aren['\u2019]?t|are not|isn['\u2019]?t|is not) (actually )?available|lied (to )?about (the )?availability"
+      "match": "(provider|providers|doctor|doctors|dr|office|practice|they|she|he|you|your app|zocdoc|it) .{0,40}(cancel(l)?ed|cancels)|(keeps?|kept) cancel(l)?ing|appointments? (was|were|got|been|has been|have been|keeps? being|automatically) cancel(l)?ed|cancel(l)?ed (my|the|three|several|multiple) (appointment|appt)|cancellation call|got a call.{0,80}(cancel|not available|don['’]?t have time|wasn['’]?t available)|no.?show(ed)?\\b|(doctor|provider|she|he|they|dr) (didn['’]?t|did not|never) (show|showed|attend|attended|join|joined|enter|entered)|(that|the) (date|time|day|slot) (wasn['’]?t|was not|isn['’]?t|is not) available|doctor wasn['’]?t in|(doesn['’]?t|don['’]?t) have time for (me|you)|appointments? that (aren['’]?t|are not|isn['’]?t|is not) (actually )?available|lied (to )?about (the )?availability"
     },
     {
       "id": "booking-intake-forms",
       "label": "Intake forms block or repeat",
       "area": "Booking",
       "why": "Forms loop, lose answers, or are demanded again at the office.",
-      "match": "intake form|paperwork|forms?.{0,50}(again|repeat|lost|won['\u2019]?t submit|stuck|too many|to fill|fill out)|too many forms|pre.?visit form|new (patient|visit) (completion )?form|signature|sign(ing)? (the |a )?(form|document|request)|(insurance|id) card|(photo|picture|upload\\w*|scan\\w*|camera|shutter).{0,60}(insurance|id card|card|document)|(insurance|id|document)s?.{0,50}(photo|picture|upload\\w*|blurry|camera)|uploaded (all )?(my |the )?(insurance|document)|medical history"
+      "match": "intake form|paperwork|forms?.{0,50}(again|repeat|lost|won['’]?t submit|stuck|too many|to fill|fill out)|too many forms|pre.?visit form|new (patient|visit) (completion )?form|signature|sign(ing)? (the |a )?(form|document|request)|(insurance|id) card|(photo|picture|upload\\w*|scan\\w*|camera|shutter).{0,60}(insurance|id card|card|document)|(insurance|id|document)s?.{0,50}(photo|picture|upload\\w*|blurry|camera)|uploaded (all )?(my |the )?(insurance|document)|medical history"
     },
     {
       "id": "booking-flow-blocked",
@@ -122,21 +198,65 @@
       "area": "Booking",
       "severity_floor": "BLOCKS_BOOKING",
       "why": "The patient gets partway through booking and the flow dead-ends on a disabled control or an opaque error, so no appointment is created at all.",
-      "match": "(book|booking|submit|schedul\\w+|continue|next) button|buttons?.{0,50}(grey|gray|not (highlighted|working|clickable|enabled)|doesn['\u2019]?t work|don['\u2019]?t work|won['\u2019]?t work|not responding)|(grey|gray)ed out|(can['\u2019]?t|cannot|can not|couldn['\u2019]?t|could not|unable to|won['\u2019]?t let me|not able to|wont let me) (book|schedule|complete|finish|move forward|proceed|continue|register|submit)|(oops|error|something went wrong|a problem|not working right now).{0,80}(book|schedul)|(book|schedul\\w+).{0,80}(oops|error|something went wrong|didn['\u2019]?t work|doesn['\u2019]?t work|fail\\w*|not working)|stuck (on|at|in).{0,40}(step|screen|page|process)|can['\u2019]?t (move forward|get past|get through)|tried to (book|schedule).{0,40}(times|again|numerous)|required information.{0,60}(not|can['\u2019]?t)|fields will not let me|it will not let me"
+      "match": "(book|booking|submit|schedul\\w+|continue|next) button|buttons?.{0,50}(grey|gray|not (highlighted|working|clickable|enabled)|doesn['’]?t work|don['’]?t work|won['’]?t work|not responding)|(grey|gray)ed out|(can['’]?t|cannot|can not|couldn['’]?t|could not|unable to|won['’]?t let me|not able to|wont let me) (book|schedule|complete|finish|move forward|proceed|continue|register|submit)|(oops|error|something went wrong|a problem|not working right now).{0,80}(book|schedul)|(book|schedul\\w+).{0,80}(oops|error|something went wrong|didn['’]?t work|doesn['’]?t work|fail\\w*|not working)|stuck (on|at|in).{0,40}(step|screen|page|process)|can['’]?t (move forward|get past|get through)|tried to (book|schedule).{0,40}(times|again|numerous)|required information.{0,60}(not|can['’]?t)|fields will not let me|it will not let me"
     },
     {
       "id": "provider-data-accuracy",
       "label": "Provider listing does not match reality",
       "area": "Provider Data",
       "why": "Wrong specialty, hours, address, or a practice that has closed. Wasted visits.",
-      "match": "(office|practice|clinic|location) (is |was |are |were )?(closed|moved|no longer|shut down)|closed for business|wrong (address|hours|phone|location|number|map)|(address|map|location).{0,60}(is wrong|was wrong|incorrect|doesn['\u2019]?t match|shows the location)|(don['\u2019]?t|doesn['\u2019]?t|do not|does not|didn['\u2019]?t|did not) (do|offer|provide|perform)\\b|services (are )?not offered|not (currently )?accepting new patients|taking new patients|listing is (wrong|outdated|inaccurate)|office hours|office closures|(providers?|doctors?|physicians?) (are )?missing from|(list|listing|information|info|data) (is |isn['\u2019]?t |are )?(not )?(up to date|outdated|accurate|inaccurate)|(phone|number) .{0,40}(fax|disconnected|no one answers)|listed under|profile.{0,40}(wrong|incorrect|inaccurate|no way to see)|(office|practice|clinic|location).{0,30}(was|is|that was|that is) (closed|shut down)|alphabetical|services .{0,15}not offered|not offered at (that|this|the)"
+      "match": "(office|practice|clinic|location) (is |was |are |were )?(closed|moved|no longer|shut down)|closed for business|wrong (address|hours|phone|location|number|map)|(address|map|location).{0,60}(is wrong|was wrong|incorrect|doesn['’]?t match|shows the location)|(don['’]?t|doesn['’]?t|do not|does not|didn['’]?t|did not) (do|offer|provide|perform)\\b|services (are )?not offered|not (currently )?accepting new patients|taking new patients|listing is (wrong|outdated|inaccurate)|office hours|office closures|(providers?|doctors?|physicians?) (are )?missing from|(list|listing|information|info|data) (is |isn['’]?t |are )?(not )?(up to date|outdated|accurate|inaccurate)|(phone|number) .{0,40}(fax|disconnected|no one answers)|listed under|profile.{0,40}(wrong|incorrect|inaccurate|no way to see)|(office|practice|clinic|location).{0,30}(was|is|that was|that is) (closed|shut down)|alphabetical|services .{0,15}not offered|not offered at (that|this|the)",
+      "subthemes": [
+        {
+          "id": "provider-gone",
+          "label": "Provider has left or retired",
+          "match": "no longer|retired|left the practice|not (there|working)|closed"
+        },
+        {
+          "id": "wrong-address",
+          "label": "Wrong address or office location",
+          "match": "address|location|wrong office|different office|moved"
+        },
+        {
+          "id": "wrong-contact",
+          "label": "Wrong phone or contact details",
+          "match": "phone|number|contact"
+        },
+        {
+          "id": "wrong-credentials",
+          "label": "Wrong specialty or credentials",
+          "match": "specialty|speciality|credential|board|title|\\bdds\\b|\\bmd\\b"
+        }
+      ]
     },
     {
       "id": "appt-management",
-      "label": "Cannot change or view a booked appointment",
+      "label": "Problems with an appointment already booked",
       "area": "Appointment Management",
-      "why": "Cancel, reschedule, calendar sync and video-visit links fail after booking.",
-      "match": "can['\u2019]?t (cancel|reschedule|change|modify|confirm)|cannot (cancel|reschedule|change|modify|confirm)|unable to (cancel|reschedule|change|modify)|cancel.{0,30}(button|doesn['\u2019]?t|failed)|reschedul|video (visit|link|call|appointment|appt)|tele.?(health|doc|medicine)|virtual (visit|appointment|appt)|microphone|(join|enter|attend).{0,30}(the )?(call|visit|appointment|appt) (online|link)?|never (sent|received|got).{0,40}(a )?link|add(ing)? (the )?appointment to (my )?calendar|add to calendar|calendar|appointments? (disappeared|missing|not showing|doesn['\u2019]?t show|does not show|don['\u2019]?t show)|(can['\u2019]?t|cannot|no way to|not able to|where can i) (see|view|find|look ?up|input|put|add|track).{0,40}(my )?(appointment|appointments|upcoming|current doctors)|appointments (not )?booked (on|through|not through)|centralized record|notes feature|modify my appointment|still waiting for someone to (contact|call|schedule)|on hold (waiting )?for (the )?(provider|doctor|office)|google cal\\b|apple cal\\b|(test|lab) results|tests? or results"
+      "why": "Covers cancel/reschedule, video visits and calendar sync. The sub-theme split is the useful read, not the total.",
+      "match": "can['’]?t (cancel|reschedule|change|modify|confirm)|cannot (cancel|reschedule|change|modify|confirm)|unable to (cancel|reschedule|change|modify)|cancel.{0,30}(button|doesn['’]?t|failed)|reschedul|video (visit|link|call|appointment|appt)|tele.?(health|doc|medicine)|virtual (visit|appointment|appt)|microphone|(join|enter|attend).{0,30}(the )?(call|visit|appointment|appt) (online|link)?|never (sent|received|got).{0,40}(a )?link|add(ing)? (the )?appointment to (my )?calendar|add to calendar|calendar|appointments? (disappeared|missing|not showing|doesn['’]?t show|does not show|don['’]?t show)|(can['’]?t|cannot|no way to|not able to|where can i) (see|view|find|look ?up|input|put|add|track).{0,40}(my )?(appointment|appointments|upcoming|current doctors)|appointments (not )?booked (on|through|not through)|centralized record|notes feature|modify my appointment|still waiting for someone to (contact|call|schedule)|on hold (waiting )?for (the )?(provider|doctor|office)|google cal\\b|apple cal\\b|(test|lab) results|tests? or results",
+      "subthemes": [
+        {
+          "id": "video-visit",
+          "label": "Video visit will not start",
+          "match": "video (visit|link|call|appointment|appt)|tele.?(health|doc|medicine)|virtual (visit|appointment|appt)|microphone|(join|enter).{0,30}(call|visit|link)"
+        },
+        {
+          "id": "calendar-sync",
+          "label": "Will not add to the phone calendar",
+          "match": "add(ing)? (the )?appointment to (my )?calendar|add to calendar|\\bcalendar\\b|\\bical\\b"
+        },
+        {
+          "id": "cancel-reschedule",
+          "label": "Cannot cancel or reschedule",
+          "match": "can['’]?t (cancel|reschedul|change|modify)|cannot (cancel|reschedul|change|modify)|unable to (cancel|reschedul|change|modify)|reschedul|cancel"
+        },
+        {
+          "id": "appointment-missing",
+          "label": "Booked appointment is missing from the list",
+          "match": "appointments? (disappeared|missing|not showing|doesn['’]?t show|does not show|don['’]?t show)|no (record|sign) of|can['’]?t (find|see) (my|the) appointment"
+        }
+      ]
     },
     {
       "id": "account-access",
@@ -144,21 +264,38 @@
       "area": "Account & Auth",
       "severity_floor": "BLOCKS_BOOKING",
       "why": "Sign-in, password reset, email change and lockout failures stop booking entirely.",
-      "match": "can['\u2019]?t (even |to |seem to )?(log ?in|sign ?in|sign ?up|signin|login|register)|cannot (log ?in|sign ?in|sign ?up|signin|login|register)|can not (log ?in|sign ?in|login)|unable to (log ?in|sign ?in|login|register)|(won['\u2019]?t|will not|wont) let me (log ?in|sign ?in|login|in\\b)|not able to (log ?in|sign ?in|login)|password reset|reset (my )?password|verification code|locked out|two.?factor|\\botp\\b|delete (my )?account|sign.?up (failed|error)|(log ?in|sign ?in|signing in) with (apple|google|facebook)|apple id|finish the registration|registration (is |was )?(not )?(complete|incomplete)|email is not correct|(restricting|closing|canceling) my account|can['\u2019]?t (access|get into|get in to) (my|the) account|access (it|my (account|information)) on my (own )?phone|(tie|link|connect) (it|them|my appointments) to my account|erased (all )?(of )?(my|the) (information|data|work|answers)"
+      "match": "can['’]?t (even |to |seem to )?(log ?in|sign ?in|sign ?up|signin|login|register)|cannot (log ?in|sign ?in|sign ?up|signin|login|register)|can not (log ?in|sign ?in|login)|unable to (log ?in|sign ?in|login|register)|(won['’]?t|will not|wont) let me (log ?in|sign ?in|login|in\\b)|not able to (log ?in|sign ?in|login)|password reset|reset (my )?password|verification code|locked out|two.?factor|\\botp\\b|delete (my )?account|sign.?up (failed|error)|(log ?in|sign ?in|signing in) with (apple|google|facebook)|apple id|finish the registration|registration (is |was )?(not )?(complete|incomplete)|email is not correct|(restricting|closing|canceling) my account|can['’]?t (access|get into|get in to) (my|the) account|access (it|my (account|information)) on my (own )?phone|(tie|link|connect) (it|them|my appointments) to my account|erased (all )?(of )?(my|the) (information|data|work|answers)",
+      "subthemes": [
+        {
+          "id": "cannot-log-in",
+          "label": "Cannot log in or create an account",
+          "match": "create (an )?account|sign ?up|register|locked out|log ?in|sign ?in"
+        },
+        {
+          "id": "verification-code",
+          "label": "Verification code never arrives",
+          "match": "(verification|security|one.?time|otp|confirmation) code|never (got|received).{0,20}code|text message|\\bsms\\b"
+        },
+        {
+          "id": "password-reset",
+          "label": "Password reset does not work",
+          "match": "password|reset"
+        }
+      ]
     },
     {
       "id": "account-profile-editing",
       "label": "Cannot edit profile or contact details",
       "area": "Account & Auth",
       "why": "Email, phone, name and profile fields are read-only in the product, so patients cannot correct the details providers use to reach them.",
-      "match": "(can['\u2019]?t|cannot|can not|unable to|no way to|there is no|no provided way|how (do|can) i|please (allow|add|make it)|would like to|want to|need to).{0,60}(update|change|edit|correct|adjust|add|set|provide).{0,40}(my )?(e.?mail|phone|cell|number|name|profile|account|contact|personal information|privacy)|(e.?mail|phone number|cell (phone )?number|preferred name|contact info\\w*).{0,60}(can['\u2019]?t|cannot|no way|incorrect|wrong|mistaken|not able|isn['\u2019]?t (right|correct))|account updates|adjust your profile|preferred name|(account|contact) (info|information) (in )?settings|profile (settings|information)|privacy choices|not able to add my (cell|phone)|sync(ed|ing)? with the (correct|wrong) email|update (my|your) (e.?mail|profile|information)"
+      "match": "(can['’]?t|cannot|can not|unable to|no way to|there is no|no provided way|how (do|can) i|please (allow|add|make it)|would like to|want to|need to).{0,60}(update|change|edit|correct|adjust|add|set|provide).{0,40}(my )?(e.?mail|phone|cell|number|name|profile|account|contact|personal information|privacy)|(e.?mail|phone number|cell (phone )?number|preferred name|contact info\\w*).{0,60}(can['’]?t|cannot|no way|incorrect|wrong|mistaken|not able|isn['’]?t (right|correct))|account updates|adjust your profile|preferred name|(account|contact) (info|information) (in )?settings|profile (settings|information)|privacy choices|not able to add my (cell|phone)|sync(ed|ing)? with the (correct|wrong) email|update (my|your) (e.?mail|profile|information)"
     },
     {
       "id": "saved-providers",
       "label": "Saved providers list is unusable",
       "area": "Account & Auth",
       "why": "Favourites unreachable, un-removable, or gated behind a prior booking.",
-      "match": "saved (providers?|doctors?|list)|favou?rite|my providers|(delete|remove|hide).{0,30}(doctors|providers)|delete doctors|(doctors?|providers?) (i['\u2019]?ve |i have )?saved|saved via the app"
+      "match": "saved (providers?|doctors?|list)|favou?rite|my providers|(delete|remove|hide).{0,30}(doctors|providers)|delete doctors|(doctors?|providers?) (i['’]?ve |i have )?saved|saved via the app"
     },
     {
       "id": "family-profiles",
@@ -172,7 +309,7 @@
       "label": "Well Guide checklist",
       "area": "Well Guide",
       "why": "\"Mark as done\" and checklist state fail to save.",
-      "match": "well ?guide|health checklist|mark(ed)? (it |this )?as (done|complete|completed)|checklist|wellness reminder|checkup item|(custom|frequency of|create).{0,40}(medical )?checkup|(can['\u2019]?t|cannot|unable to|how do i|it can['\u2019]?t) (be )?(undo|undone|un.?mark|reverse)|accidentally (put|marked|selected|said)|(selected|marked) the wrong (option|item)|annual (check|checkup|exam) (reminder|item)"
+      "match": "well ?guide|health checklist|mark(ed)? (it |this )?as (done|complete|completed)|checklist|wellness reminder|checkup item|(custom|frequency of|create).{0,40}(medical )?checkup|(can['’]?t|cannot|unable to|how do i|it can['’]?t) (be )?(undo|undone|un.?mark|reverse)|accidentally (put|marked|selected|said)|(selected|marked) the wrong (option|item)|annual (check|checkup|exam) (reminder|item)"
     },
     {
       "id": "reviews",
@@ -186,14 +323,31 @@
       "label": "Provider messaging",
       "area": "Messaging",
       "why": "Cannot reach the practice through the product.",
-      "match": "message the (office|provider|doctor|clinic)|messaging|chat with (the )?office|(no way|can['\u2019]?t|cannot|unable|need a way|way) (to |of )?(send|sending|communicat\\w+)( a)? (message|messages)|communicate with (the |my )?(office|clinic|provider|doctor)|(contact|reach|get in (contact|touch) with) (the |my |a )?(provider|office|doctor|clinic|therapist|someone at zocdoc)|(find|reach|contact) (someone|anyone) at zocdoc|customer service"
+      "match": "message the (office|provider|doctor|clinic)|messaging|chat with (the )?office|(no way|can['’]?t|cannot|unable|need a way|way) (to |of )?(send|sending|communicat\\w+)( a)? (message|messages)|communicate with (the |my )?(office|clinic|provider|doctor)|(contact|reach|get in (contact|touch) with) (the |my |a )?(provider|office|doctor|clinic|therapist|someone at zocdoc)|(find|reach|contact) (someone|anyone) at zocdoc|customer service"
     },
     {
       "id": "notifications",
       "label": "Notifications & email",
       "area": "Notifications",
       "why": "Marketing volume, missing reminders, and tone-deaf campaign sends.",
-      "match": "push notification|marketing (email|notification|text)|(too many|stop the|unwanted|unnecessary|abusive|constant|more than twenty).{0,40}(notification|email|text|reminder|message)|(notification|email|text|reminder)s?.{0,60}(too many|won['\u2019]?t stop|can['\u2019]?t (stop|turn off)|keep coming|abusive|unnecessary|unwanted|can['\u2019]?t get them to stop)|reminders? (never|didn['\u2019]?t|not|keep|still|via text)|(turn(ing)? off|opt.?out of|stop) .{0,30}(notification|email|text|reminder)|april fools|email notification|notification settings|email preferences|what email notifications|(fake|cheeky|silly) notification|\\bspam\\b|(this|that) notification (is|was|set|made)"
+      "match": "push notification|marketing (email|notification|text)|(too many|stop the|unwanted|unnecessary|abusive|constant|more than twenty).{0,40}(notification|email|text|reminder|message)|(notification|email|text|reminder)s?.{0,60}(too many|won['’]?t stop|can['’]?t (stop|turn off)|keep coming|abusive|unnecessary|unwanted|can['’]?t get them to stop)|reminders? (never|didn['’]?t|not|keep|still|via text)|(turn(ing)? off|opt.?out of|stop) .{0,30}(notification|email|text|reminder)|april fools|email notification|notification settings|email preferences|what email notifications|(fake|cheeky|silly) notification|\\bspam\\b|(this|that) notification (is|was|set|made)",
+      "subthemes": [
+        {
+          "id": "too-many",
+          "label": "Too many notifications",
+          "match": "too many|spam|constant|stop (sending|the)|unsubscribe|opt out"
+        },
+        {
+          "id": "cannot-control",
+          "label": "Cannot control notification settings",
+          "match": "setting|preference|turn off|disable|manage"
+        },
+        {
+          "id": "reminder-missing",
+          "label": "Appointment reminder never arrived",
+          "match": "never (got|received|sent)|didn['’]?t (get|receive)|no reminder|missed the"
+        }
+      ]
     },
     {
       "id": "app-accessibility",
@@ -214,7 +368,7 @@
       "label": "Generic error / crash / will not load",
       "area": "App Platform",
       "why": "Opaque failure with no recovery path. Spikes here read as incidents.",
-      "match": "crash|freeze|frozen|white screen|blank screen|won['\u2019]?t (load|open|launch)|not loading|nothing loads|isn['\u2019]?t loading|something went wrong|generic error|unexpected error|\\boops\\b|certificate|\\bssl\\b|keeps (closing|quitting)|spinning|(app|nothing|none of the app|it) (is |isn['\u2019]?t |was )?(not |n't )?(work|working|loading)|doesn['\u2019]?t work|does not work|not working|is unusable|try again|check your internet|no connection to internet|connection.{0,40}(is fine|wifi|internet)|glitch|\\bbugs?\\b|error occurred|there['\u2019]?s a problem|says there['\u2019]?s a problem|unable to select|not visible|no updates? available"
+      "match": "crash|freeze|frozen|white screen|blank screen|won['’]?t (load|open|launch)|not loading|nothing loads|isn['’]?t loading|something went wrong|generic error|unexpected error|\\boops\\b|certificate|\\bssl\\b|keeps (closing|quitting)|spinning|(app|nothing|none of the app|it) (is |isn['’]?t |was )?(not |n't )?(work|working|loading)|doesn['’]?t work|does not work|not working|is unusable|try again|check your internet|no connection to internet|connection.{0,40}(is fine|wifi|internet)|glitch|\\bbugs?\\b|error occurred|there['’]?s a problem|says there['’]?s a problem|unable to select|not visible|no updates? available"
     }
   ],
   "areas": [

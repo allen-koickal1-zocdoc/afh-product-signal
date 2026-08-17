@@ -12,6 +12,7 @@ import argparse
 import json
 import re
 import sys
+from pathlib import Path
 
 # Anything shaped like a ticket key, a UUID, an email, a phone number or a
 # long opaque identifier has no business in an aggregate report.
@@ -54,22 +55,53 @@ def walk(node, path=""):
     return problems
 
 
+def scan_text(path: Path):
+    """
+    Flat scan of a rendered file.
+
+    walk() checks the shape of report.json, but the dashboard now also emits
+    HTML and CSVs, and those are what actually get served. A file that never
+    goes through walk() has never been checked, so scan every published byte.
+    """
+    text = path.read_text(errors="replace")
+    problems = []
+    for name, pat in FORBIDDEN.items():
+        for hit in pat.findall(text):
+            hit = hit if isinstance(hit, str) else next((h for h in hit if h), "")
+            # The JQL links legitimately contain "project = AFH" and dates, but
+            # never a numbered key, which is what the pattern actually matches.
+            problems.append(f"{path.name}: contains {name} ({hit[:40]!r})")
+    return problems
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--report", required=True)
+    ap.add_argument("--report", help="report.json — structural check")
+    ap.add_argument("--pages-dir", help="published output — flat text scan of every file")
     args = ap.parse_args()
+    if not args.report and not args.pages_dir:
+        sys.exit("give --report, --pages-dir, or both")
 
-    with open(args.report) as fh:
-        report = json.load(fh)
+    problems, checked = [], 0
 
-    problems = walk(report)
+    if args.report:
+        with open(args.report) as fh:
+            problems += walk(json.load(fh))
+        checked += 1
+
+    if args.pages_dir:
+        for path in sorted(Path(args.pages_dir).rglob("*")):
+            if path.is_file() and path.suffix in {".html", ".csv", ".json", ".txt", ".md"}:
+                problems += scan_text(path)
+                checked += 1
+
     if problems:
         print("PHI guard FAILED — refusing to publish:", file=sys.stderr)
         for p in problems:
             print(f"  - {p}", file=sys.stderr)
         sys.exit(1)
 
-    print("PHI guard passed: report contains aggregates only")
+    print(f"PHI guard passed: {checked} file(s), aggregates only")
 
 
 if __name__ == "__main__":
