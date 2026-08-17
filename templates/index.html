@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}AFH Product Signal &mdash; {{ report.window.start }} to {{ report.window.end }}{% endblock %}
+{% block heading %}What patients say is broken{% endblock %}
+{% block subtitle %}
+  App Feedback Hub &middot; {{ report.window.start }} &rarr; {{ report.window.end }}
+  &middot; {{ report.totals.actionable }} actionable reports
+{% endblock %}
+
+{% block content %}
+
+{% if top %}
+<div class="verdict">
+  <h2>Headline</h2>
+  <p>
+    The single largest source of patient harm is
+    <strong>{{ top.label|lower }}</strong> ({{ top.area }}) &mdash;
+    {{ top.total }} reports, {{ top.blocking }} of which cost the patient the appointment
+    or money. The top three themes account for
+    <strong>{{ top3_pct }}%</strong> of all booking-blocking feedback.
+  </p>
+</div>
+{% endif %}
+
+{% if report.regressions %}
+<div class="alert">
+  <h3>Active regressions &mdash; last 30 days</h3>
+  <ul>
+    {% for r in report.regressions %}
+    <li>
+      <span class="tag {{ 'new' if r.verdict == 'new' else '' }}">{{ r.verdict }}</span>
+      <strong>{{ theme_label(r.theme) }}</strong> &mdash;
+      {{ r.recent_30d }} reports in 30 days vs {{ r.monthly_baseline }}/month baseline{% if r.ratio %} ({{ r.ratio }}&times;){% endif %}.
+      {% if r.release_correlated %}
+        Concentrated on app {{ r.app_versions[0].version }} &mdash; looks release-driven.
+      {% elif r.app_versions %}
+        Spread across {{ r.app_versions|length }} app versions &mdash; likely backend or content, not a build.
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if report.level_shifts %}
+<div class="alert shift">
+  <h3>New normals &mdash; themes that did not exist before this quarter</h3>
+  <ul>
+    {% for r in report.level_shifts %}
+    <li>
+      <span class="tag new">emerged</span>
+      <strong>{{ theme_label(r.theme) }}</strong> &mdash;
+      {{ r.recent_90d }} reports in the last 90 days against
+      {{ r.prior_total }} in all prior history.
+      {% if r.release_correlated %}
+        Concentrated on app {{ r.app_versions[0].version }}.
+      {% elif r.app_versions %}
+        Spans app {{ r.app_versions[-1].version }}&ndash;{{ r.app_versions[0].version }},
+        so it tracks a rollout rather than a single build.
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">{{ report.totals.actionable }}</div>
+    <div class="kpi-label">Actionable reports</div>
+    <div class="kpi-sub">of {{ report.totals.tickets }} tickets</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ report.totals.blocking }}</div>
+    <div class="kpi-label">Cost the appointment</div>
+    <div class="kpi-sub">or cost the patient money</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ report.areas|length }}</div>
+    <div class="kpi-label">Product areas hit</div>
+    <div class="kpi-sub">{{ report.themes|length }} distinct themes</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ report.totals.noise_pct }}%</div>
+    <div class="kpi-label">Non-actionable intake</div>
+    <div class="kpi-sub">survey blasts, spam, empty</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ report.totals.unclassified_pct }}%</div>
+    <div class="kpi-label">Unclassified</div>
+    <div class="kpi-sub">taxonomy coverage gap</div>
+  </div>
+</div>
+
+<div class="section-title">Where it hurts</div>
+<div class="section-note">
+  Ranked by impact, not volume: a booking-blocking report counts 3&times; a degrading one,
+  and cosmetic complaints count 0. This is the order to fix things in.
+  <br>&dagger; marks a theme that is treated as booking-blocking by definition rather than
+  inferred from each patient's wording.
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Area</th>
+      <th class="num">Reports</th>
+      <th>Severity mix</th>
+      <th class="num">Blocking</th>
+      <th>Trend</th>
+      <th class="num">MoM</th>
+      <th>App versions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for t in report.themes %}
+    <tr>
+      <td>
+        <div class="theme-name">{{ t.label }}</div>
+        {% if t.why %}<div class="theme-why">{{ t.why }}</div>{% endif %}
+      </td>
+      <td><span class="area-chip">{{ t.area }}</span></td>
+      <td class="num">{{ t.total }}</td>
+      <td>
+        <div class="bar" title="{{ t.blocking }} blocking / {{ t.degrades }} degrading / {{ t.annoyance }} minor">
+          <span class="b" style="width: {{ (100 * t.blocking / t.total)|round|int }}%"></span>
+          <span class="d" style="width: {{ (100 * t.degrades / t.total)|round|int }}%"></span>
+          <span class="a" style="width: {{ (100 * t.annoyance / t.total)|round|int }}%"></span>
+        </div>
+      </td>
+      <td class="num">
+        {{ t.blocking }}{% if t.severity_floored %}<span class="floor" title="This theme is treated as booking-blocking by definition, not inferred from what each patient wrote.">&dagger;</span>{% endif %}
+      </td>
+      <td>
+        <div class="spark">
+          {% for v in t.by_month %}
+          <i class="{{ 'last' if loop.last else '' }}"
+             style="height: {{ (26 * v / max_month)|round|int if max_month else 1 }}px"
+             title="{{ report.months[loop.index0] }}: {{ v }}"></i>
+          {% endfor %}
+        </div>
+      </td>
+      <td class="num">
+        {% if t.trend > 0 %}<span class="trend-up">+{{ t.trend }}</span>
+        {% elif t.trend < 0 %}<span class="trend-down">{{ t.trend }}</span>
+        {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td class="ver">
+        {% for v in t.top_versions %}{{ v.version }} ({{ v.count }}){% if not loop.last %}<br>{% endif %}{% else %}&mdash;{% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="two-col">
+  <div>
+    <div class="section-title">By product area</div>
+    <div class="section-note">Who owns the fix.</div>
+    <table>
+      <thead><tr><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th><th class="num">Themes</th></tr></thead>
+      <tbody>
+      {% for a in report.areas %}
+        <tr>
+          <td>{{ a.area }}</td>
+          <td class="num">{{ a.total }}</td>
+          <td class="num">{{ a.blocking }}</td>
+          <td class="num">{{ a.themes }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Volume</div>
+    <div class="section-note">Total intake vs the part that carries product signal.</div>
+    <table>
+      <thead><tr><th>Month</th><th class="num">Tickets</th><th class="num">Actionable</th><th class="num">Signal rate</th></tr></thead>
+      <tbody>
+      {% for v in report.volume %}
+        <tr>
+          <td>{{ v.month }}</td>
+          <td class="num">{{ v.total }}</td>
+          <td class="num">{{ v.actionable }}</td>
+          <td class="num">{{ (100 * v.actionable / v.total)|round|int if v.total else 0 }}%</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-title">Signal quality</div>
+<div class="section-note">
+  How much of this feed can be trusted, and what is invisible to it.
+</div>
+<div class="two-col">
+  <div>
+    <table>
+      <thead><tr><th>Non-actionable intake</th><th class="num">Count</th></tr></thead>
+      <tbody>
+      {% for n in report.noise_breakdown %}
+        <tr><td>{{ n.theme|replace('-', ' ')|title }}</td><td class="num">{{ n.count }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <table>
+      <thead><tr><th>Diagnostics coverage</th><th class="num">Count</th></tr></thead>
+      <tbody>
+        <tr><td>Tickets with app version / OS / device</td><td class="num">{{ report.diagnostics.with_app_info }} ({{ report.diagnostics.coverage_pct }}%)</td></tr>
+        {% for p in report.diagnostics.by_platform %}
+        <tr><td>&mdash; {{ p.platform }}</td><td class="num">{{ p.count }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="phi">
+  <strong>PHI note.</strong> AFH tickets contain patient free text and device, session
+  and tracking identifiers. One ticket is one patient, so ticket keys are treated as
+  patient-level data and are never published on this page. Drill-down happens in Jira,
+  which is permission-gated:
+  <a href="{{ report.jira.all }}">all tickets in window</a> &middot;
+  <a href="{{ report.jira.open }}">still open</a>.
+</div>
+
+{% endblock %}

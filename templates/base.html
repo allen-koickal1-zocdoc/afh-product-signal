@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AFH Product Signal{% endblock %}</title>
+  <style>
+    :root {
+      --primary: #0984e3;
+      --accent: #6c5ce7;
+      --dark: #2d3436;
+      --dark-light: #636e72;
+      --bg: #f8f9fa;
+      --white: #ffffff;
+      --border: #dfe6e9;
+      --green: #00b894;
+      --orange: #f39c12;
+      --red: #d63031;
+      --purple: #6c5ce7;
+      --teal: #00cec9;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .header {
+      background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);
+      color: var(--white);
+      padding: 2rem 2rem 1.5rem;
+    }
+    .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .header .subtitle { opacity: 0.9; font-size: 1rem; }
+    .breadcrumb {
+      padding: 0.75rem 2rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .breadcrumb a { color: var(--primary); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { color: var(--dark-light); margin: 0 0.5rem; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    /* Headline answer */
+    .verdict {
+      background: var(--white);
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .verdict h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px;
+                  color: var(--dark-light); font-weight: 600; margin-bottom: 0.5rem; }
+    .verdict p { font-size: 1.15rem; }
+    .verdict strong { color: var(--red); }
+    .verdict.calm { border-left-color: var(--green); }
+    .verdict.calm strong { color: var(--green); }
+
+    /* Regression banner */
+    .alert {
+      background: #fff5f5;
+      border: 1px solid #ffc9c9;
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .alert h3 { color: var(--red); font-size: 0.85rem; text-transform: uppercase;
+                letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .alert ul { list-style: none; }
+    .alert li { padding: 0.35rem 0; border-bottom: 1px dashed #ffd9d9; font-size: 0.95rem; }
+    .alert li:last-child { border-bottom: none; }
+    .alert .tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      background: var(--red); color: var(--white); padding: 0.05rem 0.45rem;
+      border-radius: 3px; margin-right: 0.5rem; letter-spacing: 0.5px;
+    }
+    .alert .tag.new { background: var(--purple); }
+    .alert.shift { background: #f6f4ff; border-color: #d9d1ff; border-left-color: var(--purple); }
+    .alert.shift h3 { color: var(--purple); }
+    .alert.shift li { border-bottom-color: #e5dfff; }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: center;
+      border-left: 4px solid var(--primary);
+    }
+    .kpi-card:nth-child(2) { border-left-color: var(--red); }
+    .kpi-card:nth-child(3) { border-left-color: var(--purple); }
+    .kpi-card:nth-child(4) { border-left-color: var(--orange); }
+    .kpi-card:nth-child(5) { border-left-color: var(--teal); }
+    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+    .kpi-card:nth-child(2) .kpi-value { color: var(--red); }
+    .kpi-card:nth-child(3) .kpi-value { color: var(--purple); }
+    .kpi-card:nth-child(4) .kpi-value { color: var(--orange); }
+    .kpi-card:nth-child(5) .kpi-value { color: var(--teal); }
+    .kpi-card .kpi-label {
+      font-size: 0.8rem; color: var(--dark-light); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.25rem;
+    }
+    .kpi-card .kpi-sub { font-size: 0.75rem; color: var(--dark-light); }
+
+    .section-title {
+      font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.35rem;
+      padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary);
+    }
+    .section-note { font-size: 0.85rem; color: var(--dark-light); margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; background: var(--white);
+            border-radius: var(--radius); overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th { background: #f1f3f5; text-align: left; padding: 0.65rem 0.9rem;
+         font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+         color: var(--dark-light); font-weight: 600; }
+    td { padding: 0.7rem 0.9rem; border-top: 1px solid var(--border); font-size: 0.92rem;
+         vertical-align: top; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:hover td { background: #fbfcfd; }
+    .theme-name { font-weight: 600; }
+    .theme-why { font-size: 0.82rem; color: var(--dark-light); }
+    .area-chip {
+      display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.5rem;
+      border-radius: 10px; background: #eef2f7; color: var(--dark-light);
+      white-space: nowrap;
+    }
+    .bar { height: 8px; border-radius: 4px; background: #eef2f7; overflow: hidden;
+           min-width: 90px; display: flex; }
+    .bar span { display: block; height: 100%; }
+    .bar .b { background: var(--red); }
+    .bar .d { background: var(--orange); }
+    .bar .a { background: #b2bec3; }
+    .trend-up { color: var(--red); font-weight: 700; }
+    .trend-down { color: var(--green); font-weight: 700; }
+    .trend-flat { color: var(--dark-light); }
+    .ver { font-size: 0.78rem; color: var(--dark-light); font-variant-numeric: tabular-nums; }
+    .floor { color: var(--dark-light); cursor: help; margin-left: 2px; }
+
+    .spark { display: flex; align-items: flex-end; gap: 2px; height: 26px; }
+    .spark i { display: block; width: 7px; background: var(--primary); opacity: 0.75;
+               border-radius: 1px 1px 0 0; min-height: 1px; }
+    .spark i.last { background: var(--red); opacity: 1; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    .footer {
+      margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--dark-light);
+    }
+    .phi {
+      background: #fffbea; border: 1px solid #ffe8a1; border-radius: var(--radius);
+      padding: 0.9rem 1.1rem; font-size: 0.85rem; margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{% block heading %}AFH Product Signal{% endblock %}</h1>
+    <div class="subtitle">{% block subtitle %}{% endblock %}</div>
+  </div>
+  {% block breadcrumb %}{% endblock %}
+  <div class="container">
+    {% block content %}{% endblock %}
+    <div class="footer">
+      Generated {{ report.generated_at }} from Jira project AFH.
+      Counts are aggregates only &mdash; no ticket keys, patient text or device
+      identifiers are published here.
+    </div>
+  </div>
+</body>
+</html>

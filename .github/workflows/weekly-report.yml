@@ -1,0 +1,111 @@
+name: AFH Product Signal
+
+on:
+  schedule:
+    - cron: "0 11 * * 1"   # Mondays 11:00 UTC (16:30 IST)
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Window start (YYYY-MM-DD). Blank = FIRST_DAY."
+        required: false
+        type: string
+      end_date:
+        description: "Window end (YYYY-MM-DD). Blank = today."
+        required: false
+        type: string
+      skip_slack:
+        description: "Skip the Slack digest"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # push to gh-pages
+
+env:
+  FIRST_DAY: "2025-12-01"   # first AFH ticket
+  WORKDIR: /tmp/afh         # PHI lives here for the life of the job only
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Resolve window
+        id: window
+        run: |
+          START="${{ github.event.inputs.start_date }}"
+          END="${{ github.event.inputs.end_date }}"
+          [ -z "$START" ] && START="${FIRST_DAY}"
+          [ -z "$END" ] && END="$(date -u +%F)"
+          echo "start=${START}" >> $GITHUB_OUTPUT
+          echo "end=${END}" >> $GITHUB_OUTPUT
+          echo "Window: ${START} -> ${END}"
+
+      - name: Fetch tickets (PHI, job-local only)
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          python3 scripts/fetch_data.py \
+            --start-date "${{ steps.window.outputs.start }}" \
+            --end-date   "${{ steps.window.outputs.end }}" \
+            --output-dir "${WORKDIR}"
+
+      - name: Classify
+        run: |
+          python3 scripts/classify.py \
+            --tickets "${WORKDIR}/tickets.json" \
+            --output  "${WORKDIR}/classified.json"
+
+      - name: Compute report (aggregates only — this is the PHI boundary)
+        run: |
+          python3 scripts/compute_report.py \
+            --classified "${WORKDIR}/classified.json" \
+            --output     "${WORKDIR}/report.json" \
+            --start-date "${{ steps.window.outputs.start }}" \
+            --end-date   "${{ steps.window.outputs.end }}"
+
+      - name: Assert no PHI in the published artefact
+        run: python3 scripts/assert_no_phi.py --report "${WORKDIR}/report.json"
+
+      - name: Generate pages
+        run: |
+          python3 scripts/generate_pages.py \
+            --report     "${WORKDIR}/report.json" \
+            --output-dir "${WORKDIR}/pages"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.WORKDIR }}/pages
+          keep_files: false
+
+      - name: Slack digest
+        if: ${{ github.event.inputs.skip_slack != 'true' }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          sleep 30
+          ORG=$(echo "${{ github.repository }}" | cut -d/ -f1)
+          REPO=$(echo "${{ github.repository }}" | cut -d/ -f2)
+          python3 scripts/notify_slack.py \
+            --report "${WORKDIR}/report.json" \
+            --config config/slack.json \
+            --base-url "https://${ORG}.github.io/${REPO}/" \
+            --label "week of ${{ steps.window.outputs.end }}"
+
+      - name: Shred the PHI workdir
+        if: always()
+        run: rm -rf "${WORKDIR}"

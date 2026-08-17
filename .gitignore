@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# PHI. The fetch and classify steps write patient-level data here.
+# Nothing under these paths may ever be committed or published.
+/work/
+/tmp/
+tickets.json
+moved_tickets.json
+classified.json

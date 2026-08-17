@@ -1,0 +1,16 @@
+{
+  "_comment": "Where the weekly digest goes. `areas` filters the theme list in that channel's message; omit or use [\"*\"] for everything.",
+  "channels": [
+    {
+      "id": "C0A578VEWAZ",
+      "name": "#afh-jira",
+      "areas": ["*"],
+      "include_regressions": true,
+      "include_signal_quality": true
+    }
+  ],
+  "escalate_on": {
+    "new_regression": true,
+    "blocking_reports_in_30d": 25
+  }
+}
