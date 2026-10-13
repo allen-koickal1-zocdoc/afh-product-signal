@@ -24,6 +24,7 @@ concurrency:
 
 permissions:
   contents: write   # push to gh-pages
+  actions: write    # keepalive: re-enable this workflow's schedule
 
 env:
   FIRST_DAY: "2025-12-01"   # date of the first AFH ticket; history starts here
@@ -34,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -148,6 +149,15 @@ jobs:
             --config config/slack.json \
             --base-url "https://${ORG}.github.io/${REPO}/archive/${{ steps.window.outputs.month }}/" \
             --label "${{ steps.window.outputs.label }}"
+
+      # GitHub disables cron workflows on public repos after 60 days without a
+      # commit to the default branch, and gh-pages pushes do not count.
+      # Re-enabling on every run keeps the schedule alive indefinitely.
+      - name: Keep the schedule alive
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow enable monthly-report.yml -R "${{ github.repository }}"
 
       - name: Shred the PHI workdir
         if: always()
