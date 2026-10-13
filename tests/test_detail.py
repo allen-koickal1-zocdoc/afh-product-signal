@@ -174,3 +174,13 @@ def test_guard_passes_on_real_generated_output(tmp_path):
 
 def test_guard_requires_something_to_check():
     assert _guard().returncode != 0
+
+
+def test_pages_say_accuracy_was_not_measured_without_labels(tmp_path, monkeypatch):
+    import compute_report
+    monkeypatch.setattr(compute_report, "DATA_DIR", tmp_path / "absent")
+    report = build([row()], TAX, "2026-08-01", "2026-08-31", date(2026, 8, 31))
+    render(report, str(tmp_path / "site"))
+    html = (tmp_path / "site" / "index.html").read_text()
+    assert "Not measured on this run" in html
+    assert "0 of\n" not in html

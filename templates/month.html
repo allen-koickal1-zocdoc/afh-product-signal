@@ -364,13 +364,17 @@
     </table>
     <div class="section-note" style="margin-top:0.75rem">
       Grouping is a deterministic keyword classifier, first match wins, so each
-      ticket lands in exactly one theme and these counts add up. On a held-out
+      ticket lands in exactly one theme and these counts add up.
+      {% if report.accuracy.heldout_n %} On a held-out
       sample it was never tuned against it puts
       <strong>{{ report.accuracy.heldout_correct }} of
       {{ report.accuracy.heldout_n }} ({{ report.accuracy.heldout_pct }}%)</strong>
       tickets in the right theme &mdash; against
       {{ report.accuracy.train_pct }}% on the tickets it <em>was</em> tuned
-      against. Treat any single row as an estimate, and see
+      against.
+      {% else %}
+      Its accuracy was not measured on this run.
+      {% endif %} Treat any single row as an estimate, and see
       <a href="{{ depth }}index.html#method">how these numbers are made</a> before
       acting on one.
     </div>
