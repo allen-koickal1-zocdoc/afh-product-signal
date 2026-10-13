@@ -32,7 +32,8 @@
   <div class="kpi-card">
     <div class="kpi-value">{{ theme.blocking }}</div>
     <div class="kpi-label">Blocking</div>
-    <div class="kpi-sub">{{ theme.share_of_blocking }}% of all blocking feedback</div>
+    <div class="kpi-sub">{{ theme.blocking_evidenced }} said so &middot;
+      {{ theme.blocking_inferred }} inferred from theme</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-value">{{ theme.defects }}</div>
@@ -53,17 +54,25 @@
 
 {% if theme.severity_floored %}
 <div class="phi" style="margin-top:0">
-  <strong>Read the blocking count carefully.</strong> Every report in this theme is
-  counted as booking-blocking <em>by definition</em>, because the failure reliably
-  costs the patient the appointment or money whether or not they said so. It is
-  not {{ theme.blocking }} independent patient statements of harm.
+  <strong>Read the blocking count carefully.</strong> Only
+  <strong>{{ theme.blocking_evidenced }}</strong> of these
+  {{ theme.blocking }} reports describe losing the appointment or the money in the
+  patient&rsquo;s own words. The other <strong>{{ theme.blocking_inferred }}</strong>
+  are counted as blocking <em>by definition</em>: this theme carries a severity
+  floor, because the failure reliably costs the patient the appointment whether or
+  not they thought to say so. That floor is an editorial judgement, not a
+  measurement, and it is doing
+  {{ (100 * theme.blocking_inferred / theme.blocking)|round|int }}% of the work
+  behind this theme&rsquo;s impact score.
 </div>
 {% endif %}
 
 {% if theme.subthemes|length > 1 %}
 <div class="section-title">What specifically is failing</div>
 <div class="section-note">
-  A second pass over the same text, first match wins.
+  A second pass over the same text, first match wins. The month columns show
+  where each pattern actually fired, so a sub-theme that is really one bad month
+  does not read as a standing problem.
   {% if theme.subtheme_coverage_pct is not none %}
     These patterns explain <strong>{{ theme.subtheme_coverage_pct }}%</strong> of the theme;
     the rest sits in Other.
@@ -74,7 +83,9 @@
 </div>
 <table>
   <thead>
-    <tr><th>Sub-theme</th><th class="num">Reports</th><th>Share of theme</th><th class="num">Blocking</th></tr>
+    <tr><th>Sub-theme</th><th class="num">Reports</th><th>Share of theme</th>
+        <th class="num">Blocking</th><th class="num">Degr.</th><th class="num">Minor</th>
+        <th>Active</th>{% for mo in report.months %}<th class="num">{{ mo[5:] }}</th>{% endfor %}</tr>
   </thead>
   <tbody>
   {% for s in theme.subthemes %}
@@ -87,6 +98,12 @@
         </div>
       </td>
       <td class="num">{{ s.blocking }}</td>
+      <td class="num">{{ s.degrades }}</td>
+      <td class="num">{{ s.annoyance }}</td>
+      <td class="ver">{{ s.first_month }}{% if s.last_month != s.first_month %}&ndash;{{ s.last_month }}{% endif %}</td>
+      {% for c in s.by_month %}
+        <td class="num"{% if not c %} style="color:#dfe6e9"{% endif %}>{{ c or '·' }}</td>
+      {% endfor %}
     </tr>
   {% endfor %}
   </tbody>
@@ -95,30 +112,67 @@
 
 <div class="section-title">Over time</div>
 <div class="section-note">
-  Total reports per month, with the booking-blocking share in red.
+  Every month in the window, including the silent ones &mdash; a gap is
+  information. The bar is that month's severity mix; the shape column is
+  scaled against this theme's busiest month.
+  Trailing quarter <strong>{{ theme.q_recent }}</strong> against
+  <strong>{{ theme.q_prior }}</strong> the quarter before
+  ({{ '+' if theme.qoq > 0 }}{{ theme.qoq }}) &mdash; steadier than a
+  single month on a theme this size.
   {% if report.partial_last_month %}
     The final month is incomplete &mdash; do not read its drop as a fall.
   {% endif %}
 </div>
+<div class="spark" style="height:40px;margin:0.5rem 0 1rem">
+  {% for v in theme.by_month %}
+  <i class="{{ 'last' if report.partial_last_month and loop.last else '' }}"
+     style="width:14px;height: {{ (40 * v / peak)|round|int if peak else 1 }}px"
+     title="{{ report.months[loop.index0] }}: {{ v }}"></i>
+  {% endfor %}
+</div>
 <table>
   <thead>
-    <tr><th>Month</th><th class="num">Reports</th><th class="num">Blocking</th><th>Shape</th></tr>
+    <tr><th>Month</th><th>Severity mix</th><th class="num">Reports</th>
+        <th class="num">Blocking</th><th class="num">Change</th>
+        <th class="num">Share of month</th><th>Shape</th></tr>
   </thead>
   <tbody>
   {% for m in report.months %}
-    {% if theme.by_month[loop.index0] %}
-    <tr>
-      <td>{{ m }}{% if report.partial_last_month and loop.last %} <span class="ver">(partial)</span>{% endif %}</td>
-      <td class="num">{{ theme.by_month[loop.index0] }}</td>
-      <td class="num">{{ theme.blocking_by_month[loop.index0] }}</td>
+    {% set n = theme.by_month[loop.index0] %}
+    {% set blk = theme.blocking_by_month[loop.index0] %}
+    {% set sev = theme.sev_by_month.get(m, {}) %}
+    {% set was = theme.by_month[loop.index0 - 1] if not loop.first else None %}
+    <tr{% if not n %} class="muted"{% endif %}>
+      <td><a href="{{ depth }}months/{{ m }}.html">{{ m }}</a>{%
+        if report.partial_last_month and loop.last %} <span class="ver">(partial)</span>{% endif %}</td>
+      <td>
+        {% if n %}
+        <div class="bar" title="{{ blk }} blocking / {{ sev.get('DEGRADES', 0) }} degrading / {{ sev.get('ANNOYANCE', 0) }} minor">
+          <span class="b" style="width: {{ (100 * blk / n)|round|int }}%"></span>
+          <span class="d" style="width: {{ (100 * sev.get('DEGRADES', 0) / n)|round|int }}%"></span>
+          <span class="a" style="width: {{ (100 * sev.get('ANNOYANCE', 0) / n)|round|int }}%"></span>
+        </div>
+        {% endif %}
+      </td>
+      <td class="num">{{ n }}</td>
+      <td class="num">{{ blk }}</td>
+      <td class="num">
+        {% if was is none %}<span class="trend-flat">&mdash;</span>
+        {% elif n - was > 0 %}<span class="trend-up">+{{ n - was }}</span>
+        {% elif n - was < 0 %}<span class="trend-down">{{ n - was }}</span>
+        {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td class="num">
+        {% if n %}{{ (100 * n / month_total(m))|round|int if month_total(m) else 0 }}%
+        {% else %}&mdash;{% endif %}
+      </td>
       <td>
         <div class="bar" style="min-width:200px">
-          <span class="b" style="width: {{ (100 * theme.blocking_by_month[loop.index0] / peak)|round|int }}%"></span>
-          <span class="d" style="width: {{ (100 * (theme.by_month[loop.index0] - theme.blocking_by_month[loop.index0]) / peak)|round|int }}%"></span>
+          <span class="b" style="width: {{ (100 * blk / peak)|round|int if peak else 0 }}%"></span>
+          <span class="d" style="width: {{ (100 * (n - blk) / peak)|round|int if peak else 0 }}%"></span>
         </div>
       </td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>

@@ -72,7 +72,10 @@
   <div class="kpi-card">
     <div class="kpi-value">{{ report.totals.blocking }}</div>
     <div class="kpi-label">Cost the appointment</div>
-    <div class="kpi-sub">or cost the patient money</div>
+    <div class="kpi-sub">
+      {{ report.totals.blocking_evidenced }} said so &middot;
+      {{ report.totals.blocking_inferred }} inferred from theme
+    </div>
   </div>
   <div class="kpi-card">
     <div class="kpi-value">{{ report.areas|length }}</div>
@@ -108,6 +111,8 @@
       <th class="num">Blocking</th>
       <th>Trend</th>
       <th class="num">MoM</th>
+      <th class="num">QoQ</th>
+      <th class="num">Share</th>
       <th>App versions</th>
     </tr>
   </thead>
@@ -133,7 +138,7 @@
         </div>
       </td>
       <td class="num">
-        {{ t.blocking }}{% if t.severity_floored %}<span class="floor" title="This theme is treated as booking-blocking by definition, not inferred from what each patient wrote.">&dagger;</span>{% endif %}
+        {{ t.blocking }}{% if t.blocking_inferred %}<span class="floor" title="{{ t.blocking_evidenced }} of these {{ t.blocking }} are blocking because the ticket said so; {{ t.blocking_inferred }} because this theme is treated as blocking by definition.">&dagger;{{ t.blocking_inferred }}</span>{% endif %}
       </td>
       <td>
         <div class="spark">
@@ -149,6 +154,14 @@
         {% elif t.trend > 0 %}<span class="trend-up">+{{ t.trend }}</span>
         {% elif t.trend < 0 %}<span class="trend-down">{{ t.trend }}</span>
         {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td class="num" title="{{ t.q_recent }} in the last 3 months against {{ t.q_prior }} the 3 before">
+        {% if t.qoq > 0 %}<span class="trend-up">+{{ t.qoq }}</span>
+        {% elif t.qoq < 0 %}<span class="trend-down">{{ t.qoq }}</span>
+        {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        {{ t.share_of_blocking }}%
       </td>
       <td class="ver">
         {% for v in t.top_versions %}{{ v.version }} ({{ v.count }}){% if not loop.last %}<br>{% endif %}{% else %}&mdash;{% endfor %}
@@ -233,11 +246,16 @@
 {% endif %}
 
 <div class="section-title">By product area</div>
-<div class="section-note">Who owns the fix. Themes listed worst-first within each area.</div>
+<div class="section-note">
+  Who owns the fix. Impact is the same 3&times;blocking + 1&times;degrading weighting used
+  above, summed across the area &mdash; so an area with many minor complaints ranks
+  below one with few blocking ones. Themes listed worst-first within each area.
+</div>
 <table>
   <thead>
     <tr><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th>
-        <th class="num">Requests</th><th>Themes</th></tr>
+        <th>Blocking share</th><th class="num">Impact</th><th class="num">Requests</th>
+        <th class="num">Themes</th><th>Worst first</th></tr>
   </thead>
   <tbody>
   {% for a in report.areas %}
@@ -245,7 +263,15 @@
       <td><strong>{{ a.area }}</strong></td>
       <td class="num">{{ a.total }}</td>
       <td class="num">{{ a.blocking }}</td>
+      <td>
+        <div class="bar" title="{{ a.blocking }} of {{ a.total }} reports in this area block booking">
+          <span class="b" style="width: {{ (100 * a.blocking / a.total)|round|int if a.total else 0 }}%"></span>
+          <span class="a" style="width: {{ (100 * (a.total - a.blocking) / a.total)|round|int if a.total else 0 }}%"></span>
+        </div>
+      </td>
+      <td class="num">{{ a.impact }}</td>
       <td class="num">{{ a.feature_requests }}</td>
+      <td class="num">{{ a.themes }}</td>
       <td class="theme-why">
         {% for t in a.theme_list %}<a href="themes/{{ t.id }}.html">{{ t.label }}</a> ({{ t.total }}){% if not loop.last %} &middot; {% endif %}{% endfor %}
       </td>
@@ -268,6 +294,60 @@
       <td class="num">{{ v.total }}</td>
       <td class="num">{{ v.actionable }}</td>
       <td class="num">{{ (100 * v.actionable / v.total)|round|int if v.total else 0 }}%</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="section-title">Month by month</div>
+<div class="section-note">
+  Every month in the window, and what moved against the month before it. Each row
+  links to that month&rsquo;s published snapshot &mdash; a permalink, so a figure
+  quoted in a Slack thread still reads the same a year later.
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th class="num">Tickets</th>
+      <th class="num">Actionable</th>
+      <th class="num">Blocking</th>
+      <th class="num">Change</th>
+      <th class="num">Themes</th>
+      <th>Rose</th>
+      <th>Fell</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for m in report.timeline|reverse %}
+    <tr{% if loop.first and report.partial_last_month %} class="muted"{% endif %}>
+      <td class="theme-name">{{ m.month }}{% if loop.first and report.partial_last_month %}
+        <div class="theme-why">month to date &mdash; incomplete</div>{% endif %}</td>
+      <td class="num">{{ m.total }}</td>
+      <td class="num">{{ m.actionable }}</td>
+      <td class="num">{{ m.blocking }}</td>
+      <td class="num">
+        {% if m.delta_actionable is none %}<span class="trend-flat">&mdash;</span>
+        {% elif m.delta_actionable > 0 %}<span class="trend-up">+{{ m.delta_actionable }}</span>
+        {% elif m.delta_actionable < 0 %}<span class="trend-down">{{ m.delta_actionable }}</span>
+        {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td class="num">{{ m.themes_active }}</td>
+      <td class="theme-why">
+        {% for x in m.up %}<div class="trend-up">{{ x.label }} +{{ x.delta }}</div>{% endfor %}
+        {% if not m.up %}&mdash;{% endif %}
+      </td>
+      <td class="theme-why">
+        {% for x in m.down %}<div class="trend-down">{{ x.label }} {{ x.delta }}</div>{% endfor %}
+        {% if not m.down %}&mdash;{% endif %}
+      </td>
+      <td class="theme-why">
+        <a href="{{ depth }}months/{{ m.month }}.html">full month</a>
+        {% if m.month in archived %}
+          &middot; <a href="{{ depth }}archive/{{ m.month }}/">snapshot</a>
+        {% endif %}
+      </td>
     </tr>
   {% endfor %}
   </tbody>
@@ -301,6 +381,85 @@
   </div>
 </div>
 
+<div class="section-title" id="method">How these numbers are made, and where they are weak</div>
+<div class="section-note">
+  Read this before quoting anything below the top theme.
+</div>
+<table>
+  <tbody>
+    <tr>
+      <td style="width:220px"><strong>Grouping</strong></td>
+      <td>
+        Every ticket is matched against an ordered list of regex patterns, first
+        match wins, so each ticket lands in exactly one theme and the counts add up.
+        Order is by root cause, not symptom: a patient who was billed out-of-network
+        after a cancellation is counted under insurance, not cancellations.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Grouping accuracy</strong></td>
+      <td>
+        Measured on a test set of <strong>65 tickets frozen before the patterns were
+        last tuned</strong>, and never used to tune them. On that set the classifier
+        picks the same theme a human did <strong>{{ report.accuracy.heldout_pct }}%</strong>
+        of the time ({{ report.accuracy.heldout_correct }} of
+        {{ report.accuracy.heldout_n }}), rising to
+        <strong>{{ report.accuracy.heldout_lenient_pct }}%</strong> if you credit the cases
+        where it declined to classify a ticket a human called noise. On the
+        {{ report.accuracy.train_n }} tickets that <em>were</em> used for tuning it scores
+        <strong>{{ report.accuracy.train_pct }}%</strong> &mdash; the gap between those two
+        numbers is the honest measure of how much the tuning flatters itself, and the
+        lower one is the one to plan against. Recall is worst on
+        <em>booking never reaches the practice</em> and <em>locked out of the account</em>,
+        both of which are probably still undercounted here.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Impact score</strong></td>
+      <td>
+        3&times; booking-blocking + 1&times; degrading + 0&times; cosmetic.
+        <strong>{{ report.totals.blocking_inferred_pct }}% of the blocking count
+        ({{ report.totals.blocking_inferred }} of {{ report.totals.blocking }}) is inferred
+        from the theme, not read from the ticket</strong>: five themes are treated as
+        blocking by definition, on the reasoning that a patient whose booking never
+        reached the practice lost the appointment whether or not they said so. The
+        consequence is that for those themes impact is arithmetically 3&times; volume, they
+        occupy the top of every impact ranking on this site, and a high-volume theme with
+        honestly-measured low severity &mdash; filters returning the wrong providers, at
+        34 reports &mdash; sorts below them. The &dagger; marker shows how many of a
+        theme's blocking reports are inferred rather than evidenced.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Coverage</strong></td>
+      <td>
+        {{ report.totals.unclassified_pct }}% of actionable tickets match no theme, and
+        {{ report.totals.noise_pct }}% of all intake is excluded as non-actionable before
+        themes are applied. Diagnostics (app version, OS, device) exist on only
+        {{ report.diagnostics.coverage_pct }}% of tickets, so every platform and version
+        split is a sample, not a census.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Window</strong></td>
+      <td>
+        {{ report.window.start }} to {{ report.window.end }}, enforced at aggregation
+        rather than trusted from the fetch. Reports are cumulative: theme totals cover
+        the whole window, and per-month figures live on the month pages.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Provenance</strong></td>
+      <td>
+        Generated on a maintainer's machine, not in CI &mdash; ticket text never leaves
+        that machine. Only these aggregates are published. A local audit file maps every
+        number here back to the exact ticket keys behind it; it is deliberately not
+        published, for the reason in the note below.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <div class="phi">
   <strong>PHI note.</strong> AFH tickets contain patient free text and device, session
   and tracking identifiers. One ticket is one patient, so ticket keys are treated as
@@ -308,6 +467,10 @@
   which is permission-gated:
   <a href="{{ report.jira.all }}">all tickets in window</a> &middot;
   <a href="{{ report.jira.open }}">still open</a>.
+  <br><br>
+  <strong>History:</strong>
+  <a href="{{ depth }}archive/">every published month</a> &mdash; each one frozen as it
+  read the day it went out.
   <br><br>
   <strong>Raw numbers:</strong>
   <a href="report.json">report.json</a> &middot;

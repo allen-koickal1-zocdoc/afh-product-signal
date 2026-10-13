@@ -98,11 +98,11 @@ def classify_one(ticket: dict, tax: dict) -> dict:
 
     if ticket.get("is_synthetic"):
         return {**row, "area": "Unclassified", "theme": "internal-test",
-                "theme_label": "Internal test ticket", "type": "NON_ACTIONABLE", "severity": "NONE"}
+                "theme_label": "Internal test ticket", "type": "NON_ACTIONABLE", "severity": "NONE", "severity_source": "n/a"}
 
     def _noise(rule):
         return {**row, "area": "Unclassified", "theme": rule["id"],
-                "theme_label": rule["label"], "type": "NON_ACTIONABLE", "severity": "NONE"}
+                "theme_label": rule["label"], "type": "NON_ACTIONABLE", "severity": "NONE", "severity_source": "n/a"}
 
     # Hard noise: intake that can never carry product signal. Short-circuits.
     for rule in tax["non_actionable"]:
@@ -121,7 +121,8 @@ def classify_one(ticket: dict, tax: dict) -> dict:
             if re.search(rule["match"], hay, re.I | re.M):
                 return _noise(rule)
         return {**row, "area": "Unclassified", "theme": "unclassified",
-                "theme_label": "Unclassified", "type": _type_of(hay), "severity": _severity(hay, None)}
+                "theme_label": "Unclassified", "type": _type_of(hay),
+                "severity": _severity(hay, None)[0], "severity_source": _severity(hay, None)[1]}
 
     sub = next(
         (s for s in theme.get("subthemes", []) if re.search(s["match"], hay, re.I | re.M)),
@@ -137,7 +138,8 @@ def classify_one(ticket: dict, tax: dict) -> dict:
         "subtheme": sub["id"] if sub else "other",
         "subtheme_label": sub["label"] if sub else "Other / not broken out",
         "type": _type_of(hay),
-        "severity": _severity(hay, theme),
+        "severity": _severity(hay, theme)[0],
+        "severity_source": _severity(hay, theme)[1],
     }
 
 
@@ -160,14 +162,22 @@ def _type_of(hay: str) -> str:
     return "DEFECT"
 
 
-def _severity(hay: str, theme) -> str:
+def _severity(hay: str, theme) -> tuple:
+    """Return (severity, source).
+
+    The floor exists because some themes are blocking by definition -- if the
+    office has no record of the booking, the patient lost the appointment
+    whether or not they used the word. But the floor decides most of the
+    blocking count, so it has to be visible: "evidenced" means the ticket text
+    said so, "inferred" means the theme asserted it.
+    """
     if BLOCKING.search(hay):
-        return "BLOCKS_BOOKING"
+        return "BLOCKS_BOOKING", "text"
     if theme and theme.get("severity_floor") == "BLOCKS_BOOKING":
-        return "BLOCKS_BOOKING"
+        return "BLOCKS_BOOKING", "theme_floor"
     if DEGRADING.search(hay):
-        return "DEGRADES"
-    return "ANNOYANCE"
+        return "DEGRADES", "text"
+    return "ANNOYANCE", "text"
 
 
 def main():

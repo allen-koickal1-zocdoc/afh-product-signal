@@ -17,7 +17,7 @@ on:
         type: boolean
         default: false
 
-# Two scheduled runs overlapping would race the gh-pages push. Let the newer win.
+# Two runs overlapping would race the gh-pages push. Queue, never cancel.
 concurrency:
   group: afh-report
   cancel-in-progress: false
@@ -45,8 +45,23 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Cheap insurance: a broken classifier should fail here, not silently
-      # publish wrong numbers to a dashboard people make decisions from.
+      # Ticket key -> theme labels are patient-level, so they live in secrets,
+      # not the repo. Without them the published accuracy would read 0 of 0.
+      - name: Restore hand labels (job-local only)
+        env:
+          AFH_GOLD_SET: ${{ secrets.AFH_GOLD_SET }}
+          AFH_TEST_SET: ${{ secrets.AFH_TEST_SET }}
+        run: |
+          if [ -z "${AFH_GOLD_SET}" ] || [ -z "${AFH_TEST_SET}" ]; then
+            echo "AFH_GOLD_SET / AFH_TEST_SET secrets are required" >&2
+            exit 1
+          fi
+          mkdir -p tests/data
+          printf '%s\n' "${AFH_GOLD_SET}" > tests/data/gold_set.tsv
+          printf '%s\n' "${AFH_TEST_SET}" > tests/data/test_set.tsv
+
+      # A broken classifier should fail here, not silently publish wrong
+      # numbers to a dashboard people make decisions from.
       - name: Test
         run: python -m pytest tests/ -q
 
@@ -73,6 +88,13 @@ jobs:
             --tickets "${WORKDIR}/tickets.json" \
             --output  "${WORKDIR}/classified.json"
 
+      - name: Grouping precision (held-out set)
+        env:
+          AFH_WORKDIR: ${{ env.WORKDIR }}
+        run: python -m pytest tests/test_precision.py -q
+
+      # No --audit-output: the theme -> ticket-key map is patient-level and has
+      # no business on a runner. Audit a number with run_month.sh locally.
       - name: Compute report (aggregates only — this is the PHI boundary)
         run: |
           python3 scripts/compute_report.py \
@@ -99,29 +121,27 @@ jobs:
             --report    "${WORKDIR}/report.json" \
             --pages-dir "${WORKDIR}/pages"
 
-      # The root page always shows the newest month; each month also keeps a
-      # permalink, so a Slack link posted in June still reads as June next year.
-      - name: Stage the month permalink
+      # publish.py owns the gh-pages layout: newest month at the root, a frozen
+      # archive/<month>/ permalink, the archive index, and a final PHI scan over
+      # the whole assembled tree before it pushes.
+      - name: Publish to gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DEST="${WORKDIR}/pages/archive/${{ steps.window.outputs.month }}"
-          mkdir -p "${DEST}"
-          # Everything except the archive dir itself, so months do not nest.
-          rsync -a --exclude 'archive' "${WORKDIR}/pages/" "${DEST}/"
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.WORKDIR }}/pages
-          keep_files: true   # never wipe older months out of archive/
-          commit_message: "AFH product signal — ${{ steps.window.outputs.label }}"
+          python3 scripts/publish.py \
+            --pages  "${WORKDIR}/pages" \
+            --report "${WORKDIR}/report.json" \
+            --month  "${{ steps.window.outputs.month }}" \
+            --label  "${{ steps.window.outputs.label }}" \
+            --remote "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" \
+            --push
 
       - name: Slack digest
         if: ${{ inputs.skip_slack != true }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: |
-          ORG=$(echo "${{ github.repository }}" | cut -d/ -f1)
+          ORG=$(echo "${{ github.repository }}" | cut -d/ -f1 | tr '[:upper:]' '[:lower:]')
           REPO=$(echo "${{ github.repository }}" | cut -d/ -f2)
           python3 scripts/notify_slack.py \
             --report "${WORKDIR}/report.json" \
@@ -131,4 +151,4 @@ jobs:
 
       - name: Shred the PHI workdir
         if: always()
-        run: rm -rf "${WORKDIR}"
+        run: rm -rf "${WORKDIR}" tests/data
