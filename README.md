@@ -38,7 +38,7 @@ rather than by ticket volume.
 **Exports** — `report.json`, `themes.csv`, `subthemes.csv`, `monthly.csv`
 (theme × month, long format). Linked from the page footer. All aggregates.
 
-Plus a Slack digest to `#afh-jira` with the top five.
+Plus a Slack digest to `#test-ak` with the top five.
 
 ## Ranking
 
@@ -132,6 +132,7 @@ reach the dashboard or Slack.
   served** — HTML, CSV, JSON — because a template or an export can leak
   something the aggregate never held. Either failure blocks the deploy.
 - The workflow writes PHI only to `/tmp/afh` and shreds it in an `always()` step.
+  The theme→ticket-key audit map is never written on the runner; build it locally with `run_month.sh`.
 - `.gitignore` blocks `tickets.json`, `classified.json` and `work/`.
 
 Drill-down into individual tickets happens in Jira, which is permission-gated.
@@ -161,7 +162,9 @@ Slack digest without posting: add `--dry-run` to `notify_slack.py`.
 |---|---|
 | `JIRA_EMAIL` | Jira account email for API auth |
 | `JIRA_API_TOKEN` | Jira API token |
-| `SLACK_BOT_TOKEN` | Bot token for the `#afh-jira` digest |
+| `SLACK_BOT_TOKEN` | Bot token for the `#test-ak` digest |
+| `AFH_GOLD_SET` | Contents of `tests/data/gold_set.tsv` (train labels; ticket keys, so never committed) |
+| `AFH_TEST_SET` | Contents of `tests/data/test_set.tsv` (held-out labels; same) |
 
 ## Schedule
 
@@ -173,7 +176,7 @@ Manual runs: **Actions → AFH Product Signal → Run workflow**. Two inputs:
 | Input | Effect |
 |---|---|
 | `month` | `YYYY-MM`. Blank = last complete month. Give it the current month for a month-to-date read; the window clamps to today and the page is labelled *(month to date)*. |
-| `skip_slack` | Regenerate the dashboard without posting to `#afh-jira`. Use this when re-running after a taxonomy change. |
+| `skip_slack` | Regenerate the dashboard without posting to `#test-ak`. Use this when re-running after a taxonomy change. |
 
 Backfilling an older month is the same thing: pass its `YYYY-MM`.
 
@@ -197,7 +200,7 @@ Each run publishes twice:
 
 The Slack digest links to the **permalink**, so a message posted in June still
 shows June's numbers a year later. Old months are never overwritten
-(`keep_files: true`).
+(`publish.py` clones gh-pages and only replaces the month it is publishing).
 
 ## Known data quirks
 

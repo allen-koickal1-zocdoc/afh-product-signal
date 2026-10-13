@@ -101,6 +101,15 @@ def main():
             print(f"  - {p}", file=sys.stderr)
         sys.exit(1)
 
+    if checked == 0:
+        # A guard that scans nothing and reports success is worse than no guard:
+        # a typo'd --pages-dir would wave an unpublished build straight through.
+        print(
+            "PHI guard FAILED — scanned 0 files. Check --report / --pages-dir paths.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     print(f"PHI guard passed: {checked} file(s), aggregates only")
 
 

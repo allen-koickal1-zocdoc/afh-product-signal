@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% block title %}{{ m.month }} &mdash; AFH Product Signal{% endblock %}
+{% block heading %}{{ m.month }}{% endblock %}
+{% block subtitle %}
+  {{ m.actionable }} actionable of {{ m.total }} tickets &middot;
+  {{ m.blocking }} cost the patient the appointment or money
+  {% if partial %}&middot; month to date, incomplete{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{{ depth }}index.html">Latest report</a>
+  <span class="sep">&rsaquo;</span><a href="{{ depth }}archive/">History</a>
+  <span class="sep">&rsaquo;</span>{{ m.month }}
+  {% if prev %}<span class="sep">|</span><a href="{{ prev }}.html">&larr; {{ prev }}</a>{% endif %}
+  {% if next %}<span class="sep">|</span><a href="{{ next }}.html">{{ next }} &rarr;</a>{% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% set scale = (m.rows|map(attribute='series_max')|max) if m.rows else 1 %}
+
+{% if partial %}
+<div class="alert">
+  <h3>Incomplete month</h3>
+  <ul><li>This month is still running. Every count below is a partial and every
+  change against last month reads low. Do not compare it to a finished month.</li></ul>
+</div>
+{% endif %}
+
+{% if m.worst %}
+<div class="verdict{{ ' calm' if not m.blocking }}">
+  <h2>What {{ m.month }} looked like</h2>
+  <p>
+    The worst theme of the month was
+    <strong>{{ m.worst.label|lower }}</strong> ({{ m.worst.area }}) &mdash;
+    {{ m.worst.now }} report{{ '' if m.worst.now == 1 else 's' }},
+    {{ m.worst.blocking }} of which cost the patient the appointment or money.
+    It carried
+    <strong>{{ (100 * m.worst.impact / m.impact)|round|int if m.impact else 0 }}%</strong>
+    of the month's total harm across {{ m.themes_active }} active theme{{ '' if m.themes_active == 1 else 's' }}{%
+    if m.worst.peak %}, and this was its worst month on record{% endif %}.
+    {% if m.delta_actionable is not none %}
+      Actionable volume {% if m.delta_actionable > 0 %}rose {{ m.delta_actionable }}{%
+      elif m.delta_actionable < 0 %}fell {{ -m.delta_actionable }}{% else %}was flat{% endif %}
+      against {{ prev }}.
+    {% else %}
+      This is the first month in the window, so nothing here is a change against anything.
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.actionable }}</div>
+    <div class="kpi-label">Actionable</div>
+    <div class="kpi-sub">
+      {% if m.delta_actionable is none %}no prior month
+      {% else %}{{ '+' if m.delta_actionable > 0 }}{{ m.delta_actionable }} vs {{ prev }}{% endif %}
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.blocking }}</div>
+    <div class="kpi-label">Blocking</div>
+    <div class="kpi-sub">{{ m.blocking_evidenced }} said so &middot;
+      {{ m.blocking_inferred }} inferred from theme</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.impact }}</div>
+    <div class="kpi-label">Impact score</div>
+    <div class="kpi-sub">3&times;blocking + 1&times;degrading{% if m.blocking_inferred_pct %} &middot;
+      {{ m.blocking_inferred_pct }}% of the blocking term inferred{% endif %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.themes_active }}</div>
+    <div class="kpi-label">Themes active</div>
+    <div class="kpi-sub">{{ m.new|length }} new &middot; {{ m.quiet|length }} went quiet</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.noise }}</div>
+    <div class="kpi-label">Non-actionable</div>
+    <div class="kpi-sub">
+      {{ (100 * m.noise / m.total)|round|int if m.total else 0 }}% of {{ m.total }} tickets
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ m.versions|length }}</div>
+    <div class="kpi-label">App versions seen</div>
+    <div class="kpi-sub">where diagnostics exist</div>
+  </div>
+</div>
+
+{% if m.new %}
+<div class="alert shift">
+  <h3>First seen this month</h3>
+  <ul>
+    {% for x in m.new %}
+    <li><span class="tag new">new</span>
+      <strong>{{ x.label }}</strong> ({{ x.area }}) &mdash; {{ x.now }} report{{ '' if x.now == 1 else 's' }},
+      {{ x.blocking }} blocking. No occurrence in any earlier month.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if m.quiet %}
+<div class="alert" style="background:#f4fbf7;border-color:#c9ecd9;border-left-color:var(--green)">
+  <h3 style="color:var(--green)">Went quiet this month</h3>
+  <ul>
+    {% for x in m.quiet %}
+    <li><strong>{{ x.label }}</strong> &mdash; {{ x.was }} last month, none this month.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="section-title">Where it hurt in {{ m.month }}</div>
+<div class="section-note">
+  All {{ m.rows|length }} themes that saw at least one report, ranked by impact
+  &mdash; 3 points per report that cost the appointment or money, 1 per degraded
+  experience, 0 for a minor annoyance &mdash; not by raw count. The bar is that
+  theme's severity mix for the month. The sparkline is its whole history with
+  {{ m.month }} marked in red; bars to the right of the mark are later months.
+  &ldquo;Peak&rdquo; means this was its busiest month on record.
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th><th>Area</th><th>Severity mix</th>
+      <th class="num">Reports</th><th class="num">Blocking</th><th class="num">Impact</th>
+      <th class="num">{{ prev or 'Prior' }}</th><th class="num">Change</th>
+      <th>History</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for t in m.rows %}
+    <tr>
+      <td class="theme-name">
+        {% if has_page(t.id) %}<a href="{{ depth }}themes/{{ t.id }}.html">{{ t.label }}</a>
+        {% else %}{{ t.label }}{% endif %}
+      </td>
+      <td><span class="area-chip">{{ t.area }}</span></td>
+      <td>
+        <div class="bar" title="{{ t.blocking }} blocking / {{ t.degrades }} degrading / {{ t.annoyance }} minor">
+          <span class="b" style="width: {{ (100 * t.blocking / t.now)|round|int }}%"></span>
+          <span class="d" style="width: {{ (100 * t.degrades / t.now)|round|int }}%"></span>
+          <span class="a" style="width: {{ (100 * t.annoyance / t.now)|round|int }}%"></span>
+        </div>
+      </td>
+      <td class="num">{{ t.now }}</td>
+      <td class="num">{{ t.blocking }}</td>
+      <td class="num"><strong>{{ t.impact }}</strong></td>
+      <td class="num">{{ t.was if prev else '&mdash;'|safe }}</td>
+      <td class="num">
+        {% if t.delta is none %}<span class="trend-flat">&mdash;</span>
+        {% elif t.delta > 0 %}<span class="trend-up">+{{ t.delta }}</span>
+        {% elif t.delta < 0 %}<span class="trend-down">{{ t.delta }}</span>
+        {% else %}<span class="trend-flat">0</span>{% endif %}
+      </td>
+      <td>
+        <div class="spark" title="{{ t.series|join(', ') }}">
+          {% for v in t.series %}
+          <i class="{% if loop.index0 == t.index %}now{% elif loop.index0 > t.index %}after{% endif %}"
+             style="height: {{ (26 * v / scale)|round|int if scale else 1 }}px"></i>
+          {% endfor %}
+        </div>
+      </td>
+      <td>{% if t.peak %}<span class="tag new">peak</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if m.up or m.down %}
+<div class="two-col">
+  <div>
+    <div class="section-title">Rose the most</div>
+    <div class="section-note">Biggest increases against {{ prev }}.</div>
+    <table>
+      <thead><tr><th>Theme</th><th class="num">{{ prev }}</th><th class="num">{{ m.month }}</th><th class="num">Change</th></tr></thead>
+      <tbody>
+      {% for x in m.up %}
+        <tr><td class="theme-name">{{ x.label }}</td><td class="num">{{ x.was }}</td>
+            <td class="num">{{ x.now }}</td><td class="num"><span class="trend-up">+{{ x.delta }}</span></td></tr>
+      {% else %}
+        <tr><td colspan="4" class="muted">Nothing rose this month.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Fell the most</div>
+    <div class="section-note">Biggest decreases against {{ prev }}.</div>
+    <table>
+      <thead><tr><th>Theme</th><th class="num">{{ prev }}</th><th class="num">{{ m.month }}</th><th class="num">Change</th></tr></thead>
+      <tbody>
+      {% for x in m.down %}
+        <tr><td class="theme-name">{{ x.label }}</td><td class="num">{{ x.was }}</td>
+            <td class="num">{{ x.now }}</td><td class="num"><span class="trend-down">{{ x.delta }}</span></td></tr>
+      {% else %}
+        <tr><td colspan="4" class="muted">Nothing fell this month.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="section-title">By product area in {{ m.month }}</div>
+<div class="section-note">
+  The same reports rolled up to the team that would own the fix. The bar is the
+  share of that area's reports that blocked a booking outright.
+</div>
+<table>
+  <thead>
+    <tr><th>Area</th><th>Blocking share</th><th class="num">Reports</th>
+        <th class="num">Blocking</th><th class="num">Impact</th><th class="num">Themes</th></tr>
+  </thead>
+  <tbody>
+  {% for a in m.areas %}
+    <tr>
+      <td><span class="area-chip">{{ a.area }}</span></td>
+      <td>
+        <div class="bar" title="{{ a.blocking }} of {{ a.reports }} reports in this area block booking">
+          <span class="b" style="width: {{ (100 * a.blocking / a.reports)|round|int if a.reports else 0 }}%"></span>
+          <span class="a" style="width: {{ (100 * (a.reports - a.blocking) / a.reports)|round|int if a.reports else 0 }}%"></span>
+        </div>
+      </td>
+      <td class="num">{{ a.reports }}</td>
+      <td class="num">{{ a.blocking }}</td>
+      <td class="num"><strong>{{ a.impact }}</strong></td>
+      <td class="num">{{ a.themes }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if m.subs %}
+<div class="section-title">What specifically failed</div>
+<div class="section-note">
+  Sub-themes are the named failure inside a theme, so this is the closest the
+  published data gets to a bug list. Reports that matched a theme but no specific
+  pattern within it are excluded here &mdash; they appear in the theme totals above.
+</div>
+<table>
+  <thead><tr><th>Specific failure</th><th>Theme</th><th class="num">Reports</th></tr></thead>
+  <tbody>
+  {% for s in m.subs %}
+    <tr>
+      <td>{{ s.label }}</td>
+      <td class="theme-name">
+        {% if has_page(s.theme_id) %}<a href="{{ depth }}themes/{{ s.theme_id }}.html">{{ s.theme }}</a>
+        {% else %}{{ s.theme }}{% endif %}
+      </td>
+      <td class="num">{{ s.count }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="two-col">
+  <div>
+    <div class="section-title">Platform</div>
+    <div class="section-note">
+      Known only where the ticket carried diagnostics. &ldquo;unknown&rdquo; is
+      not a third platform &mdash; it is missing data.
+    </div>
+    <table>
+      <thead><tr><th>Platform</th><th>Share</th><th class="num">Reports</th></tr></thead>
+      <tbody>
+      {% for p in m.platform %}
+        <tr{% if p.platform == 'unknown' %} class="muted"{% endif %}>
+          <td>{{ p.platform }}</td>
+          <td>
+            <div class="bar">
+              <span class="{{ 'a' if p.platform == 'unknown' else 'b' }}"
+                    style="width: {{ (100 * p.count / m.actionable)|round|int if m.actionable else 0 }}%"></span>
+            </div>
+          </td>
+          <td class="num">{{ p.count }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">No diagnostics on any ticket this month.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="section-title">App versions</div>
+    <div class="section-note">
+      Which builds the month's reports came from. A theme concentrated on one
+      build is a release regression; one spread across many is not.
+    </div>
+    <table>
+      <thead><tr><th>Version</th><th>Share</th><th class="num">Reports</th></tr></thead>
+      <tbody>
+      {% for v in m.versions %}
+        <tr>
+          <td class="ver">{{ v.version }}</td>
+          <td>
+            <div class="bar">
+              <span class="b" style="width: {{ (100 * v.count / m.actionable)|round|int if m.actionable else 0 }}%"></span>
+            </div>
+          </td>
+          <td class="num">{{ v.count }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">No diagnostics on any ticket this month.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-title">Signal quality in {{ m.month }}</div>
+<div class="section-note">
+  What this month's feed could not tell you. Every row here is a limit on the
+  numbers above, not a footnote to them.
+</div>
+<div class="two-col">
+  <div>
+    <table>
+      <thead><tr><th>What was filtered out</th><th>Share</th><th class="num">Tickets</th></tr></thead>
+      <tbody>
+      {% for n in m.noise_breakdown %}
+        <tr class="muted">
+          <td>{{ n.theme|replace('-', ' ')|title }}</td>
+          <td>
+            <div class="bar">
+              <span class="a" style="width: {{ (100 * n.count / m.total)|round|int if m.total else 0 }}%"></span>
+            </div>
+          </td>
+          <td class="num">{{ n.count }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">Nothing was filtered out this month.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <table>
+      <thead><tr><th>Coverage</th><th class="num">Tickets</th><th class="num">Share</th></tr></thead>
+      <tbody>
+        <tr><td>Tickets created in {{ m.month }}</td>
+            <td class="num">{{ m.total }}</td><td class="num">100%</td></tr>
+        <tr><td>Reached a theme</td><td class="num">{{ m.actionable }}</td>
+            <td class="num">{{ (100 * m.actionable / m.total)|round|int if m.total else 0 }}%</td></tr>
+        <tr><td>Excluded as non-actionable</td><td class="num">{{ m.noise }}</td>
+            <td class="num">{{ (100 * m.noise / m.total)|round|int if m.total else 0 }}%</td></tr>
+        <tr{% if m.unclassified %} class="muted"{% endif %}>
+            <td>Actionable but matched no theme</td><td class="num">{{ m.unclassified }}</td>
+            <td class="num">{{ (100 * m.unclassified / m.total)|round|int if m.total else 0 }}%</td></tr>
+        <tr><td>Reports with no diagnostics</td>
+            <td class="num">{{ m.actionable - m.diagnostics }}</td>
+            <td class="num">{{ (100 * (m.actionable - m.diagnostics) / m.total)|round|int if m.total else 0 }}%</td></tr>
+        <tr{% if m.blocking_inferred %} class="muted"{% endif %}>
+            <td>Blocking inferred from a theme, not stated</td>
+            <td class="num">{{ m.blocking_inferred }}</td>
+            <td class="num">{{ m.blocking_inferred_pct }}% of blocking</td></tr>
+      </tbody>
+    </table>
+    <div class="section-note" style="margin-top:0.75rem">
+      Grouping is a deterministic keyword classifier, first match wins, so each
+      ticket lands in exactly one theme and these counts add up. On a held-out
+      sample it was never tuned against it puts
+      <strong>{{ report.accuracy.heldout_correct }} of
+      {{ report.accuracy.heldout_n }} ({{ report.accuracy.heldout_pct }}%)</strong>
+      tickets in the right theme &mdash; against
+      {{ report.accuracy.train_pct }}% on the tickets it <em>was</em> tuned
+      against. Treat any single row as an estimate, and see
+      <a href="{{ depth }}index.html#method">how these numbers are made</a> before
+      acting on one.
+    </div>
+  </div>
+</div>
+
+<div class="phi">
+  <strong>Counts on this page are for {{ m.month }} alone.</strong> The main report is
+  cumulative across the whole window, so its theme totals will always be larger.
+  To read the tickets themselves use Jira, which is permission-gated:
+  <a href="{{ month_jql }}">tickets created in {{ m.month }}</a>.
+  Ticket keys are patient-level data and are never published here.
+</div>
+
+{% endblock %}

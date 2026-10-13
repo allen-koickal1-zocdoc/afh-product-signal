@@ -12,6 +12,7 @@ import calendar
 import json
 import os
 import statistics
+from pathlib import Path
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
@@ -186,31 +187,242 @@ def _movers(themes, months, limit=5):
     return {"up": up, "down": down}
 
 
+DATA_DIR = Path(__file__).resolve().parent.parent / "tests" / "data"
+
+
+def _read_labels(name):
+    f = DATA_DIR / name
+    if not f.exists():
+        return {}
+    out = {}
+    for line in f.read_text().splitlines():
+        if not line.strip() or line.startswith("#") or line.startswith("key\t"):
+            continue
+        parts = line.split("\t")
+        if len(parts) >= 2:
+            t = parts[1].strip()
+            out[parts[0]] = "noise" if t.upper().startswith("NOISE") else t
+    return out
+
+
+def _accuracy(rows):
+    """Score the classifier against the hand labels, at report time.
+
+    Computed here rather than written down so the published accuracy figure can
+    never drift from the classifier that produced the page. The test set was
+    frozen before the last tuning round; the train set is what the patterns were
+    tuned on, and the gap between the two is the point.
+    """
+    got = {r["key"]: (r["theme"] if r["type"] != "NON_ACTIONABLE" else "noise")
+           for r in rows}
+
+    def score(labels):
+        pairs = [(g, got[k]) for k, g in labels.items() if k in got]
+        hit = sum(1 for g, p in pairs if g == p)
+        # Declining to classify a ticket a human called noise is a softer failure
+        # than filing it under the wrong product area -- report it separately.
+        len_hit = sum(1 for g, p in pairs
+                      if g == p or (g == "noise" and p == "unclassified"))
+        return len(pairs), hit, len_hit
+
+    tn, th, _ = score(_read_labels("gold_set.tsv"))
+    en, eh, el = score(_read_labels("test_set.tsv"))
+    pct = lambda a, b: round(100 * a / b) if b else 0
+    return {
+        "train_n": tn, "train_correct": th, "train_pct": pct(th, tn),
+        "heldout_n": en, "heldout_correct": eh, "heldout_pct": pct(eh, en),
+        "heldout_lenient_correct": el, "heldout_lenient_pct": pct(el, en),
+        "overfit_gap": pct(th, tn) - pct(eh, en),
+    }
+
+
+def _timeline(themes, months, rows, actionable):
+    """One full record per month, not just a headline.
+
+    The report is cumulative, so a single run already holds the whole monthly
+    series -- there is no need to keep a history file to answer "what happened
+    in March". Everything a month page shows is derived here so the templates
+    stay dumb and this stays testable.
+
+    Deltas compare against the immediately preceding month, so the first month
+    reports no movers rather than a fake +N against zero.
+    """
+    series = {t["id"]: dict(zip(months, t["by_month"])) for t in themes}
+    blocking = {t["id"]: dict(zip(months, t["blocking_by_month"])) for t in themes}
+    meta = {t["id"]: t for t in themes}
+    peaks = {t["id"]: max(series[t["id"]].values() or [0]) for t in themes}
+
+    per_month = defaultdict(lambda: {"platform": Counter(), "versions": Counter(),
+                                     "noise": Counter(), "sev": Counter(),
+                                     "src": Counter()})
+    for r in rows:
+        if not r["created"]:
+            continue
+        m = per_month[_month(r["created"])]
+        if r["type"] == "NON_ACTIONABLE":
+            m["noise"][r["theme"]] += 1
+    for r in actionable:
+        if not r["created"]:
+            continue
+        m = per_month[_month(r["created"])]
+        m["platform"][r["platform"]] += 1
+        m["sev"][r["severity"]] += 1
+        if r["severity"] == "BLOCKS_BOOKING":
+            m["src"][r.get("severity_source", "text")] += 1
+        if r["app_version"]:
+            m["versions"][r["app_version"]] += 1
+
+    out = []
+    for i, month in enumerate(months):
+        prev = months[i - 1] if i else None
+        agg = per_month[month]
+
+        active = []
+        for tid, by_m in series.items():
+            now = by_m.get(month, 0)
+            was = by_m.get(prev, 0) if prev else 0
+            if not now and not was:
+                continue
+            t = meta[tid]
+            sub_label = {x["id"]: x["label"] for x in t["subthemes"]}
+            sev = t["sev_by_month"].get(month, {})
+            blk = sev.get("BLOCKS_BOOKING", blocking[tid].get(month, 0))
+            deg = sev.get("DEGRADES", 0)
+            ann = sev.get("ANNOYANCE", 0)
+            active.append({
+                "id": tid, "label": t["label"], "area": t["area"],
+                "now": now, "was": was, "delta": now - was if prev else None,
+                "blocking": blk, "degrades": deg, "annoyance": ann,
+                # Same weighting the cumulative page ranks by, applied to one
+                # month. Ranking a month by raw count would put a pile of minor
+                # gripes above a handful of lost appointments.
+                "impact": IMPACT_WEIGHTS["BLOCKS_BOOKING"] * blk
+                + IMPACT_WEIGHTS["DEGRADES"] * deg
+                + IMPACT_WEIGHTS["ANNOYANCE"] * ann,
+                # The whole series travels with the row so a month page can draw
+                # this month in the context of every other month.
+                "series": [by_m.get(m, 0) for m in months],
+                "series_max": peaks[tid],
+                "index": i,
+                # Whether this month is the busiest this theme has ever been --
+                # a 3 that is a record reads differently from a 3 that is normal.
+                "peak": now > 0 and now == peaks[tid],
+                "subs": sorted(
+                    ({"id": sid, "label": sub_label.get(sid, sid), "count": c[month]}
+                     for sid, c in t["sub_by_month"].items() if c.get(month)),
+                    key=lambda x: (-x["count"], x["label"]),
+                ),
+            })
+        active.sort(key=lambda x: (-x["impact"], -x["now"], x["label"]))
+
+        # "New" means never seen before this month, not merely absent last month.
+        new = [a for a in active
+               if a["now"] and not any(series[a["id"]].get(m) for m in months[:i])]
+        quiet = [a for a in active if prev and a["was"] and not a["now"]]
+        movers = [a for a in active if a["delta"]]
+        movers.sort(key=lambda x: (-abs(x["delta"]), x["label"]))
+
+        total = sum(a["now"] for a in active)
+        shown = [a for a in active if a["now"]]
+        impact = sum(a["impact"] for a in shown)
+
+        areas = defaultdict(lambda: {"reports": 0, "blocking": 0, "impact": 0,
+                                     "themes": 0})
+        for a in shown:
+            z = areas[a["area"]]
+            z["reports"] += a["now"]
+            z["blocking"] += a["blocking"]
+            z["impact"] += a["impact"]
+            z["themes"] += 1
+        area_rows = sorted(
+            ({"area": k, **v} for k, v in areas.items()),
+            key=lambda x: (-x["impact"], -x["reports"], x["area"]),
+        )
+
+        # "Other" is the residue of a theme that had no specific pattern match,
+        # so it names nothing. Useful inside one theme, meaningless in a list
+        # ranking specific failures across all of them.
+        subs = sorted((s for a in shown for s in
+                       ({**x, "theme": a["label"], "theme_id": a["id"]}
+                        for x in a["subs"] if x["id"] != "other")),
+                      key=lambda x: (-x["count"], x["label"]))
+
+        out.append({
+            "month": month,
+            "total": sum(1 for r in rows if r["created"] and _month(r["created"]) == month),
+            "actionable": total,
+            "blocking": agg["sev"]["BLOCKS_BOOKING"],
+            # Of this month's blocking count, how much the patients actually
+            # said versus how much a theme's severity floor asserted.
+            "blocking_evidenced": agg["src"]["text"],
+            "blocking_inferred": agg["src"]["theme_floor"],
+            "blocking_inferred_pct": round(
+                100 * agg["src"]["theme_floor"] / agg["sev"]["BLOCKS_BOOKING"]
+            ) if agg["sev"]["BLOCKS_BOOKING"] else 0,
+            "degrades": agg["sev"]["DEGRADES"],
+            "annoyance": agg["sev"]["ANNOYANCE"],
+            "noise": sum(agg["noise"].values()),
+            "delta_actionable": total - sum(a["was"] for a in active) if prev else None,
+            "themes_active": len(shown),
+            "impact": impact,
+            "rows": shown,
+            "areas": area_rows,
+            "subs": subs[:12],
+            "worst": shown[0] if shown else None,
+            "unclassified": sum(1 for r in actionable
+                                if r["created"] and _month(r["created"]) == month
+                                and r["theme"] == "unclassified"),
+            "up": [x for x in movers if x["delta"] > 0][:3],
+            "down": [x for x in movers if x["delta"] < 0][:3],
+            "new": new,
+            "quiet": quiet,
+            "platform": [{"platform": k, "count": v} for k, v in agg["platform"].most_common()],
+            "versions": [{"version": k, "count": v} for k, v in agg["versions"].most_common(6)],
+            "diagnostics": sum(agg["versions"].values()),
+            "noise_breakdown": [{"theme": k, "count": v} for k, v in agg["noise"].most_common()],
+        })
+    return out
+
+
 def build(rows, tax, start_date, end_date, as_of):
+    # The window is enforced here, not trusted from upstream. In CI fetch_data
+    # already queries the window, but a wider input file (a cached fetch, a
+    # backfill) would otherwise leak later tickets into an earlier month's
+    # totals and fake a regression.
+    rows = [r for r in rows if r["created"] and start_date <= r["created"][:10] <= end_date]
     actionable = [r for r in rows if r["type"] != "NON_ACTIONABLE"]
     theme_meta = {t["id"]: t for t in tax["themes"]}
 
     by_theme = defaultdict(lambda: {"total": 0, "sev": Counter(), "type": Counter(),
                                     "months": Counter(), "versions": Counter(),
                                     "platform": Counter(), "sub": defaultdict(Counter),
-                                    "blocking_months": Counter()})
+                                    "sub_months": defaultdict(Counter),
+                                    "sev_months": defaultdict(Counter),
+                                    "blocking_months": Counter(),
+                                    "src": Counter()})
     for r in actionable:
         b = by_theme[r["theme"]]
         b["total"] += 1
         b["sev"][r["severity"]] += 1
         b["type"][r["type"]] += 1
         b["months"][_month(r["created"])] += 1
+        b["sev_months"][_month(r["created"])][r["severity"]] += 1
         b["platform"][r["platform"]] += 1
-        s = b["sub"][r.get("subtheme") or "other"]
+        sid = r.get("subtheme") or "other"
+        s = b["sub"][sid]
         s["total"] += 1
         s[r["severity"]] += 1
+        b["sub_months"][sid][_month(r["created"])] += 1
         if r["severity"] == "BLOCKS_BOOKING":
             b["blocking_months"][_month(r["created"])] += 1
+            b["src"][r.get("severity_source", "text")] += 1
         if r["app_version"]:
             b["versions"][r["app_version"]] += 1
 
     months = sorted({_month(r["created"]) for r in rows if r["created"]})
     total_blocking = sum(1 for r in actionable if r["severity"] == "BLOCKS_BOOKING")
+    blocking_inferred = sum(1 for r in actionable if r["severity"] == "BLOCKS_BOOKING"
+                            and r.get("severity_source") == "theme_floor")
 
     themes = []
     for tid, b in by_theme.items():
@@ -229,7 +441,14 @@ def build(rows, tax, start_date, end_date, as_of):
                     "label": sub_labels.get(sid, sid.replace("-", " ").capitalize()),
                     "total": c["total"],
                     "blocking": c["BLOCKS_BOOKING"],
+                    "degrades": c["DEGRADES"],
+                    "annoyance": c["ANNOYANCE"],
                     "pct": round(100 * c["total"] / b["total"]),
+                    "by_month": [b["sub_months"][sid].get(m, 0) for m in months],
+                    "first_month": next(
+                        (m for m in months if b["sub_months"][sid].get(m)), None),
+                    "last_month": next(
+                        (m for m in reversed(months) if b["sub_months"][sid].get(m)), None),
                 }
                 for sid, c in b["sub"].items()
             ),
@@ -247,16 +466,29 @@ def build(rows, tax, start_date, end_date, as_of):
             "total": b["total"],
             "impact": impact,
             "blocking": b["sev"]["BLOCKS_BOOKING"],
+            # Of the blocking count, how much the ticket text actually said
+            # versus how much the theme floor asserted.
+            "blocking_evidenced": b["src"]["text"],
+            "blocking_inferred": b["src"]["theme_floor"],
             "degrades": b["sev"]["DEGRADES"],
             "annoyance": b["sev"]["ANNOYANCE"],
             "defects": b["type"]["DEFECT"],
             "feature_requests": b["type"]["FEATURE_REQUEST"],
             "dissatisfaction": b["type"]["DISSATISFACTION"],
             "by_month": [b["months"].get(m, 0) for m in months],
+            "sev_by_month": {m: dict(b["sev_months"][m]) for m in months
+                             if b["sev_months"][m]},
+            "sub_by_month": {sid: dict(c) for sid, c in b["sub_months"].items()},
             "blocking_by_month": [b["blocking_months"].get(m, 0) for m in months],
             "latest_month": recent,
             "prev_month": prev,
             "trend": recent - prev,
+            # One month is a noisy read on a theme that sees single digits.
+            # The trailing quarter against the one before it is steadier.
+            "q_recent": sum(b["months"].get(m, 0) for m in months[-3:]),
+            "q_prior": sum(b["months"].get(m, 0) for m in months[-6:-3]),
+            "qoq": (sum(b["months"].get(m, 0) for m in months[-3:])
+                    - sum(b["months"].get(m, 0) for m in months[-6:-3])),
             "first_month": active[0] if active else None,
             "last_month": active[-1] if active else None,
             "months_active": len(active),
@@ -315,12 +547,17 @@ def build(rows, tax, start_date, end_date, as_of):
             "actionable": len(actionable),
             "noise": len(rows) - len(actionable),
             "noise_pct": round(100 * (len(rows) - len(actionable)) / len(rows)) if rows else 0,
-            "blocking": sum(1 for r in actionable if r["severity"] == "BLOCKS_BOOKING"),
+            "blocking": total_blocking,
+            "blocking_inferred": blocking_inferred,
+            "blocking_evidenced": total_blocking - blocking_inferred,
+            "blocking_inferred_pct": round(100 * blocking_inferred / total_blocking)
+                                     if total_blocking else 0,
             "unclassified": sum(1 for r in actionable if r["theme"] == "unclassified"),
             "unclassified_pct": round(
                 100 * sum(1 for r in actionable if r["theme"] == "unclassified") / len(actionable)
             ) if actionable else 0,
         },
+        "accuracy": _accuracy(rows),
         "months": months,
         "partial_last_month": partial,
         # Each month links to its own JQL. The dashboard cannot show ticket
@@ -331,6 +568,9 @@ def build(rows, tax, start_date, end_date, as_of):
                         f'project = AFH AND created >= "{m}-01" '
                         f'AND created < "{_next_month(m)}-01" ORDER BY created DESC')}
                    for m in months],
+        # Month-by-month trajectory, so the main page can show every month's
+        # change without republishing or refetching anything.
+        "timeline": _timeline(themes, months, rows, actionable),
         "themes": themes,
         "areas": areas,
         "movers": movers,
@@ -356,6 +596,44 @@ def build(rows, tax, start_date, end_date, as_of):
     }
 
 
+def write_audit(rows, start_date, end_date, path):
+    """Every published count, traceable back to the exact tickets behind it.
+
+    This is the answer to "where does 42 come from": open the audit file, read
+    the 42 keys, check them in Jira. It holds Jira keys (not bodies), which
+    assert_no_phi.py bans from anything published -- the Pages site is public and
+    a key there is a permanent pointer to a patient-authored complaint. So this
+    file lives in the PHI workdir and CI shreds it with the rest.
+    """
+    rows = [
+        r for r in rows if r["created"] and start_date <= r["created"][:10] <= end_date
+    ]
+    by_theme = {}
+    for r in rows:
+        if r["type"] == "NON_ACTIONABLE":
+            bucket = f"NON_ACTIONABLE:{r.get('noise_rule') or 'unknown'}"
+        else:
+            bucket = r.get("theme") or "unclassified"
+        entry = by_theme.setdefault(bucket, {"count": 0, "keys": [], "by_severity": {}})
+        entry["count"] += 1
+        entry["keys"].append(r["key"])
+        sev = r.get("severity", "n/a")
+        entry["by_severity"][sev] = entry["by_severity"].get(sev, 0) + 1
+
+    for entry in by_theme.values():
+        entry["keys"].sort(key=lambda k: (k.split("-")[0], int(k.split("-")[1])))
+        # Paste into Jira to see exactly this bucket.
+        entry["jql"] = f"key in ({', '.join(entry['keys'])})"
+
+    out = {
+        "window": {"start": start_date, "end": end_date},
+        "warning": "Contains Jira ticket keys. Local audit only — never publish.",
+        "themes": dict(sorted(by_theme.items(), key=lambda kv: -kv[1]["count"])),
+    }
+    with open(path, "w") as fh:
+        json.dump(out, fh, indent=2)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--classified", required=True)
@@ -363,6 +641,12 @@ def main():
     ap.add_argument("--start-date", required=True)
     ap.add_argument("--end-date", required=True)
     ap.add_argument("--as-of", default=None, help="YYYY-MM-DD, defaults to end-date")
+    ap.add_argument(
+        "--audit-output",
+        default=None,
+        help="Optional theme->ticket-key map for auditing a number back to source. "
+        "Contains Jira keys, so it stays in the PHI workdir and is never published.",
+    )
     args = ap.parse_args()
 
     with open(args.classified) as fh:
@@ -375,6 +659,10 @@ def main():
         json.dump(report, fh, indent=2)
 
     t = report["totals"]
+    if args.audit_output:
+        write_audit(rows, args.start_date, args.end_date, args.audit_output)
+        print(f"audit  -> {args.audit_output}  (ticket keys — do not publish)")
+
     print(f"report -> {args.output}")
     print(f"  {t['tickets']} tickets, {t['actionable']} actionable, "
           f"{t['blocking']} booking-blocking, {t['noise_pct']}% noise")
