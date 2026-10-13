@@ -399,6 +399,7 @@
     <tr>
       <td><strong>Grouping accuracy</strong></td>
       <td>
+        {% if report.accuracy.heldout_n %}
         Measured on a test set of <strong>65 tickets frozen before the patterns were
         last tuned</strong>, and never used to tune them. On that set the classifier
         picks the same theme a human did <strong>{{ report.accuracy.heldout_pct }}%</strong>
@@ -412,6 +413,10 @@
         lower one is the one to plan against. Recall is worst on
         <em>booking never reaches the practice</em> and <em>locked out of the account</em>,
         both of which are probably still undercounted here.
+        {% else %}
+        Not measured on this run: the hand-labelled sets are held outside the repo
+        and were not available. Treat every theme count as unvalidated.
+        {% endif %}
       </td>
     </tr>
     <tr>

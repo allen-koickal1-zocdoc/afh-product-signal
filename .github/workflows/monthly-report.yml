@@ -46,16 +46,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Ticket key -> theme labels are patient-level, so they live in secrets,
-      # not the repo. Without them the published accuracy would read 0 of 0.
-      - name: Restore hand labels (job-local only)
+      # Ticket key -> theme labels are patient-level, so they live in optional
+      # secrets, not the repo. Without them the run still publishes; the pages
+      # say accuracy was not measured instead of showing 0 of 0.
+      - name: Restore hand labels (job-local only, optional)
         env:
           AFH_GOLD_SET: ${{ secrets.AFH_GOLD_SET }}
           AFH_TEST_SET: ${{ secrets.AFH_TEST_SET }}
         run: |
           if [ -z "${AFH_GOLD_SET}" ] || [ -z "${AFH_TEST_SET}" ]; then
-            echo "AFH_GOLD_SET / AFH_TEST_SET secrets are required" >&2
-            exit 1
+            echo "::notice::AFH_GOLD_SET / AFH_TEST_SET not set; grouping accuracy will not be measured"
+            exit 0
           fi
           mkdir -p tests/data
           printf '%s\n' "${AFH_GOLD_SET}" > tests/data/gold_set.tsv
