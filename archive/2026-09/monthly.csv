@@ -1,0 +1,141 @@
+month,theme,label,area,reports,blocking
+2025-12,insurance-network-accuracy,In-network status is wrong,Insurance,3,3
+2026-01,insurance-network-accuracy,In-network status is wrong,Insurance,3,3
+2026-02,insurance-network-accuracy,In-network status is wrong,Insurance,4,4
+2026-03,insurance-network-accuracy,In-network status is wrong,Insurance,6,6
+2026-04,insurance-network-accuracy,In-network status is wrong,Insurance,4,4
+2026-05,insurance-network-accuracy,In-network status is wrong,Insurance,2,2
+2026-06,insurance-network-accuracy,In-network status is wrong,Insurance,12,12
+2026-07,insurance-network-accuracy,In-network status is wrong,Insurance,5,5
+2026-08,insurance-network-accuracy,In-network status is wrong,Insurance,3,3
+2026-09,insurance-network-accuracy,In-network status is wrong,Insurance,2,2
+2025-12,booking-office-sync,Booking never reaches the practice,Booking,3,3
+2026-01,booking-office-sync,Booking never reaches the practice,Booking,3,3
+2026-02,booking-office-sync,Booking never reaches the practice,Booking,1,1
+2026-03,booking-office-sync,Booking never reaches the practice,Booking,5,5
+2026-04,booking-office-sync,Booking never reaches the practice,Booking,2,2
+2026-05,booking-office-sync,Booking never reaches the practice,Booking,1,1
+2026-06,booking-office-sync,Booking never reaches the practice,Booking,1,1
+2026-07,booking-office-sync,Booking never reaches the practice,Booking,1,1
+2026-08,booking-office-sync,Booking never reaches the practice,Booking,1,1
+2026-01,provider-cancellations,Practice cancels or drops the appointment after booking,Booking,2,2
+2026-02,provider-cancellations,Practice cancels or drops the appointment after booking,Booking,1,1
+2026-04,provider-cancellations,Practice cancels or drops the appointment after booking,Booking,3,3
+2026-05,provider-cancellations,Practice cancels or drops the appointment after booking,Booking,1,1
+2026-07,provider-cancellations,Practice cancels or drops the appointment after booking,Booking,3,3
+2026-01,account-access,Locked out of the account,Account & Auth,1,1
+2026-03,account-access,Locked out of the account,Account & Auth,1,1
+2026-04,account-access,Locked out of the account,Account & Auth,4,4
+2026-05,account-access,Locked out of the account,Account & Auth,1,1
+2026-06,account-access,Locked out of the account,Account & Auth,1,1
+2026-07,account-access,Locked out of the account,Account & Auth,1,1
+2026-08,account-access,Locked out of the account,Account & Auth,1,1
+2025-12,booking-flow-blocked,Cannot complete the booking flow,Booking,1,1
+2026-02,booking-flow-blocked,Cannot complete the booking flow,Booking,2,2
+2026-05,booking-flow-blocked,Cannot complete the booking flow,Booking,1,1
+2026-06,booking-flow-blocked,Cannot complete the booking flow,Booking,1,1
+2026-07,booking-flow-blocked,Cannot complete the booking flow,Booking,2,2
+2026-05,ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,1,0
+2026-06,ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,6,1
+2026-07,ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,6,3
+2026-08,ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,5,0
+2026-09,ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,8,0
+2025-12,search-no-results,Search returns nothing bookable,Search & Discovery,1,0
+2026-01,search-no-results,Search returns nothing bookable,Search & Discovery,2,1
+2026-05,search-no-results,Search returns nothing bookable,Search & Discovery,2,1
+2026-07,search-no-results,Search returns nothing bookable,Search & Discovery,2,1
+2026-08,search-no-results,Search returns nothing bookable,Search & Discovery,1,0
+2025-12,search-filter-correctness,Filters return the wrong providers,Search & Discovery,1,0
+2026-02,search-filter-correctness,Filters return the wrong providers,Search & Discovery,8,0
+2026-03,search-filter-correctness,Filters return the wrong providers,Search & Discovery,3,0
+2026-04,search-filter-correctness,Filters return the wrong providers,Search & Discovery,3,0
+2026-05,search-filter-correctness,Filters return the wrong providers,Search & Discovery,4,0
+2026-06,search-filter-correctness,Filters return the wrong providers,Search & Discovery,5,0
+2026-07,search-filter-correctness,Filters return the wrong providers,Search & Discovery,5,1
+2026-08,search-filter-correctness,Filters return the wrong providers,Search & Discovery,2,1
+2026-09,search-filter-correctness,Filters return the wrong providers,Search & Discovery,3,0
+2025-12,appt-management,Problems with an appointment already booked,Appointment Management,1,0
+2026-01,appt-management,Problems with an appointment already booked,Appointment Management,2,1
+2026-02,appt-management,Problems with an appointment already booked,Appointment Management,1,0
+2026-03,appt-management,Problems with an appointment already booked,Appointment Management,2,1
+2026-04,appt-management,Problems with an appointment already booked,Appointment Management,1,0
+2026-05,appt-management,Problems with an appointment already booked,Appointment Management,2,0
+2026-06,appt-management,Problems with an appointment already booked,Appointment Management,1,0
+2026-07,appt-management,Problems with an appointment already booked,Appointment Management,3,0
+2026-09,appt-management,Problems with an appointment already booked,Appointment Management,2,0
+2026-01,provider-data-accuracy,Provider listing does not match reality,Provider Data,1,0
+2026-03,provider-data-accuracy,Provider listing does not match reality,Provider Data,4,0
+2026-05,provider-data-accuracy,Provider listing does not match reality,Provider Data,1,0
+2026-06,provider-data-accuracy,Provider listing does not match reality,Provider Data,1,0
+2026-07,provider-data-accuracy,Provider listing does not match reality,Provider Data,3,0
+2026-08,provider-data-accuracy,Provider listing does not match reality,Provider Data,1,0
+2026-09,provider-data-accuracy,Provider listing does not match reality,Provider Data,3,0
+2025-12,unclassified,Unclassified,Unclassified,2,0
+2026-01,unclassified,Unclassified,Unclassified,14,0
+2026-02,unclassified,Unclassified,Unclassified,6,0
+2026-03,unclassified,Unclassified,Unclassified,11,0
+2026-04,unclassified,Unclassified,Unclassified,4,0
+2026-05,unclassified,Unclassified,Unclassified,3,0
+2026-06,unclassified,Unclassified,Unclassified,1,0
+2026-07,unclassified,Unclassified,Unclassified,4,0
+2026-08,unclassified,Unclassified,Unclassified,7,0
+2026-09,unclassified,Unclassified,Unclassified,9,1
+2025-12,app-stability,Generic error / crash / will not load,App Platform,2,0
+2026-04,app-stability,Generic error / crash / will not load,App Platform,5,0
+2026-05,app-stability,Generic error / crash / will not load,App Platform,4,0
+2026-06,app-stability,Generic error / crash / will not load,App Platform,2,0
+2026-07,app-stability,Generic error / crash / will not load,App Platform,2,0
+2026-01,search-name-lookup,Cannot search for a provider by name,Search & Discovery,1,0
+2026-04,search-name-lookup,Cannot search for a provider by name,Search & Discovery,1,1
+2026-06,search-name-lookup,Cannot search for a provider by name,Search & Discovery,1,0
+2026-07,search-name-lookup,Cannot search for a provider by name,Search & Discovery,1,0
+2026-08,search-name-lookup,Cannot search for a provider by name,Search & Discovery,1,0
+2026-01,notifications,Notifications & email,Notifications,2,0
+2026-02,notifications,Notifications & email,Notifications,2,1
+2026-03,notifications,Notifications & email,Notifications,1,0
+2026-04,notifications,Notifications & email,Notifications,4,0
+2026-05,notifications,Notifications & email,Notifications,3,0
+2026-06,notifications,Notifications & email,Notifications,1,0
+2026-07,notifications,Notifications & email,Notifications,1,0
+2026-08,notifications,Notifications & email,Notifications,1,0
+2026-09,notifications,Notifications & email,Notifications,1,0
+2026-03,family-profiles,Family / dependent profiles,Account & Auth,1,1
+2026-04,family-profiles,Family / dependent profiles,Account & Auth,2,0
+2026-08,family-profiles,Family / dependent profiles,Account & Auth,1,0
+2026-09,family-profiles,Family / dependent profiles,Account & Auth,1,0
+2026-01,payments,Payments & cost estimates,Payments,1,0
+2026-04,payments,Payments & cost estimates,Payments,1,1
+2026-05,payments,Payments & cost estimates,Payments,1,0
+2026-07,payments,Payments & cost estimates,Payments,1,0
+2026-02,well-guide,Well Guide checklist,Well Guide,1,0
+2026-05,well-guide,Well Guide checklist,Well Guide,1,0
+2026-08,well-guide,Well Guide checklist,Well Guide,2,0
+2026-01,booking-intake-forms,Intake forms block or repeat,Booking,2,0
+2026-03,booking-intake-forms,Intake forms block or repeat,Booking,1,0
+2026-04,booking-intake-forms,Intake forms block or repeat,Booking,2,0
+2026-05,booking-intake-forms,Intake forms block or repeat,Booking,2,0
+2026-06,booking-intake-forms,Intake forms block or repeat,Booking,2,0
+2026-08,booking-intake-forms,Intake forms block or repeat,Booking,1,0
+2026-02,account-profile-editing,Cannot edit profile or contact details,Account & Auth,1,0
+2026-03,account-profile-editing,Cannot edit profile or contact details,Account & Auth,1,0
+2026-04,account-profile-editing,Cannot edit profile or contact details,Account & Auth,1,0
+2026-05,account-profile-editing,Cannot edit profile or contact details,Account & Auth,2,0
+2026-07,account-profile-editing,Cannot edit profile or contact details,Account & Auth,1,0
+2026-08,account-profile-editing,Cannot edit profile or contact details,Account & Auth,1,0
+2026-06,reviews,Reviews & ratings,Reviews,2,0
+2026-07,reviews,Reviews & ratings,Reviews,4,0
+2026-05,saved-providers,Saved providers list is unusable,Account & Auth,1,0
+2026-06,saved-providers,Saved providers list is unusable,Account & Auth,1,0
+2026-07,saved-providers,Saved providers list is unusable,Account & Auth,1,0
+2026-01,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,1,0
+2026-02,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,1,0
+2026-04,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,2,0
+2026-05,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,1,0
+2026-07,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,2,0
+2026-09,insurance-plan-picker,Plan missing or unselectable in the picker,Insurance,1,0
+2026-02,app-accessibility,Accessibility & display,App Platform,1,0
+2026-03,app-accessibility,Accessibility & display,App Platform,1,0
+2026-05,app-accessibility,Accessibility & display,App Platform,1,0
+2026-07,app-accessibility,Accessibility & display,App Platform,2,0
+2026-08,app-accessibility,Accessibility & display,App Platform,1,0
+2026-05,messaging,Provider messaging,Messaging,1,0

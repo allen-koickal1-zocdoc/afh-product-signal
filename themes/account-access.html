@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locked out of the account &mdash; AFH Product Signal</title>
+  <style>
+    :root {
+      --primary: #0984e3;
+      --accent: #6c5ce7;
+      --dark: #2d3436;
+      --dark-light: #636e72;
+      --bg: #f8f9fa;
+      --white: #ffffff;
+      --border: #dfe6e9;
+      --green: #00b894;
+      --orange: #f39c12;
+      --red: #d63031;
+      --purple: #6c5ce7;
+      --teal: #00cec9;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .header {
+      background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);
+      color: var(--white);
+      padding: 2rem 2rem 1.5rem;
+    }
+    .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .header .subtitle { opacity: 0.9; font-size: 1rem; }
+    .breadcrumb {
+      padding: 0.75rem 2rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .breadcrumb a { color: var(--primary); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { color: var(--dark-light); margin: 0 0.5rem; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    /* Headline answer */
+    .verdict {
+      background: var(--white);
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .verdict h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px;
+                  color: var(--dark-light); font-weight: 600; margin-bottom: 0.5rem; }
+    .verdict p { font-size: 1.15rem; }
+    .verdict strong { color: var(--red); }
+    .verdict.calm { border-left-color: var(--green); }
+    .verdict.calm strong { color: var(--green); }
+
+    /* Regression banner */
+    .alert {
+      background: #fff5f5;
+      border: 1px solid #ffc9c9;
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .alert h3 { color: var(--red); font-size: 0.85rem; text-transform: uppercase;
+                letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .alert ul { list-style: none; }
+    .alert li { padding: 0.35rem 0; border-bottom: 1px dashed #ffd9d9; font-size: 0.95rem; }
+    .alert li:last-child { border-bottom: none; }
+    .alert .tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      background: var(--red); color: var(--white); padding: 0.05rem 0.45rem;
+      border-radius: 3px; margin-right: 0.5rem; letter-spacing: 0.5px;
+    }
+    .alert .tag.new { background: var(--purple); }
+    .alert.shift { background: #f6f4ff; border-color: #d9d1ff; border-left-color: var(--purple); }
+    .alert.shift h3 { color: var(--purple); }
+    .alert.shift li { border-bottom-color: #e5dfff; }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: center;
+      border-left: 4px solid var(--primary);
+    }
+    .kpi-card:nth-child(2) { border-left-color: var(--red); }
+    .kpi-card:nth-child(3) { border-left-color: var(--purple); }
+    .kpi-card:nth-child(4) { border-left-color: var(--orange); }
+    .kpi-card:nth-child(5) { border-left-color: var(--teal); }
+    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+    .kpi-card:nth-child(2) .kpi-value { color: var(--red); }
+    .kpi-card:nth-child(3) .kpi-value { color: var(--purple); }
+    .kpi-card:nth-child(4) .kpi-value { color: var(--orange); }
+    .kpi-card:nth-child(5) .kpi-value { color: var(--teal); }
+    .kpi-card .kpi-label {
+      font-size: 0.8rem; color: var(--dark-light); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.25rem;
+    }
+    .kpi-card .kpi-sub { font-size: 0.75rem; color: var(--dark-light); }
+
+    .section-title {
+      font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.35rem;
+      padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary);
+    }
+    .section-note { font-size: 0.85rem; color: var(--dark-light); margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; background: var(--white);
+            border-radius: var(--radius); overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th { background: #f1f3f5; text-align: left; padding: 0.65rem 0.9rem;
+         font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+         color: var(--dark-light); font-weight: 600; }
+    td { padding: 0.7rem 0.9rem; border-top: 1px solid var(--border); font-size: 0.92rem;
+         vertical-align: top; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:hover td { background: #fbfcfd; }
+    .theme-name { font-weight: 600; }
+    .theme-name a { color: var(--dark); text-decoration: none; }
+    .theme-name a:hover { color: var(--primary); text-decoration: underline; }
+    .theme-why { font-size: 0.82rem; color: var(--dark-light); }
+    .theme-why a { color: var(--primary); text-decoration: none; }
+    .theme-why a:hover { text-decoration: underline; }
+    .theme-why.sub { margin-top: 0.2rem; font-style: italic; opacity: 0.85; }
+    tr.muted td { color: var(--dark-light); }
+    .area-chip {
+      display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.5rem;
+      border-radius: 10px; background: #eef2f7; color: var(--dark-light);
+      white-space: nowrap;
+    }
+    .bar { height: 8px; border-radius: 4px; background: #eef2f7; overflow: hidden;
+           min-width: 90px; display: flex; }
+    .bar span { display: block; height: 100%; }
+    .bar .b { background: var(--red); }
+    .bar .d { background: var(--orange); }
+    .bar .a { background: #b2bec3; }
+    .trend-up { color: var(--red); font-weight: 700; }
+    .trend-down { color: var(--green); font-weight: 700; }
+    .trend-flat { color: var(--dark-light); }
+    .ver { font-size: 0.78rem; color: var(--dark-light); font-variant-numeric: tabular-nums; }
+    .floor { color: var(--dark-light); cursor: help; margin-left: 2px; }
+
+    .spark { display: flex; align-items: flex-end; gap: 2px; height: 26px; }
+    .spark i { display: block; width: 7px; background: var(--primary); opacity: 0.75;
+               border-radius: 1px 1px 0 0; min-height: 1px; }
+    .spark i.last { background: var(--red); opacity: 1; }
+    .spark i.now { background: var(--red); opacity: 1; }
+    .spark i.after { opacity: 0.25; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    .footer {
+      margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--dark-light);
+    }
+    .phi {
+      background: #fffbea; border: 1px solid #ffe8a1; border-radius: var(--radius);
+      padding: 0.9rem 1.1rem; font-size: 0.85rem; margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Locked out of the account</h1>
+    <div class="subtitle">
+  Account &amp; Auth &middot; 10 reports &middot;
+  10 cost the patient the appointment or money
+</div>
+  </div>
+  
+<div class="breadcrumb">
+  <a href="../index.html">All themes</a>
+  <span class="sep">&rsaquo;</span>Account &amp; Auth
+  <span class="sep">&rsaquo;</span>Locked out of the account
+</div>
+
+  <div class="container">
+    
+
+
+<div class="verdict">
+  <h2>Why this matters</h2>
+  <p>Sign-in, password reset, email change and lockout failures stop booking entirely.</p>
+</div>
+
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">10</div>
+    <div class="kpi-label">Reports</div>
+    <div class="kpi-sub">7 months active</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">10</div>
+    <div class="kpi-label">Blocking</div>
+    <div class="kpi-sub">1 said so &middot;
+      9 inferred from theme</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">9</div>
+    <div class="kpi-label">Defects</div>
+    <div class="kpi-sub">0 feature requests</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">2026-01</div>
+    <div class="kpi-label">First seen</div>
+    <div class="kpi-sub">last seen 2026-08</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">30</div>
+    <div class="kpi-label">Impact score</div>
+    <div class="kpi-sub">3&times;blocking + 1&times;degrading</div>
+  </div>
+</div>
+
+
+<div class="phi" style="margin-top:0">
+  <strong>Read the blocking count carefully.</strong> Only
+  <strong>1</strong> of these
+  10 reports describe losing the appointment or the money in the
+  patient&rsquo;s own words. The other <strong>9</strong>
+  are counted as blocking <em>by definition</em>: this theme carries a severity
+  floor, because the failure reliably costs the patient the appointment whether or
+  not they thought to say so. That floor is an editorial judgement, not a
+  measurement, and it is doing
+  90% of the work
+  behind this theme&rsquo;s impact score.
+</div>
+
+
+
+<div class="section-title">What specifically is failing</div>
+<div class="section-note">
+  A second pass over the same text, first match wins. The month columns show
+  where each pattern actually fired, so a sub-theme that is really one bad month
+  does not read as a standing problem.
+  
+    These patterns explain <strong>70%</strong> of the theme;
+    the rest sits in Other.
+    
+  
+</div>
+<table>
+  <thead>
+    <tr><th>Sub-theme</th><th class="num">Reports</th><th>Share of theme</th>
+        <th class="num">Blocking</th><th class="num">Degr.</th><th class="num">Minor</th>
+        <th>Active</th><th class="num">12</th><th class="num">01</th><th class="num">02</th><th class="num">03</th><th class="num">04</th><th class="num">05</th><th class="num">06</th><th class="num">07</th><th class="num">08</th><th class="num">09</th></tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td>Cannot log in or create an account</td>
+      <td class="num">7</td>
+      <td>
+        <div class="bar" title="70% of 10">
+          <span class="d" style="width: 70%"></span>
+        </div>
+      </td>
+      <td class="num">7</td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="ver">2026-03&ndash;2026-08</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num">4</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+    </tr>
+  
+    <tr class="muted">
+      <td>Other / not broken out</td>
+      <td class="num">3</td>
+      <td>
+        <div class="bar" title="30% of 10">
+          <span class="a" style="width: 30%"></span>
+        </div>
+      </td>
+      <td class="num">3</td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="ver">2026-01&ndash;2026-06</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num">1</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+        <td class="num" style="color:#dfe6e9">·</td>
+      
+    </tr>
+  
+  </tbody>
+</table>
+
+
+<div class="section-title">Over time</div>
+<div class="section-note">
+  Every month in the window, including the silent ones &mdash; a gap is
+  information. The bar is that month's severity mix; the shape column is
+  scaled against this theme's busiest month.
+  Trailing quarter <strong>2</strong> against
+  <strong>6</strong> the quarter before
+  (-4) &mdash; steadier than a
+  single month on a theme this size.
+  
+</div>
+<div class="spark" style="height:40px;margin:0.5rem 0 1rem">
+  
+  <i class=""
+     style="width:14px;height: 0px"
+     title="2025-12: 0"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-01: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 0px"
+     title="2026-02: 0"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-03: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 40px"
+     title="2026-04: 4"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-05: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-06: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-07: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 10px"
+     title="2026-08: 1"></i>
+  
+  <i class=""
+     style="width:14px;height: 0px"
+     title="2026-09: 0"></i>
+  
+</div>
+<table>
+  <thead>
+    <tr><th>Month</th><th>Severity mix</th><th class="num">Reports</th>
+        <th class="num">Blocking</th><th class="num">Change</th>
+        <th class="num">Share of month</th><th>Shape</th></tr>
+  </thead>
+  <tbody>
+  
+    
+    
+    
+    
+    <tr class="muted">
+      <td><a href="../months/2025-12.html">2025-12</a></td>
+      <td>
+        
+      </td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="num">
+        <span class="trend-flat">&mdash;</span>
+        
+      </td>
+      <td class="num">
+        &mdash;
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-01.html">2026-01</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num">
+        3%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr class="muted">
+      <td><a href="../months/2026-02.html">2026-02</a></td>
+      <td>
+        
+      </td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num">
+        &mdash;
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-03.html">2026-03</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num">
+        3%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-04.html">2026-04</a></td>
+      <td>
+        
+        <div class="bar" title="4 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">4</td>
+      <td class="num">4</td>
+      <td class="num">
+        <span class="trend-up">+3</span>
+        
+      </td>
+      <td class="num">
+        10%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-05.html">2026-05</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-down">-3</span>
+        
+      </td>
+      <td class="num">
+        3%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-06.html">2026-06</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num">
+        3%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-07.html">2026-07</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num">
+        2%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr>
+      <td><a href="../months/2026-08.html">2026-08</a></td>
+      <td>
+        
+        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+        
+      </td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num">
+        3%
+        
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+    
+    
+    
+    
+    <tr class="muted">
+      <td><a href="../months/2026-09.html">2026-09</a></td>
+      <td>
+        
+      </td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num">
+        &mdash;
+      </td>
+      <td>
+        <div class="bar" style="min-width:200px">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+        </div>
+      </td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<div class="two-col">
+  <div>
+    <div class="section-title">App versions</div>
+    <div class="section-note">
+      Only tickets carrying diagnostics appear here &mdash; that is
+      47% of intake, and none before April 2026.
+    </div>
+    <table>
+      <thead><tr><th>Version</th><th class="num">Reports</th></tr></thead>
+      <tbody>
+      
+        <tr><td colspan="2">No diagnostics on any ticket in this theme.</td></tr>
+      
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Breakdown</div>
+    <div class="section-note">Platform is only known where diagnostics exist.</div>
+    <table>
+      <thead><tr><th>Facet</th><th class="num">Count</th></tr></thead>
+      <tbody>
+        <tr><td>Defect</td><td class="num">9</td></tr>
+        <tr><td>Feature request</td><td class="num">0</td></tr>
+        <tr><td>Dissatisfaction</td><td class="num">1</td></tr>
+        <tr><td>Blocking / degrading / minor</td>
+            <td class="num">10 / 0 / 0</td></tr>
+        
+        <tr><td>Platform &mdash; unknown</td><td class="num">6</td></tr>
+        
+        <tr><td>Platform &mdash; iOS</td><td class="num">3</td></tr>
+        
+        <tr><td>Platform &mdash; Android</td><td class="num">1</td></tr>
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="phi">
+  <strong>To read the tickets themselves</strong>, go to Jira &mdash; it is
+  permission-gated, this page is not. There is no theme field in Jira, so there
+  is no per-theme query; filter
+  <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%3D%20%222026-09-30%22%20ORDER%20BY%20created%20DESC">the window</a> by hand.
+  Ticket keys are patient-level data and are never published here.
+</div>
+
+
+    <div class="footer">
+      Generated 2026-09-30 from Jira project AFH.
+      Counts are aggregates only &mdash; no ticket keys, patient text or device
+      identifiers are published here.
+    </div>
+  </div>
+</body>
+</html>

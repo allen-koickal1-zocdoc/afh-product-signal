@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFH Product Signal &mdash; 2025-12-01 to 2026-09-30</title>
+  <style>
+    :root {
+      --primary: #0984e3;
+      --accent: #6c5ce7;
+      --dark: #2d3436;
+      --dark-light: #636e72;
+      --bg: #f8f9fa;
+      --white: #ffffff;
+      --border: #dfe6e9;
+      --green: #00b894;
+      --orange: #f39c12;
+      --red: #d63031;
+      --purple: #6c5ce7;
+      --teal: #00cec9;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .header {
+      background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);
+      color: var(--white);
+      padding: 2rem 2rem 1.5rem;
+    }
+    .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .header .subtitle { opacity: 0.9; font-size: 1rem; }
+    .breadcrumb {
+      padding: 0.75rem 2rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .breadcrumb a { color: var(--primary); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { color: var(--dark-light); margin: 0 0.5rem; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    /* Headline answer */
+    .verdict {
+      background: var(--white);
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .verdict h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px;
+                  color: var(--dark-light); font-weight: 600; margin-bottom: 0.5rem; }
+    .verdict p { font-size: 1.15rem; }
+    .verdict strong { color: var(--red); }
+    .verdict.calm { border-left-color: var(--green); }
+    .verdict.calm strong { color: var(--green); }
+
+    /* Regression banner */
+    .alert {
+      background: #fff5f5;
+      border: 1px solid #ffc9c9;
+      border-left: 6px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .alert h3 { color: var(--red); font-size: 0.85rem; text-transform: uppercase;
+                letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .alert ul { list-style: none; }
+    .alert li { padding: 0.35rem 0; border-bottom: 1px dashed #ffd9d9; font-size: 0.95rem; }
+    .alert li:last-child { border-bottom: none; }
+    .alert .tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      background: var(--red); color: var(--white); padding: 0.05rem 0.45rem;
+      border-radius: 3px; margin-right: 0.5rem; letter-spacing: 0.5px;
+    }
+    .alert .tag.new { background: var(--purple); }
+    .alert.shift { background: #f6f4ff; border-color: #d9d1ff; border-left-color: var(--purple); }
+    .alert.shift h3 { color: var(--purple); }
+    .alert.shift li { border-bottom-color: #e5dfff; }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: center;
+      border-left: 4px solid var(--primary);
+    }
+    .kpi-card:nth-child(2) { border-left-color: var(--red); }
+    .kpi-card:nth-child(3) { border-left-color: var(--purple); }
+    .kpi-card:nth-child(4) { border-left-color: var(--orange); }
+    .kpi-card:nth-child(5) { border-left-color: var(--teal); }
+    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+    .kpi-card:nth-child(2) .kpi-value { color: var(--red); }
+    .kpi-card:nth-child(3) .kpi-value { color: var(--purple); }
+    .kpi-card:nth-child(4) .kpi-value { color: var(--orange); }
+    .kpi-card:nth-child(5) .kpi-value { color: var(--teal); }
+    .kpi-card .kpi-label {
+      font-size: 0.8rem; color: var(--dark-light); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.25rem;
+    }
+    .kpi-card .kpi-sub { font-size: 0.75rem; color: var(--dark-light); }
+
+    .section-title {
+      font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.35rem;
+      padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary);
+    }
+    .section-note { font-size: 0.85rem; color: var(--dark-light); margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; background: var(--white);
+            border-radius: var(--radius); overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th { background: #f1f3f5; text-align: left; padding: 0.65rem 0.9rem;
+         font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+         color: var(--dark-light); font-weight: 600; }
+    td { padding: 0.7rem 0.9rem; border-top: 1px solid var(--border); font-size: 0.92rem;
+         vertical-align: top; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:hover td { background: #fbfcfd; }
+    .theme-name { font-weight: 600; }
+    .theme-name a { color: var(--dark); text-decoration: none; }
+    .theme-name a:hover { color: var(--primary); text-decoration: underline; }
+    .theme-why { font-size: 0.82rem; color: var(--dark-light); }
+    .theme-why a { color: var(--primary); text-decoration: none; }
+    .theme-why a:hover { text-decoration: underline; }
+    .theme-why.sub { margin-top: 0.2rem; font-style: italic; opacity: 0.85; }
+    tr.muted td { color: var(--dark-light); }
+    .area-chip {
+      display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.5rem;
+      border-radius: 10px; background: #eef2f7; color: var(--dark-light);
+      white-space: nowrap;
+    }
+    .bar { height: 8px; border-radius: 4px; background: #eef2f7; overflow: hidden;
+           min-width: 90px; display: flex; }
+    .bar span { display: block; height: 100%; }
+    .bar .b { background: var(--red); }
+    .bar .d { background: var(--orange); }
+    .bar .a { background: #b2bec3; }
+    .trend-up { color: var(--red); font-weight: 700; }
+    .trend-down { color: var(--green); font-weight: 700; }
+    .trend-flat { color: var(--dark-light); }
+    .ver { font-size: 0.78rem; color: var(--dark-light); font-variant-numeric: tabular-nums; }
+    .floor { color: var(--dark-light); cursor: help; margin-left: 2px; }
+
+    .spark { display: flex; align-items: flex-end; gap: 2px; height: 26px; }
+    .spark i { display: block; width: 7px; background: var(--primary); opacity: 0.75;
+               border-radius: 1px 1px 0 0; min-height: 1px; }
+    .spark i.last { background: var(--red); opacity: 1; }
+    .spark i.now { background: var(--red); opacity: 1; }
+    .spark i.after { opacity: 0.25; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    .footer {
+      margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--dark-light);
+    }
+    .phi {
+      background: #fffbea; border: 1px solid #ffe8a1; border-radius: var(--radius);
+      padding: 0.9rem 1.1rem; font-size: 0.85rem; margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>What patients say is broken</h1>
+    <div class="subtitle">
+  App Feedback Hub &middot; 2025-12-01 &rarr; 2026-09-30
+  &middot; 337 actionable reports
+</div>
+  </div>
+  
+  <div class="container">
+    
+
+
+<div class="verdict">
+  <h2>Headline</h2>
+  <p>
+    The single largest source of patient harm is
+    <strong>in-network status is wrong</strong> (Insurance) &mdash;
+    44 reports, 44 of which cost the patient the appointment
+    or money. The top three themes account for
+    <strong>69%</strong> of all booking-blocking feedback.
+  </p>
+</div>
+
+
+
+<div class="alert">
+  <h3>Active regressions &mdash; last 30 days</h3>
+  <ul>
+    
+    <li>
+      <span class="tag ">spiking</span>
+      <strong>Unclassified</strong> &mdash;
+      9 reports in 30 days vs 4.0/month baseline (2.2&times;).
+      
+        Spread across 1 app versions &mdash; likely backend or content, not a build.
+      
+    </li>
+    
+  </ul>
+</div>
+
+
+
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">337</div>
+    <div class="kpi-label">Actionable reports</div>
+    <div class="kpi-sub">of 538 tickets</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">105</div>
+    <div class="kpi-label">Cost the appointment</div>
+    <div class="kpi-sub">
+      26 said so &middot;
+      79 inferred from theme
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">13</div>
+    <div class="kpi-label">Product areas hit</div>
+    <div class="kpi-sub">24 distinct themes</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">37%</div>
+    <div class="kpi-label">Non-actionable intake</div>
+    <div class="kpi-sub">survey blasts, spam, empty</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">18%</div>
+    <div class="kpi-label">Unclassified</div>
+    <div class="kpi-sub">taxonomy coverage gap</div>
+  </div>
+</div>
+
+<div class="section-title">Where it hurts</div>
+<div class="section-note">
+  Ranked by impact, not volume: a booking-blocking report counts 3&times; a degrading one,
+  and cosmetic complaints count 0. This is the order to fix things in.
+  <br>&dagger; marks a theme that is treated as booking-blocking by definition rather than
+  inferred from each patient's wording.
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Area</th>
+      <th class="num">Reports</th>
+      <th>Severity mix</th>
+      <th class="num">Blocking</th>
+      <th>Trend</th>
+      <th class="num">MoM</th>
+      <th class="num">QoQ</th>
+      <th class="num">Share</th>
+      <th>App versions</th>
+    </tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/insurance-network-accuracy.html">In-network status is wrong</a></div>
+        <div class="theme-why">Patient books on a shown in-network status and is billed out-of-network. Direct financial harm.</div>
+        
+        <div class="theme-why sub">
+          listed as in-network, turned out not to be (13) &middot; billed after booking an in-network provider (9) &middot; provider does not take the plan at all (9)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Insurance</span></td>
+      <td class="num">44</td>
+      <td>
+        <div class="bar" title="44 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+      </td>
+      <td class="num">
+        44<span class="floor" title="6 of these 44 are blocking because the ticket said so; 38 because this theme is treated as blocking by definition.">&dagger;38</span>
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 6px"
+             title="2025-12: 3"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-01: 3"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-02: 4"></i>
+          
+          <i class=""
+             style="height: 11px"
+             title="2026-03: 6"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-04: 4"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-05: 2"></i>
+          
+          <i class=""
+             style="height: 22px"
+             title="2026-06: 12"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-07: 5"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-08: 3"></i>
+          
+          <i class="last"
+             style="height: 4px"
+             title="2026-09: 2"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="10 in the last 3 months against 18 the 3 before">
+        <span class="trend-down">-8</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        42%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/booking-office-sync.html">Booking never reaches the practice</a></div>
+        <div class="theme-why">Confirmed on Zocdoc, absent from the practice calendar. Patient is turned away at the door.</div>
+        
+      </td>
+      <td><span class="area-chip">Booking</span></td>
+      <td class="num">18</td>
+      <td>
+        <div class="bar" title="18 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+      </td>
+      <td class="num">
+        18<span class="floor" title="2 of these 18 are blocking because the ticket said so; 16 because this theme is treated as blocking by definition.">&dagger;16</span>
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 6px"
+             title="2025-12: 3"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-01: 3"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-03: 5"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-04: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="2 in the last 3 months against 4 the 3 before">
+        <span class="trend-down">-2</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        17%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/provider-cancellations.html">Practice cancels or drops the appointment after booking</a></div>
+        <div class="theme-why">The appointment is confirmed and then killed by the practice or the platform, so the patient loses the care slot they planned around.</div>
+        
+      </td>
+      <td><span class="area-chip">Booking</span></td>
+      <td class="num">10</td>
+      <td>
+        <div class="bar" title="10 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+      </td>
+      <td class="num">
+        10<span class="floor" title="1 of these 10 are blocking because the ticket said so; 9 because this theme is treated as blocking by definition.">&dagger;9</span>
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-01: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-04: 3"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-07: 3"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="3 in the last 3 months against 4 the 3 before">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        10%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/account-access.html">Locked out of the account</a></div>
+        <div class="theme-why">Sign-in, password reset, email change and lockout failures stop booking entirely.</div>
+        
+        <div class="theme-why sub">
+          cannot log in or create an account (7) &middot; other / not broken out (3)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Account &amp; Auth</span></td>
+      <td class="num">10</td>
+      <td>
+        <div class="bar" title="10 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+      </td>
+      <td class="num">
+        10<span class="floor" title="1 of these 10 are blocking because the ticket said so; 9 because this theme is treated as blocking by definition.">&dagger;9</span>
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-01: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-04: 4"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="2 in the last 3 months against 6 the 3 before">
+        <span class="trend-down">-4</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        10%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/booking-flow-blocked.html">Cannot complete the booking flow</a></div>
+        <div class="theme-why">The patient gets partway through booking and the flow dead-ends on a disabled control or an opaque error, so no appointment is created at all.</div>
+        
+      </td>
+      <td><span class="area-chip">Booking</span></td>
+      <td class="num">7</td>
+      <td>
+        <div class="bar" title="7 blocking / 0 degrading / 0 minor">
+          <span class="b" style="width: 100%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 0%"></span>
+        </div>
+      </td>
+      <td class="num">
+        7<span class="floor" title="0 of these 7 are blocking because the ticket said so; 7 because this theme is treated as blocking by definition.">&dagger;7</span>
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 2px"
+             title="2025-12: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-02: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-07: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="2 in the last 3 months against 2 the 3 before">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        7%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/ai-search-rollout.html">AI search replaced classic search and filters</a></div>
+        <div class="theme-why">Rollout regression: patients lose name lookup, map and filter controls with no opt-out.</div>
+        
+        <div class="theme-why sub">
+          ai answers instead of a list of providers (16) &middot; no way to opt out or get classic search back (9) &middot; other / not broken out (1)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Search &amp; Discovery</span></td>
+      <td class="num">26</td>
+      <td>
+        <div class="bar" title="4 blocking / 1 degrading / 21 minor">
+          <span class="b" style="width: 15%"></span>
+          <span class="d" style="width: 4%"></span>
+          <span class="a" style="width: 81%"></span>
+        </div>
+      </td>
+      <td class="num">
+        4
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 11px"
+             title="2026-06: 6"></i>
+          
+          <i class=""
+             style="height: 11px"
+             title="2026-07: 6"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-08: 5"></i>
+          
+          <i class="last"
+             style="height: 15px"
+             title="2026-09: 8"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+3</span>
+        
+      </td>
+      <td class="num" title="19 in the last 3 months against 7 the 3 before">
+        <span class="trend-up">+12</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        4%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/search-no-results.html">Search returns nothing bookable</a></div>
+        <div class="theme-why">The patient searches and the product returns zero or unbookable providers, so they abandon care or go to a competitor.</div>
+        
+      </td>
+      <td><span class="area-chip">Search &amp; Discovery</span></td>
+      <td class="num">8</td>
+      <td>
+        <div class="bar" title="3 blocking / 0 degrading / 5 minor">
+          <span class="b" style="width: 38%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 62%"></span>
+        </div>
+      </td>
+      <td class="num">
+        3
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 2px"
+             title="2025-12: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-01: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-05: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-07: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="3 in the last 3 months against 2 the 3 before">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        3%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/search-filter-correctness.html">Filters return the wrong providers</a></div>
+        <div class="theme-why">Specialty, distance, visit-type and day filters are not honoured; patient books the wrong care.</div>
+        
+        <div class="theme-why sub">
+          results are too far away (7) &middot; asks for a filter that does not exist (4) &middot; gender or language facet wrong (2)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Search &amp; Discovery</span></td>
+      <td class="num">34</td>
+      <td>
+        <div class="bar" title="2 blocking / 2 degrading / 30 minor">
+          <span class="b" style="width: 6%"></span>
+          <span class="d" style="width: 6%"></span>
+          <span class="a" style="width: 88%"></span>
+        </div>
+      </td>
+      <td class="num">
+        2
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 2px"
+             title="2025-12: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 15px"
+             title="2026-02: 8"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-03: 3"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-04: 3"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-05: 4"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-06: 5"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-07: 5"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-08: 2"></i>
+          
+          <i class="last"
+             style="height: 6px"
+             title="2026-09: 3"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num" title="10 in the last 3 months against 12 the 3 before">
+        <span class="trend-down">-2</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        2%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/appt-management.html">Problems with an appointment already booked</a></div>
+        <div class="theme-why">Covers cancel/reschedule, video visits and calendar sync. The sub-theme split is the useful read, not the total.</div>
+        
+        <div class="theme-why sub">
+          will not add to the phone calendar (6) &middot; video visit will not start (3) &middot; cannot cancel or reschedule (2)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Appointment Management</span></td>
+      <td class="num">15</td>
+      <td>
+        <div class="bar" title="2 blocking / 0 degrading / 13 minor">
+          <span class="b" style="width: 13%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 87%"></span>
+        </div>
+      </td>
+      <td class="num">
+        2
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 2px"
+             title="2025-12: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-01: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-03: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-04: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-05: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-07: 3"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 4px"
+             title="2026-09: 2"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num" title="5 in the last 3 months against 4 the 3 before">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        2%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/provider-data-accuracy.html">Provider listing does not match reality</a></div>
+        <div class="theme-why">Wrong specialty, hours, address, or a practice that has closed. Wasted visits.</div>
+        
+        <div class="theme-why sub">
+          wrong address or office location (4) &middot; provider has left or retired (3) &middot; wrong phone or contact details (1)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Provider Data</span></td>
+      <td class="num">14</td>
+      <td>
+        <div class="bar" title="0 blocking / 6 degrading / 8 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 43%"></span>
+          <span class="a" style="width: 57%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-01: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-03: 4"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-07: 3"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 6px"
+             title="2026-09: 3"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num" title="7 in the last 3 months against 2 the 3 before">
+        <span class="trend-up">+5</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/unclassified.html">Unclassified</a></div>
+        
+        
+      </td>
+      <td><span class="area-chip">Unclassified</span></td>
+      <td class="num">61</td>
+      <td>
+        <div class="bar" title="1 blocking / 2 degrading / 58 minor">
+          <span class="b" style="width: 2%"></span>
+          <span class="d" style="width: 3%"></span>
+          <span class="a" style="width: 95%"></span>
+        </div>
+      </td>
+      <td class="num">
+        1
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 4px"
+             title="2025-12: 2"></i>
+          
+          <i class=""
+             style="height: 26px"
+             title="2026-01: 14"></i>
+          
+          <i class=""
+             style="height: 11px"
+             title="2026-02: 6"></i>
+          
+          <i class=""
+             style="height: 20px"
+             title="2026-03: 11"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-04: 4"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-05: 3"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-07: 4"></i>
+          
+          <i class=""
+             style="height: 13px"
+             title="2026-08: 7"></i>
+          
+          <i class="last"
+             style="height: 17px"
+             title="2026-09: 9"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num" title="20 in the last 3 months against 8 the 3 before">
+        <span class="trend-up">+12</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        1%
+      </td>
+      <td class="ver">
+        4.227.0 (2798) (1)<br>3.256.0-1930 (1)
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/app-stability.html">Generic error / crash / will not load</a></div>
+        <div class="theme-why">Opaque failure with no recovery path. Spikes here read as incidents.</div>
+        
+      </td>
+      <td><span class="area-chip">App Platform</span></td>
+      <td class="num">15</td>
+      <td>
+        <div class="bar" title="0 blocking / 5 degrading / 10 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 33%"></span>
+          <span class="a" style="width: 67%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 4px"
+             title="2025-12: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 9px"
+             title="2026-04: 5"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-05: 4"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-06: 2"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-07: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="2 in the last 3 months against 11 the 3 before">
+        <span class="trend-down">-9</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/search-name-lookup.html">Cannot search for a provider by name</a></div>
+        <div class="theme-why">The most common intent (I know who I want) has no working entry point.</div>
+        
+      </td>
+      <td><span class="area-chip">Search &amp; Discovery</span></td>
+      <td class="num">5</td>
+      <td>
+        <div class="bar" title="1 blocking / 1 degrading / 3 minor">
+          <span class="b" style="width: 20%"></span>
+          <span class="d" style="width: 20%"></span>
+          <span class="a" style="width: 60%"></span>
+        </div>
+      </td>
+      <td class="num">
+        1
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-01: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-04: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-05: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="2 in the last 3 months against 2 the 3 before">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        1%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/notifications.html">Notifications &amp; email</a></div>
+        <div class="theme-why">Marketing volume, missing reminders, and tone-deaf campaign sends.</div>
+        
+        <div class="theme-why sub">
+          too many notifications (10) &middot; other / not broken out (6)
+        </div>
+        
+      </td>
+      <td><span class="area-chip">Notifications</span></td>
+      <td class="num">16</td>
+      <td>
+        <div class="bar" title="1 blocking / 0 degrading / 15 minor">
+          <span class="b" style="width: 6%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 94%"></span>
+        </div>
+      </td>
+      <td class="num">
+        1
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-01: 2"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-02: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-04: 4"></i>
+          
+          <i class=""
+             style="height: 6px"
+             title="2026-05: 3"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 2px"
+             title="2026-09: 1"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="3 in the last 3 months against 8 the 3 before">
+        <span class="trend-down">-5</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        1%
+      </td>
+      <td class="ver">
+        3.248.0-1909 (1)
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/family-profiles.html">Family / dependent profiles</a></div>
+        <div class="theme-why">Cannot manage or book for dependents cleanly.</div>
+        
+      </td>
+      <td><span class="area-chip">Account &amp; Auth</span></td>
+      <td class="num">5</td>
+      <td>
+        <div class="bar" title="1 blocking / 0 degrading / 4 minor">
+          <span class="b" style="width: 20%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 80%"></span>
+        </div>
+      </td>
+      <td class="num">
+        1
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-04: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-05: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-07: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 2px"
+             title="2026-09: 1"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="2 in the last 3 months against 2 the 3 before">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        1%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/payments.html">Payments &amp; cost estimates</a></div>
+        <div class="theme-why">Cost display, copay estimates and charges.</div>
+        
+      </td>
+      <td><span class="area-chip">Payments</span></td>
+      <td class="num">4</td>
+      <td>
+        <div class="bar" title="1 blocking / 0 degrading / 3 minor">
+          <span class="b" style="width: 25%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 75%"></span>
+        </div>
+      </td>
+      <td class="num">
+        1
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-01: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-04: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="1 in the last 3 months against 2 the 3 before">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        1%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/well-guide.html">Well Guide checklist</a></div>
+        <div class="theme-why">&#34;Mark as done&#34; and checklist state fail to save.</div>
+        
+      </td>
+      <td><span class="area-chip">Well Guide</span></td>
+      <td class="num">4</td>
+      <td>
+        <div class="bar" title="0 blocking / 3 degrading / 1 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 75%"></span>
+          <span class="a" style="width: 25%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-07: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-08: 2"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-2</span>
+        
+      </td>
+      <td class="num" title="2 in the last 3 months against 1 the 3 before">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/booking-intake-forms.html">Intake forms block or repeat</a></div>
+        <div class="theme-why">Forms loop, lose answers, or are demanded again at the office.</div>
+        
+      </td>
+      <td><span class="area-chip">Booking</span></td>
+      <td class="num">10</td>
+      <td>
+        <div class="bar" title="0 blocking / 2 degrading / 8 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 20%"></span>
+          <span class="a" style="width: 80%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-01: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-04: 2"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-05: 2"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-06: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-07: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="1 in the last 3 months against 6 the 3 before">
+        <span class="trend-down">-5</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/account-profile-editing.html">Cannot edit profile or contact details</a></div>
+        <div class="theme-why">Email, phone, name and profile fields are read-only in the product, so patients cannot correct the details providers use to reach them.</div>
+        
+      </td>
+      <td><span class="area-chip">Account &amp; Auth</span></td>
+      <td class="num">7</td>
+      <td>
+        <div class="bar" title="0 blocking / 1 degrading / 6 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 14%"></span>
+          <span class="a" style="width: 86%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-04: 1"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-05: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="2 in the last 3 months against 3 the 3 before">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/reviews.html">Reviews &amp; ratings</a></div>
+        <div class="theme-why">Review submission and rating display issues.</div>
+        
+      </td>
+      <td><span class="area-chip">Reviews</span></td>
+      <td class="num">6</td>
+      <td>
+        <div class="bar" title="0 blocking / 1 degrading / 5 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 17%"></span>
+          <span class="a" style="width: 83%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-05: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-06: 2"></i>
+          
+          <i class=""
+             style="height: 7px"
+             title="2026-07: 4"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="4 in the last 3 months against 2 the 3 before">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/saved-providers.html">Saved providers list is unusable</a></div>
+        <div class="theme-why">Favourites unreachable, un-removable, or gated behind a prior booking.</div>
+        
+      </td>
+      <td><span class="area-chip">Account &amp; Auth</span></td>
+      <td class="num">3</td>
+      <td>
+        <div class="bar" title="0 blocking / 1 degrading / 2 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 33%"></span>
+          <span class="a" style="width: 67%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-06: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-07: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="1 in the last 3 months against 2 the 3 before">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/insurance-plan-picker.html">Plan missing or unselectable in the picker</a></div>
+        <div class="theme-why">Patient cannot express their real coverage, so every downstream network answer is wrong.</div>
+        
+      </td>
+      <td><span class="area-chip">Insurance</span></td>
+      <td class="num">8</td>
+      <td>
+        <div class="bar" title="0 blocking / 0 degrading / 8 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-01: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-04: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-07: 2"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 2px"
+             title="2026-09: 1"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num" title="3 in the last 3 months against 3 the 3 before">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/app-accessibility.html">Accessibility &amp; display</a></div>
+        <div class="theme-why">Dark mode, contrast and text sizing defects.</div>
+        
+      </td>
+      <td><span class="area-chip">App Platform</span></td>
+      <td class="num">6</td>
+      <td>
+        <div class="bar" title="0 blocking / 0 degrading / 6 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-02: 1"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-03: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 4px"
+             title="2026-07: 2"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-08: 1"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="3 in the last 3 months against 1 the 3 before">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+    <tr>
+      <td>
+        <div class="theme-name"><a href="themes/messaging.html">Provider messaging</a></div>
+        <div class="theme-why">Cannot reach the practice through the product.</div>
+        
+      </td>
+      <td><span class="area-chip">Messaging</span></td>
+      <td class="num">1</td>
+      <td>
+        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
+          <span class="b" style="width: 0%"></span>
+          <span class="d" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">
+        0
+      </td>
+      <td>
+        <div class="spark">
+          
+          <i class=""
+             style="height: 0px"
+             title="2025-12: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-01: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-02: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-03: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-04: 0"></i>
+          
+          <i class=""
+             style="height: 2px"
+             title="2026-05: 1"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-06: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-07: 0"></i>
+          
+          <i class=""
+             style="height: 0px"
+             title="2026-08: 0"></i>
+          
+          <i class="last"
+             style="height: 0px"
+             title="2026-09: 0"></i>
+          
+        </div>
+      </td>
+      <td class="num">
+        <span class="trend-flat">0</span>
+      </td>
+      <td class="num" title="0 in the last 3 months against 1 the 3 before">
+        <span class="trend-down">-1</span>
+        
+      </td>
+      <td class="num" title="Share of all booking-blocking feedback in the window">
+        0%
+      </td>
+      <td class="ver">
+        &mdash;
+      </td>
+    </tr>
+  
+  </tbody>
+</table>
+
+
+<div class="section-title">Movers</div>
+<div class="section-note">
+  Biggest month-over-month swings, ranked by ratio rather than raw delta &mdash;
+  a theme going 1&nbsp;&rarr;&nbsp;6 is news, one going 20&nbsp;&rarr;&nbsp;26 is not.
+  Swings smaller than 3 reports are ignored.
+</div>
+<div class="two-col">
+  <div>
+    <table>
+      <thead><tr><th>Rising</th><th class="num">Was</th><th class="num">Now</th><th class="num">&times;</th></tr></thead>
+      <tbody>
+      
+        <tr>
+          <td><a href="themes/ai-search-rollout.html">AI search replaced classic search and filters</a>
+              <span class="area-chip">Search &amp; Discovery</span></td>
+          <td class="num">5</td>
+          <td class="num"><span class="trend-up">8</span></td>
+          <td class="num">1.6</td>
+        </tr>
+      
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <table>
+      <thead><tr><th>Falling</th><th class="num">Was</th><th class="num">Now</th><th class="num">&Delta;</th></tr></thead>
+      <tbody>
+      
+        <tr><td colspan="4">Nothing fell by 3 or more reports.</td></tr>
+      
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+
+<div class="section-title">By product area</div>
+<div class="section-note">
+  Who owns the fix. Impact is the same 3&times;blocking + 1&times;degrading weighting used
+  above, summed across the area &mdash; so an area with many minor complaints ranks
+  below one with few blocking ones. Themes listed worst-first within each area.
+</div>
+<table>
+  <thead>
+    <tr><th>Area</th><th class="num">Reports</th><th class="num">Blocking</th>
+        <th>Blocking share</th><th class="num">Impact</th><th class="num">Requests</th>
+        <th class="num">Themes</th><th>Worst first</th></tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td><strong>Insurance</strong></td>
+      <td class="num">52</td>
+      <td class="num">44</td>
+      <td>
+        <div class="bar" title="44 of 52 reports in this area block booking">
+          <span class="b" style="width: 85%"></span>
+          <span class="a" style="width: 15%"></span>
+        </div>
+      </td>
+      <td class="num">132</td>
+      <td class="num">2</td>
+      <td class="num">2</td>
+      <td class="theme-why">
+        <a href="themes/insurance-network-accuracy.html">In-network status is wrong</a> (44) &middot; <a href="themes/insurance-plan-picker.html">Plan missing or unselectable in the picker</a> (8)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Booking</strong></td>
+      <td class="num">45</td>
+      <td class="num">35</td>
+      <td>
+        <div class="bar" title="35 of 45 reports in this area block booking">
+          <span class="b" style="width: 78%"></span>
+          <span class="a" style="width: 22%"></span>
+        </div>
+      </td>
+      <td class="num">107</td>
+      <td class="num">0</td>
+      <td class="num">4</td>
+      <td class="theme-why">
+        <a href="themes/booking-office-sync.html">Booking never reaches the practice</a> (18) &middot; <a href="themes/provider-cancellations.html">Practice cancels or drops the appointment after booking</a> (10) &middot; <a href="themes/booking-flow-blocked.html">Cannot complete the booking flow</a> (7) &middot; <a href="themes/booking-intake-forms.html">Intake forms block or repeat</a> (10)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Account &amp; Auth</strong></td>
+      <td class="num">25</td>
+      <td class="num">11</td>
+      <td>
+        <div class="bar" title="11 of 25 reports in this area block booking">
+          <span class="b" style="width: 44%"></span>
+          <span class="a" style="width: 56%"></span>
+        </div>
+      </td>
+      <td class="num">35</td>
+      <td class="num">3</td>
+      <td class="num">4</td>
+      <td class="theme-why">
+        <a href="themes/account-access.html">Locked out of the account</a> (10) &middot; <a href="themes/family-profiles.html">Family / dependent profiles</a> (5) &middot; <a href="themes/account-profile-editing.html">Cannot edit profile or contact details</a> (7) &middot; <a href="themes/saved-providers.html">Saved providers list is unusable</a> (3)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Search &amp; Discovery</strong></td>
+      <td class="num">73</td>
+      <td class="num">10</td>
+      <td>
+        <div class="bar" title="10 of 73 reports in this area block booking">
+          <span class="b" style="width: 14%"></span>
+          <span class="a" style="width: 86%"></span>
+        </div>
+      </td>
+      <td class="num">34</td>
+      <td class="num">5</td>
+      <td class="num">4</td>
+      <td class="theme-why">
+        <a href="themes/ai-search-rollout.html">AI search replaced classic search and filters</a> (26) &middot; <a href="themes/search-no-results.html">Search returns nothing bookable</a> (8) &middot; <a href="themes/search-filter-correctness.html">Filters return the wrong providers</a> (34) &middot; <a href="themes/search-name-lookup.html">Cannot search for a provider by name</a> (5)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Appointment Management</strong></td>
+      <td class="num">15</td>
+      <td class="num">2</td>
+      <td>
+        <div class="bar" title="2 of 15 reports in this area block booking">
+          <span class="b" style="width: 13%"></span>
+          <span class="a" style="width: 87%"></span>
+        </div>
+      </td>
+      <td class="num">6</td>
+      <td class="num">0</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/appt-management.html">Problems with an appointment already booked</a> (15)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Unclassified</strong></td>
+      <td class="num">61</td>
+      <td class="num">1</td>
+      <td>
+        <div class="bar" title="1 of 61 reports in this area block booking">
+          <span class="b" style="width: 2%"></span>
+          <span class="a" style="width: 98%"></span>
+        </div>
+      </td>
+      <td class="num">5</td>
+      <td class="num">2</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/unclassified.html">Unclassified</a> (61)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Notifications</strong></td>
+      <td class="num">16</td>
+      <td class="num">1</td>
+      <td>
+        <div class="bar" title="1 of 16 reports in this area block booking">
+          <span class="b" style="width: 6%"></span>
+          <span class="a" style="width: 94%"></span>
+        </div>
+      </td>
+      <td class="num">3</td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/notifications.html">Notifications &amp; email</a> (16)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Payments</strong></td>
+      <td class="num">4</td>
+      <td class="num">1</td>
+      <td>
+        <div class="bar" title="1 of 4 reports in this area block booking">
+          <span class="b" style="width: 25%"></span>
+          <span class="a" style="width: 75%"></span>
+        </div>
+      </td>
+      <td class="num">3</td>
+      <td class="num">0</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/payments.html">Payments &amp; cost estimates</a> (4)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>App Platform</strong></td>
+      <td class="num">21</td>
+      <td class="num">0</td>
+      <td>
+        <div class="bar" title="0 of 21 reports in this area block booking">
+          <span class="b" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">5</td>
+      <td class="num">2</td>
+      <td class="num">2</td>
+      <td class="theme-why">
+        <a href="themes/app-stability.html">Generic error / crash / will not load</a> (15) &middot; <a href="themes/app-accessibility.html">Accessibility &amp; display</a> (6)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Provider Data</strong></td>
+      <td class="num">14</td>
+      <td class="num">0</td>
+      <td>
+        <div class="bar" title="0 of 14 reports in this area block booking">
+          <span class="b" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">6</td>
+      <td class="num">1</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/provider-data-accuracy.html">Provider listing does not match reality</a> (14)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Reviews</strong></td>
+      <td class="num">6</td>
+      <td class="num">0</td>
+      <td>
+        <div class="bar" title="0 of 6 reports in this area block booking">
+          <span class="b" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">1</td>
+      <td class="num">0</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/reviews.html">Reviews &amp; ratings</a> (6)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Well Guide</strong></td>
+      <td class="num">4</td>
+      <td class="num">0</td>
+      <td>
+        <div class="bar" title="0 of 4 reports in this area block booking">
+          <span class="b" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">3</td>
+      <td class="num">0</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/well-guide.html">Well Guide checklist</a> (4)
+      </td>
+    </tr>
+  
+    <tr>
+      <td><strong>Messaging</strong></td>
+      <td class="num">1</td>
+      <td class="num">0</td>
+      <td>
+        <div class="bar" title="0 of 1 reports in this area block booking">
+          <span class="b" style="width: 0%"></span>
+          <span class="a" style="width: 100%"></span>
+        </div>
+      </td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td class="num">1</td>
+      <td class="theme-why">
+        <a href="themes/messaging.html">Provider messaging</a> (1)
+      </td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<div class="section-title">Volume</div>
+<div class="section-note">
+  Total intake vs the part that carries product signal. Month links open the
+  matching Jira query.
+</div>
+<table>
+  <thead><tr><th>Month</th><th class="num">Tickets</th><th class="num">Actionable</th><th class="num">Signal rate</th></tr></thead>
+  <tbody>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-01-01%22%20ORDER%20BY%20created%20DESC">2025-12</a></td>
+      <td class="num">25</td>
+      <td class="num">14</td>
+      <td class="num">56%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-01-01%22%20AND%20created%20%3C%20%222026-02-01%22%20ORDER%20BY%20created%20DESC">2026-01</a></td>
+      <td class="num">43</td>
+      <td class="num">35</td>
+      <td class="num">81%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-02-01%22%20AND%20created%20%3C%20%222026-03-01%22%20ORDER%20BY%20created%20DESC">2026-02</a></td>
+      <td class="num">38</td>
+      <td class="num">29</td>
+      <td class="num">76%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-03-01%22%20AND%20created%20%3C%20%222026-04-01%22%20ORDER%20BY%20created%20DESC">2026-03</a></td>
+      <td class="num">47</td>
+      <td class="num">37</td>
+      <td class="num">79%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-04-01%22%20AND%20created%20%3C%20%222026-05-01%22%20ORDER%20BY%20created%20DESC">2026-04</a></td>
+      <td class="num">49</td>
+      <td class="num">39</td>
+      <td class="num">80%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-05-01%22%20AND%20created%20%3C%20%222026-06-01%22%20ORDER%20BY%20created%20DESC">2026-05</a></td>
+      <td class="num">52</td>
+      <td class="num">36</td>
+      <td class="num">69%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-06-01%22%20AND%20created%20%3C%20%222026-07-01%22%20ORDER%20BY%20created%20DESC">2026-06</a></td>
+      <td class="num">63</td>
+      <td class="num">38</td>
+      <td class="num">60%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-07-01%22%20AND%20created%20%3C%20%222026-08-01%22%20ORDER%20BY%20created%20DESC">2026-07</a></td>
+      <td class="num">98</td>
+      <td class="num">50</td>
+      <td class="num">51%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20ORDER%20BY%20created%20DESC">2026-08</a></td>
+      <td class="num">59</td>
+      <td class="num">29</td>
+      <td class="num">49%</td>
+    </tr>
+  
+    <tr>
+      <td><a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-09-01%22%20AND%20created%20%3C%20%222026-10-01%22%20ORDER%20BY%20created%20DESC">2026-09</a></td>
+      <td class="num">64</td>
+      <td class="num">30</td>
+      <td class="num">47%</td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<div class="section-title">Month by month</div>
+<div class="section-note">
+  Every month in the window, and what moved against the month before it. Each row
+  links to that month&rsquo;s published snapshot &mdash; a permalink, so a figure
+  quoted in a Slack thread still reads the same a year later.
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th class="num">Tickets</th>
+      <th class="num">Actionable</th>
+      <th class="num">Blocking</th>
+      <th class="num">Change</th>
+      <th class="num">Themes</th>
+      <th>Rose</th>
+      <th>Fell</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td class="theme-name">2026-09</td>
+      <td class="num">64</td>
+      <td class="num">30</td>
+      <td class="num">3</td>
+      <td class="num">
+        <span class="trend-up">+1</span>
+        
+      </td>
+      <td class="num">9</td>
+      <td class="theme-why">
+        <div class="trend-up">AI search replaced classic search and filters +3</div><div class="trend-up">Problems with an appointment already booked +2</div><div class="trend-up">Provider listing does not match reality +2</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Well Guide checklist -2</div><div class="trend-down">Accessibility &amp; display -1</div><div class="trend-down">Booking never reaches the practice -1</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-09.html">full month</a>
+        
+          &middot; <a href="archive/2026-09/">snapshot</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-08</td>
+      <td class="num">59</td>
+      <td class="num">29</td>
+      <td class="num">6</td>
+      <td class="num">
+        <span class="trend-down">-21</span>
+        
+      </td>
+      <td class="num">15</td>
+      <td class="theme-why">
+        <div class="trend-up">Unclassified +3</div><div class="trend-up">Well Guide checklist +2</div><div class="trend-up">Family / dependent profiles +1</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Reviews &amp; ratings -4</div><div class="trend-down">Filters return the wrong providers -3</div><div class="trend-down">Practice cancels or drops the appointment after booking -3</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-08.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-07</td>
+      <td class="num">98</td>
+      <td class="num">50</td>
+      <td class="num">17</td>
+      <td class="num">
+        <span class="trend-up">+12</span>
+        
+      </td>
+      <td class="num">20</td>
+      <td class="theme-why">
+        <div class="trend-up">Practice cancels or drops the appointment after booking +3</div><div class="trend-up">Unclassified +3</div><div class="trend-up">Accessibility &amp; display +2</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">In-network status is wrong -7</div><div class="trend-down">Intake forms block or repeat -2</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-07.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-06</td>
+      <td class="num">63</td>
+      <td class="num">38</td>
+      <td class="num">16</td>
+      <td class="num">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num">15</td>
+      <td class="theme-why">
+        <div class="trend-up">In-network status is wrong +10</div><div class="trend-up">AI search replaced classic search and filters +5</div><div class="trend-up">Reviews &amp; ratings +2</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Cannot edit profile or contact details -2</div><div class="trend-down">Generic error / crash / will not load -2</div><div class="trend-down">Notifications &amp; email -2</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-06.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-05</td>
+      <td class="num">52</td>
+      <td class="num">36</td>
+      <td class="num">7</td>
+      <td class="num">
+        <span class="trend-down">-3</span>
+        
+      </td>
+      <td class="num">21</td>
+      <td class="theme-why">
+        <div class="trend-up">Search returns nothing bookable +2</div><div class="trend-up">AI search replaced classic search and filters +1</div><div class="trend-up">Accessibility &amp; display +1</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Locked out of the account -3</div><div class="trend-down">Family / dependent profiles -2</div><div class="trend-down">In-network status is wrong -2</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-05.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-04</td>
+      <td class="num">49</td>
+      <td class="num">39</td>
+      <td class="num">15</td>
+      <td class="num">
+        <span class="trend-up">+2</span>
+        
+      </td>
+      <td class="num">15</td>
+      <td class="theme-why">
+        <div class="trend-up">Generic error / crash / will not load +5</div><div class="trend-up">Locked out of the account +3</div><div class="trend-up">Notifications &amp; email +3</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Unclassified -7</div><div class="trend-down">Provider listing does not match reality -4</div><div class="trend-down">Booking never reaches the practice -3</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-04.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-03</td>
+      <td class="num">47</td>
+      <td class="num">37</td>
+      <td class="num">14</td>
+      <td class="num">
+        <span class="trend-up">+8</span>
+        
+      </td>
+      <td class="num">12</td>
+      <td class="theme-why">
+        <div class="trend-up">Unclassified +5</div><div class="trend-up">Booking never reaches the practice +4</div><div class="trend-up">Provider listing does not match reality +4</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Filters return the wrong providers -5</div><div class="trend-down">Cannot complete the booking flow -2</div><div class="trend-down">Notifications &amp; email -1</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-03.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-02</td>
+      <td class="num">38</td>
+      <td class="num">29</td>
+      <td class="num">9</td>
+      <td class="num">
+        <span class="trend-down">-6</span>
+        
+      </td>
+      <td class="num">12</td>
+      <td class="theme-why">
+        <div class="trend-up">Filters return the wrong providers +8</div><div class="trend-up">Cannot complete the booking flow +2</div><div class="trend-up">Accessibility &amp; display +1</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Unclassified -8</div><div class="trend-down">Booking never reaches the practice -2</div><div class="trend-down">Intake forms block or repeat -2</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-02.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2026-01</td>
+      <td class="num">43</td>
+      <td class="num">35</td>
+      <td class="num">11</td>
+      <td class="num">
+        <span class="trend-up">+21</span>
+        
+      </td>
+      <td class="num">13</td>
+      <td class="theme-why">
+        <div class="trend-up">Unclassified +12</div><div class="trend-up">Intake forms block or repeat +2</div><div class="trend-up">Notifications &amp; email +2</div>
+        
+      </td>
+      <td class="theme-why">
+        <div class="trend-down">Generic error / crash / will not load -2</div><div class="trend-down">Cannot complete the booking flow -1</div><div class="trend-down">Filters return the wrong providers -1</div>
+        
+      </td>
+      <td class="theme-why">
+        <a href="months/2026-01.html">full month</a>
+        
+      </td>
+    </tr>
+  
+    <tr>
+      <td class="theme-name">2025-12</td>
+      <td class="num">25</td>
+      <td class="num">14</td>
+      <td class="num">7</td>
+      <td class="num">
+        <span class="trend-flat">&mdash;</span>
+        
+      </td>
+      <td class="num">8</td>
+      <td class="theme-why">
+        
+        &mdash;
+      </td>
+      <td class="theme-why">
+        
+        &mdash;
+      </td>
+      <td class="theme-why">
+        <a href="months/2025-12.html">full month</a>
+        
+      </td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<div class="section-title">Signal quality</div>
+<div class="section-note">
+  How much of this feed can be trusted, and what is invisible to it.
+</div>
+<div class="two-col">
+  <div>
+    <table>
+      <thead><tr><th>Non-actionable intake</th><th class="num">Count</th></tr></thead>
+      <tbody>
+      
+        <tr><td>Empty Submission</td><td class="num">64</td></tr>
+      
+        <tr><td>Csat Survey Blast</td><td class="num">50</td></tr>
+      
+        <tr><td>Spam Misrouted</td><td class="num">32</td></tr>
+      
+        <tr><td>Internal Test</td><td class="num">30</td></tr>
+      
+        <tr><td>Low Signal Rant</td><td class="num">10</td></tr>
+      
+        <tr><td>Out Of Scope Clinical</td><td class="num">5</td></tr>
+      
+        <tr><td>Praise Only</td><td class="num">3</td></tr>
+      
+        <tr><td>Disregard Placeholder</td><td class="num">3</td></tr>
+      
+        <tr><td>Internal Artifact</td><td class="num">3</td></tr>
+      
+        <tr><td>Contact Info Only</td><td class="num">1</td></tr>
+      
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <table>
+      <thead><tr><th>Diagnostics coverage</th><th class="num">Count</th></tr></thead>
+      <tbody>
+        <tr><td>Tickets with app version / OS / device</td><td class="num">255 (47%)</td></tr>
+        
+        <tr><td>&mdash; unknown</td><td class="num">207</td></tr>
+        
+        <tr><td>&mdash; iOS</td><td class="num">46</td></tr>
+        
+        <tr><td>&mdash; Android</td><td class="num">2</td></tr>
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-title" id="method">How these numbers are made, and where they are weak</div>
+<div class="section-note">
+  Read this before quoting anything below the top theme.
+</div>
+<table>
+  <tbody>
+    <tr>
+      <td style="width:220px"><strong>Grouping</strong></td>
+      <td>
+        Every ticket is matched against an ordered list of regex patterns, first
+        match wins, so each ticket lands in exactly one theme and the counts add up.
+        Order is by root cause, not symptom: a patient who was billed out-of-network
+        after a cancellation is counted under insurance, not cancellations.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Grouping accuracy</strong></td>
+      <td>
+        
+        Not measured on this run: the hand-labelled sets are held outside the repo
+        and were not available. Treat every theme count as unvalidated.
+        
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Impact score</strong></td>
+      <td>
+        3&times; booking-blocking + 1&times; degrading + 0&times; cosmetic.
+        <strong>75% of the blocking count
+        (79 of 105) is inferred
+        from the theme, not read from the ticket</strong>: five themes are treated as
+        blocking by definition, on the reasoning that a patient whose booking never
+        reached the practice lost the appointment whether or not they said so. The
+        consequence is that for those themes impact is arithmetically 3&times; volume, they
+        occupy the top of every impact ranking on this site, and a high-volume theme with
+        honestly-measured low severity &mdash; filters returning the wrong providers, at
+        34 reports &mdash; sorts below them. The &dagger; marker shows how many of a
+        theme's blocking reports are inferred rather than evidenced.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Coverage</strong></td>
+      <td>
+        18% of actionable tickets match no theme, and
+        37% of all intake is excluded as non-actionable before
+        themes are applied. Diagnostics (app version, OS, device) exist on only
+        47% of tickets, so every platform and version
+        split is a sample, not a census.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Window</strong></td>
+      <td>
+        2025-12-01 to 2026-09-30, enforced at aggregation
+        rather than trusted from the fetch. Reports are cumulative: theme totals cover
+        the whole window, and per-month figures live on the month pages.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Provenance</strong></td>
+      <td>
+        Generated on a maintainer's machine, not in CI &mdash; ticket text never leaves
+        that machine. Only these aggregates are published. A local audit file maps every
+        number here back to the exact ticket keys behind it; it is deliberately not
+        published, for the reason in the note below.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="phi">
+  <strong>PHI note.</strong> AFH tickets contain patient free text and device, session
+  and tracking identifiers. One ticket is one patient, so ticket keys are treated as
+  patient-level data and are never published on this page. Drill-down happens in Jira,
+  which is permission-gated:
+  <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%3D%20%222026-09-30%22%20ORDER%20BY%20created%20DESC">all tickets in window</a> &middot;
+  <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%3D%20%222026-09-30%22%20AND%20statusCategory%20%21%3D%20Done%20ORDER%20BY%20created%20DESC">still open</a>.
+  <br><br>
+  <strong>History:</strong>
+  <a href="archive/">every published month</a> &mdash; each one frozen as it
+  read the day it went out.
+  <br><br>
+  <strong>Raw numbers:</strong>
+  <a href="report.json">report.json</a> &middot;
+  <a href="themes.csv">themes.csv</a> &middot;
+  <a href="subthemes.csv">subthemes.csv</a> &middot;
+  <a href="monthly.csv">monthly.csv</a> &mdash; aggregates only, safe to paste
+  into a sheet.
+</div>
+
+
+    <div class="footer">
+      Generated 2026-09-30 from Jira project AFH.
+      Counts are aggregates only &mdash; no ticket keys, patient text or device
+      identifiers are published here.
+    </div>
+  </div>
+</body>
+</html>

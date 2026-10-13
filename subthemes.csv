@@ -1,0 +1,29 @@
+theme,theme_label,area,subtheme,subtheme_label,reports,blocking,pct_of_theme
+insurance-network-accuracy,In-network status is wrong,Insurance,shown-in-network-is-not,"Listed as in-network, turned out not to be",13,13,30
+insurance-network-accuracy,In-network status is wrong,Insurance,billed-after-booking,Billed after booking an in-network provider,9,9,20
+insurance-network-accuracy,In-network status is wrong,Insurance,provider-does-not-take-plan,Provider does not take the plan at all,9,9,20
+insurance-network-accuracy,In-network status is wrong,Insurance,plan-mapping,"Right carrier, wrong plan mapping",1,1,2
+insurance-network-accuracy,In-network status is wrong,Insurance,other,Other / not broken out,12,12,27
+account-access,Locked out of the account,Account & Auth,cannot-log-in,Cannot log in or create an account,7,7,70
+account-access,Locked out of the account,Account & Auth,other,Other / not broken out,3,3,30
+ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,ai-instead-of-results,AI answers instead of a list of providers,16,4,62
+ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,no-opt-out,No way to opt out or get classic search back,9,0,35
+ai-search-rollout,AI search replaced classic search and filters,Search & Discovery,other,Other / not broken out,1,0,4
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,results-too-far,Results are too far away,7,0,21
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,missing-filter,Asks for a filter that does not exist,4,0,12
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,facet-gender-language,Gender or language facet wrong,2,0,6
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,availability-wrong,Availability filter returns unbookable slots,2,1,6
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,wrong-specialty,Wrong specialty returned,1,0,3
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,filter-ignored,Filter is ignored or resets itself,1,0,3
+search-filter-correctness,Filters return the wrong providers,Search & Discovery,other,Other / not broken out,17,1,50
+appt-management,Problems with an appointment already booked,Appointment Management,calendar-sync,Will not add to the phone calendar,6,0,40
+appt-management,Problems with an appointment already booked,Appointment Management,video-visit,Video visit will not start,3,2,20
+appt-management,Problems with an appointment already booked,Appointment Management,cancel-reschedule,Cannot cancel or reschedule,2,0,13
+appt-management,Problems with an appointment already booked,Appointment Management,appointment-missing,Booked appointment is missing from the list,1,0,7
+appt-management,Problems with an appointment already booked,Appointment Management,other,Other / not broken out,3,0,20
+provider-data-accuracy,Provider listing does not match reality,Provider Data,wrong-address,Wrong address or office location,4,0,29
+provider-data-accuracy,Provider listing does not match reality,Provider Data,provider-gone,Provider has left or retired,3,0,21
+provider-data-accuracy,Provider listing does not match reality,Provider Data,wrong-contact,Wrong phone or contact details,1,0,7
+provider-data-accuracy,Provider listing does not match reality,Provider Data,other,Other / not broken out,6,0,43
+notifications,Notifications & email,Notifications,too-many,Too many notifications,10,0,62
+notifications,Notifications & email,Notifications,other,Other / not broken out,6,1,38
