@@ -97,18 +97,22 @@ def parse_issue(issue: dict) -> dict:
 
 
 def search(session, jql: str) -> list:
-    """Page through a JQL search. Retries transient 429/5xx."""
-    out, start = [], 0
+    """Page through a JQL search. Retries transient 429/5xx.
+
+    /search/jql pages by token; the old /search (startAt + total) is retired.
+    """
+    out, token = [], None
     while True:
+        body = {"jql": jql, "maxResults": PAGE_SIZE, "fields": FIELDS}
+        if token:
+            body["nextPageToken"] = token
         for attempt in range(4):
-            resp = session.post(
-                f"{JIRA_REST_URL}/search",
-                json={"jql": jql, "startAt": start, "maxResults": PAGE_SIZE, "fields": FIELDS},
-                timeout=60,
-            )
+            resp = session.post(f"{JIRA_REST_URL}/search/jql", json=body, timeout=60)
             if resp.status_code in (429, 500, 502, 503, 504):
                 time.sleep(2 ** attempt)
                 continue
+            if not resp.ok:
+                print(f"Jira search error {resp.status_code}: {resp.text[:500]}", file=sys.stderr)
             resp.raise_for_status()
             break
         else:
@@ -117,8 +121,8 @@ def search(session, jql: str) -> list:
         data = resp.json()
         issues = data.get("issues", [])
         out.extend(parse_issue(i) for i in issues)
-        start += len(issues)
-        if start >= data.get("total", 0) or not issues:
+        token = data.get("nextPageToken")
+        if not token or not issues:
             return out
 
 

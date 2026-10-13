@@ -42,7 +42,7 @@ step "Tests"
 "${PY}" -m pytest tests/ -q
 
 step "Resolve window"
-eval "$("${PY}" scripts/resolve_window.py --month "${MONTH}" --first-day "${FIRST_DAY}")"
+while IFS="=" read -r k v; do printf -v "$k" "%s" "$v"; done < <("${PY}" scripts/resolve_window.py --month "${MONTH}" --first-day "${FIRST_DAY}")
 echo "window ${start} -> ${end}  (${label})"
 
 step "Fetch tickets (PHI — local only)"
