@@ -1,0 +1,70 @@
+name: AFH Notify
+
+on:
+  push:
+    branches: [gh-pages]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 14 2 * *"
+
+permissions:
+  contents: read
+
+env:
+  SLACK_CHANNEL: C0C7UPMH58W   # #test-ak
+
+jobs:
+  published:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+
+      - name: Post to Slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          if [ -z "${SLACK_BOT_TOKEN}" ]; then
+            echo "::notice::SLACK_BOT_TOKEN not set; skipping"
+            exit 0
+          fi
+          if [ ! -f latest.json ]; then
+            echo "::notice::latest.json not found on gh-pages; skipping"
+            exit 0
+          fi
+          text=$(jq -r '
+            "*AFH product signal — \(.month_label)*\n\(.headline)\n"
+            + ((.cards // []) | map("• \(.title) (\(.kind), \(if .tracked then "tracked" else "NOT tracked" end))") | join("\n"))
+            + "\n\(.url)"
+          ' latest.json)
+          payload=$(jq -n --arg text "$text" --arg channel "${SLACK_CHANNEL}" '{channel: $channel, text: $text}')
+          resp=$(curl -sS --fail -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+            -H 'Content-type: application/json; charset=utf-8' \
+            --data "$payload")
+          echo "$resp" | jq -e '.ok == true' >/dev/null || { echo "::error::Slack post failed: $(echo "$resp" | jq -r '.error // "unknown"')"; exit 1; }
+
+  reminder:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remind to run the skill
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          if [ -z "${SLACK_BOT_TOKEN}" ]; then
+            echo "::notice::SLACK_BOT_TOKEN not set; skipping"
+            exit 0
+          fi
+          prev=$(date -u -d "$(date -u +%Y-%m-01) -1 day" +%Y-%m)
+          label=$(date -u -d "$(date -u +%Y-%m-01) -1 day" +"%B %Y")
+          text="${label}'s AFH data is ready — run \`/afh-signal month ${prev}\` locally."
+          payload=$(jq -n --arg text "$text" --arg channel "${SLACK_CHANNEL}" '{channel: $channel, text: $text}')
+          resp=$(curl -sS --fail -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+            -H 'Content-type: application/json; charset=utf-8' \
+            --data "$payload")
+          echo "$resp" | jq -e '.ok == true' >/dev/null || { echo "::error::Slack post failed: $(echo "$resp" | jq -r '.error // "unknown"')"; exit 1; }
