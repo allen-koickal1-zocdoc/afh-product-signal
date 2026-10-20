@@ -16,13 +16,19 @@ distilled from App Feedback Hub (AFH) tickets, written for PMs.
 
 `.github/workflows/notify.yml` posts to Slack via `chat.postMessage` using the `SLACK_BOT_TOKEN` secret (channel set by `SLACK_CHANNEL` in the workflow):
 
-- On a push to `gh-pages` (or manual dispatch) it reads `latest.json`
-  (`month_label`, `headline`, `url`, `cards[]`) and posts the month's summary.
-  It skips with a notice if `latest.json` or the token is missing.
+- On manual dispatch (`gh workflow run notify.yml -f month=YYYY-MM`, which the
+  skill's publish step runs after a successful push) it reads `latest.json`
+  from `gh-pages` (`month`, `month_label`, `headline`, `url`, `cards[]`) and
+  posts the month's summary. It fails if `latest.json` is missing, a field is
+  empty, or `month` does not match the `month` input. LLM-written text is
+  escaped for Slack (`&`, `<`, `>`). A missing token is a notice, not a failure.
+- There is no trigger on push to `gh-pages`: a push event reads the workflow
+  from the pushed commit, and `gh-pages` has no `.github/`.
 - On the 2nd of each month (14:00 UTC) it posts a reminder to run
   `/afh-signal month YYYY-MM` for the previous month.
 
 ## Publishing a month
 
-Run `/afh-signal month YYYY-MM` locally, review the PHI scan result, approve,
-and the skill pushes to `gh-pages`.
+Run `/afh-signal month YYYY-MM` locally, review the PHI scan result (including
+any flagged words in the story prose, which block until reviewed), approve, and
+the skill pushes to `gh-pages` and dispatches the notify workflow.
