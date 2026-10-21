@@ -1,1611 +1,185 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026-08 &mdash; AFH Product Signal</title>
-  <style>
-    :root {
-      --primary: #0984e3;
-      --accent: #6c5ce7;
-      --dark: #2d3436;
-      --dark-light: #636e72;
-      --bg: #f8f9fa;
-      --white: #ffffff;
-      --border: #dfe6e9;
-      --green: #00b894;
-      --orange: #f39c12;
-      --red: #d63031;
-      --purple: #6c5ce7;
-      --teal: #00cec9;
-      --radius: 8px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
-      background: var(--bg);
-      color: var(--dark);
-      line-height: 1.6;
-    }
-    .header {
-      background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);
-      color: var(--white);
-      padding: 2rem 2rem 1.5rem;
-    }
-    .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .header .subtitle { opacity: 0.9; font-size: 1rem; }
-    .breadcrumb {
-      padding: 0.75rem 2rem;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
-    }
-    .breadcrumb a { color: var(--primary); text-decoration: none; }
-    .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb .sep { color: var(--dark-light); margin: 0 0.5rem; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
-
-    /* Headline answer */
-    .verdict {
-      background: var(--white);
-      border-left: 6px solid var(--red);
-      border-radius: var(--radius);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .verdict h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px;
-                  color: var(--dark-light); font-weight: 600; margin-bottom: 0.5rem; }
-    .verdict p { font-size: 1.15rem; }
-    .verdict strong { color: var(--red); }
-    .verdict.calm { border-left-color: var(--green); }
-    .verdict.calm strong { color: var(--green); }
-
-    /* Regression banner */
-    .alert {
-      background: #fff5f5;
-      border: 1px solid #ffc9c9;
-      border-left: 6px solid var(--red);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .alert h3 { color: var(--red); font-size: 0.85rem; text-transform: uppercase;
-                letter-spacing: 0.5px; margin-bottom: 0.5rem; }
-    .alert ul { list-style: none; }
-    .alert li { padding: 0.35rem 0; border-bottom: 1px dashed #ffd9d9; font-size: 0.95rem; }
-    .alert li:last-child { border-bottom: none; }
-    .alert .tag {
-      display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-      background: var(--red); color: var(--white); padding: 0.05rem 0.45rem;
-      border-radius: 3px; margin-right: 0.5rem; letter-spacing: 0.5px;
-    }
-    .alert .tag.new { background: var(--purple); }
-    .alert.shift { background: #f6f4ff; border-color: #d9d1ff; border-left-color: var(--purple); }
-    .alert.shift h3 { color: var(--purple); }
-    .alert.shift li { border-bottom-color: #e5dfff; }
-
-    /* KPI cards */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .kpi-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      text-align: center;
-      border-left: 4px solid var(--primary);
-    }
-    .kpi-card:nth-child(2) { border-left-color: var(--red); }
-    .kpi-card:nth-child(3) { border-left-color: var(--purple); }
-    .kpi-card:nth-child(4) { border-left-color: var(--orange); }
-    .kpi-card:nth-child(5) { border-left-color: var(--teal); }
-    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
-    .kpi-card:nth-child(2) .kpi-value { color: var(--red); }
-    .kpi-card:nth-child(3) .kpi-value { color: var(--purple); }
-    .kpi-card:nth-child(4) .kpi-value { color: var(--orange); }
-    .kpi-card:nth-child(5) .kpi-value { color: var(--teal); }
-    .kpi-card .kpi-label {
-      font-size: 0.8rem; color: var(--dark-light); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-top: 0.25rem;
-    }
-    .kpi-card .kpi-sub { font-size: 0.75rem; color: var(--dark-light); }
-
-    .section-title {
-      font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.35rem;
-      padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary);
-    }
-    .section-note { font-size: 0.85rem; color: var(--dark-light); margin-bottom: 1rem; }
-
-    table { width: 100%; border-collapse: collapse; background: var(--white);
-            border-radius: var(--radius); overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    th { background: #f1f3f5; text-align: left; padding: 0.65rem 0.9rem;
-         font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
-         color: var(--dark-light); font-weight: 600; }
-    td { padding: 0.7rem 0.9rem; border-top: 1px solid var(--border); font-size: 0.92rem;
-         vertical-align: top; }
-    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-    tr:hover td { background: #fbfcfd; }
-    .theme-name { font-weight: 600; }
-    .theme-name a { color: var(--dark); text-decoration: none; }
-    .theme-name a:hover { color: var(--primary); text-decoration: underline; }
-    .theme-why { font-size: 0.82rem; color: var(--dark-light); }
-    .theme-why a { color: var(--primary); text-decoration: none; }
-    .theme-why a:hover { text-decoration: underline; }
-    .theme-why.sub { margin-top: 0.2rem; font-style: italic; opacity: 0.85; }
-    tr.muted td { color: var(--dark-light); }
-    .area-chip {
-      display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.5rem;
-      border-radius: 10px; background: #eef2f7; color: var(--dark-light);
-      white-space: nowrap;
-    }
-    .bar { height: 8px; border-radius: 4px; background: #eef2f7; overflow: hidden;
-           min-width: 90px; display: flex; }
-    .bar span { display: block; height: 100%; }
-    .bar .b { background: var(--red); }
-    .bar .d { background: var(--orange); }
-    .bar .a { background: #b2bec3; }
-    .trend-up { color: var(--red); font-weight: 700; }
-    .trend-down { color: var(--green); font-weight: 700; }
-    .trend-flat { color: var(--dark-light); }
-    .ver { font-size: 0.78rem; color: var(--dark-light); font-variant-numeric: tabular-nums; }
-    .floor { color: var(--dark-light); cursor: help; margin-left: 2px; }
-
-    .spark { display: flex; align-items: flex-end; gap: 2px; height: 26px; }
-    .spark i { display: block; width: 7px; background: var(--primary); opacity: 0.75;
-               border-radius: 1px 1px 0 0; min-height: 1px; }
-    .spark i.last { background: var(--red); opacity: 1; }
-    .spark i.now { background: var(--red); opacity: 1; }
-    .spark i.after { opacity: 0.25; }
-
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
-
-    .footer {
-      margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
-      font-size: 0.8rem; color: var(--dark-light);
-    }
-    .phi {
-      background: #fffbea; border: 1px solid #ffe8a1; border-radius: var(--radius);
-      padding: 0.9rem 1.1rem; font-size: 0.85rem; margin-top: 1.5rem;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>August 2026 · App feedback signal</title>
+<link rel="stylesheet" href="../site.css">
+<script src="../site.js"></script>
 </head>
 <body>
-  <div class="header">
-    <h1>2026-08</h1>
-    <div class="subtitle">
-  29 actionable of 59 tickets &middot;
-  6 cost the patient the appointment or money
-  
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="../index.html">App feedback · product signal</a>
+  <nav aria-label="Site">
+    <a href="../index.html">Latest</a>
+    <a href="../issues/index.html">Known issues</a>
+    <label><span class="sr">Choose month</span>
+      <select class="months">
+<option value="../months/2026-09.html">September 2026</option><option value="../months/2026-08.html" selected>August 2026</option><option value="../months/2026-07.html">July 2026</option><option value="../months/2026-06.html">June 2026</option><option value="../months/2026-05.html">May 2026</option><option value="../months/2026-04.html">April 2026</option><option value="../months/2026-03.html">March 2026</option><option value="../months/2026-02.html">February 2026</option><option value="../months/2026-01.html">January 2026</option><option value="../months/2025-12.html">December 2025</option>      </select></label>
+    <button class="theme" type="button" aria-pressed="false" aria-label="Dark mode">◐ Theme</button>
+  </nav>
+</header>
+<main>
+<p class="eyebrow">Patient app feedback · August 2026</p>
+<h1>Wrong in-network listings reached 4 tickets, the ninth month in a row with reports.</h1>
+<p class="lede">We read all 59 August tickets: 33 were real reports and 26 were noise, mostly survey emails, blank submissions and messages with no product problem. Two patients said they lost a visit, trip or money, against 3 on the dashboard: one was billed out of network after booking a provider listed as in-network, and one arrived to find the office had no record of the booking. Wrong in-network listings rose from 3 read tickets in July to 4 and remain the only problem with stated harm that reached the bar. Requests to turn off the assistant-style search came back to the bar at 3 tickets, while complaints about the quality of its results fell from 4 to 1. The dashboard&#39;s theme labels matched reading on only 41 of 59 tickets this month, so its theme counts, especially for notifications, should be read as rough.</p>
+<section class="acton" aria-labelledby="acton-h">
+<h2 id="acton-h">Act on this</h2>
+<div class="tablewrap"><table><thead><tr><th scope="col">Action</th><th scope="col">Owner</th><th class="n" scope="col">This month</th></tr></thead><tbody>
+<tr><td><a href="#insurance-network-accuracy">Provider listed as in-network for the patient&#39;s plan turned out not to be</a><br><span class="evidence">Take August bookings later cancelled by the office for an insurance reason, re-check each provider&#39;s accepted plans against the carrier directory, and compare the mismatch rate with July&#39;s.</span></td>
+<td>Insurance team (provider network data)</td>
+<td class="n">4<br><span class="evidence">1 lost a visit, trip or money</span></td></tr><tr><td><a href="#ai-search-rollout">Assistant-style search replaced classic search with no way to turn it off</a><br><span class="evidence">On current iPhone and Android builds in the rollout group, check whether a persistent setting turns the assistant off and returns classic search with filters.</span></td>
+<td>Search team (assistant-style search)<br><span class="evidence">Board: Search (Relevance)</span></td>
+<td class="n">3</td></tr></tbody></table></div>
+</section>
+
+<section class="tiles" aria-label="This month in numbers">
+  <div class="tile"><div class="label">Feedback received</div><div class="value">59</div>
+</div>
+  <div class="tile"><div class="label">Actionable</div><div class="value">33</div>
+<div class="delta">automatic count: 40 actionable</div></div>
+  <div class="tile"><div class="label">Noise</div><div class="value">26</div>
+<div class="delta">automatic count: 19 noise</div></div>
+  <div class="tile"><div class="label">Lost a visit, trip or money</div><div class="value">2</div>
+<div class="delta">automatic count: 3 lost</div></div>
+</section>
+<p class="evidence">Tiles count every ticket read one by one; the automatic count is shown only where it differs.</p>
+<section class="notice" role="note" aria-labelledby="dq-h">
+<h2 id="dq-h" class="notice-h">⚠ Data quality: automatic count vs read count</h2>
+<p class="evidence">Where the two disagree this month. The page uses the read counts.</p>
+<div class="tablewrap"><table><thead><tr><th scope="col">Theme</th><th class="n" scope="col">Read</th><th class="n" scope="col">Automatic estimate</th><th scope="col">Why</th></tr></thead><tbody>
+<tr><td>Noise</td><td class="n">26</td><td class="n">19</td><td>The dashboard filed 7 noise tickets as real reports: 4 as unclassified, 2 under notifications and 1 under search by name.</td></tr><tr><td>Matched no theme</td><td class="n">0</td><td class="n">7</td><td>Reading placed all 7: four were noise, and one each was a booking not reaching the office, a notification and a provider data problem.</td></tr><tr><td>Noise</td><td class="n">26</td><td class="n">19</td><td>The dashboard filed 7 noise tickets as real reports: 4 as unclassified, 2 under notifications and 1 under search by name.</td></tr><tr><td>Notifications &amp; email</td><td class="n">2</td><td class="n">8</td><td>Of the dashboard&#39;s 8, reading kept 1 as notifications, placed 2 as noise and 5 under other themes (account editing, accessibility, app stability, no providers in the area and the health checklist). Reading&#39;s other notifications ticket was unclassified on the dashboard.</td></tr></tbody></table></div>
+</section>
+
+<h2>The detail, card by card</h2>
+<article class="card" id="insurance-network-accuracy">
+  <div class="card-head">
+    <h3><span class="rank">1.</span>Provider listed as in-network for the patient&#39;s plan turned out not to be</h3>
+    <div class="pills"><span class="pill k-rising">▲ Rising</span><span class="pill c-MEDIUM" title="8 tickets read describing results, not individual listings. Quiet after June 2026, possibly absorbed into the AI search reports.">Confidence: Medium</span>
+    <span class="pill untracked">⚠ Not tracked</span>
 </div>
   </div>
-  
-<div class="breadcrumb">
-  <a href="../index.html">Latest report</a>
-  <span class="sep">&rsaquo;</span><a href="../archive/">History</a>
-  <span class="sep">&rsaquo;</span>2026-08
-  <span class="sep">|</span><a href="2026-07.html">&larr; 2026-07</a>
-  <span class="sep">|</span><a href="2026-09.html">2026-09 &rarr;</a>
+  <dl class="fields">
+    <dt>What's broken</dt><dd>Patients said offices told them after booking that they did not take the insurance the app showed as accepted, and one said providers listed in their insurer&#39;s own directory were missing from the app.</dd>
+    <dt>Who it hurts</dt><dd>1 of the 4 patients said they lost a visit, trip or money after a visit was processed out of network. Another had a booking cancelled by the office over insurance, and one said they were deleting the app. <strong>4</strong> this month, <strong>1</strong> said they lost a visit, trip or money.</dd>
+    <dt>New, rising or chronic</dt><dd><div class="trend-row"><span class="pill k-rising">▲ Rising</span><svg class="spark" width="96" height="37" viewBox="0 0 96 37" role="img" tabindex="0" aria-label="In-network status is wrong, tickets per month: Dec 2025: 3, automatic estimate; Jan 2026: 3, automatic estimate; Feb 2026: 4, automatic estimate; Mar 2026: 6, automatic estimate; Apr 2026: 4, automatic estimate; May 2026: 2, automatic estimate; Jun 2026: 12, automatic estimate; Jul 2026: 8, automatic estimate; Aug 2026: 4, read" data-tip="Dec 2025: 3, automatic estimate; Jan 2026: 3, automatic estimate; Feb 2026: 4, automatic estimate; Mar 2026: 6, automatic estimate; Apr 2026: 4, automatic estimate; May 2026: 2, automatic estimate; Jun 2026: 12, automatic estimate; Jul 2026: 8, automatic estimate; Aug 2026: 4, read">
+  <line x1="0" x2="96" y1="36.5" y2="36.5"></line>
+<rect class="est" x="0" y="28" width="8" height="8" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="-1" y="0" width="10" height="37" aria-hidden="true" data-tip="Dec 25: 3 (automatic estimate)"></rect>
+<rect class="est" x="11" y="28" width="8" height="8" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="10" y="0" width="10" height="37" aria-hidden="true" data-tip="Jan 26: 3 (automatic estimate)"></rect>
+<rect class="est" x="22" y="25" width="8" height="11" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="21" y="0" width="10" height="37" aria-hidden="true" data-tip="Feb 26: 4 (automatic estimate)"></rect>
+<rect class="est" x="33" y="19" width="8" height="17" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="32" y="0" width="10" height="37" aria-hidden="true" data-tip="Mar 26: 6 (automatic estimate)"></rect>
+<rect class="est" x="44" y="25" width="8" height="11" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="43" y="0" width="10" height="37" aria-hidden="true" data-tip="Apr 26: 4 (automatic estimate)"></rect>
+<rect class="est" x="55" y="30" width="8" height="6" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="54" y="0" width="10" height="37" aria-hidden="true" data-tip="May 26: 2 (automatic estimate)"></rect>
+<rect class="est" x="66" y="2" width="8" height="34" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="65" y="0" width="10" height="37" aria-hidden="true" data-tip="Jun 26: 12 (automatic estimate)"></rect>
+<rect class="est" x="77" y="13" width="8" height="23" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="76" y="0" width="10" height="37" aria-hidden="true" data-tip="Jul 26: 8 (automatic estimate)"></rect>
+<rect class="read latest" x="88" y="25" width="8" height="11" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="87" y="0" width="10" height="37" aria-hidden="true" data-tip="Aug 26: 4 (read)"></rect>
+</svg>
+<button class="toggle" type="button" aria-expanded="false" aria-controls="t-insurance-network-accuracy">Show as table</button>
+<div class="tablewrap" id="t-insurance-network-accuracy" hidden>
+<table><thead><tr><th class="n" scope="col">Dec 25</th><th class="n" scope="col">Jan 26</th><th class="n" scope="col">Feb 26</th><th class="n" scope="col">Mar 26</th><th class="n" scope="col">Apr 26</th><th class="n" scope="col">May 26</th><th class="n" scope="col">Jun 26</th><th class="n" scope="col">Jul 26</th><th class="n" scope="col">Aug 26</th></tr></thead>
+<tbody><tr><td class="n">3<span title="automatic estimate">*</span></td><td class="n">3<span title="automatic estimate">*</span></td><td class="n">4<span title="automatic estimate">*</span></td><td class="n">6<span title="automatic estimate">*</span></td><td class="n">4<span title="automatic estimate">*</span></td><td class="n">2<span title="automatic estimate">*</span></td><td class="n">12<span title="automatic estimate">*</span></td><td class="n">8<span title="automatic estimate">*</span></td><td class="n">4</td></tr></tbody></table>
+<p class="evidence">* automatic estimate — that month was not read ticket by ticket.</p></div></div>
+      <div class="legend"><span><span class="sw est"></span>automatic estimate</span><span><span class="sw"></span>read</span><span>flagged 2 months running</span></div>
+      <p class="evidence scope"><strong>Chart:</strong> whole theme (In-network status is wrong, theme trend: rising) — Dec 25–Jul 26: automatic estimate · Aug 26: read; 42 in Dec 25–Jul 26 (8 months) (automatic estimate), 4 read this month; peak 12 in Jun 26 (automatic estimate).
+<strong>This pattern (read):</strong> 27 in Dec 25–Jul 26 (8 months), in 8 of those months; 4 this month.</p>
+<p class="evidence">Present in every month read so far: 2, 2, 3, 3 and 3 tickets from December to April, 1 in May, 10 in June, 3 in July and 4 in August, the ninth month in a row.</p></dd>
+    <dt>Is anyone on it</dt><dd><p><strong>No — not tracked. No team-board item covers this.</strong> Triage said the planned insurance guarantee project should fix this and closed one ticket as working as intended because providers maintain their own accepted plans. No team-board item covers the mismatch.</p><ul class="track">
+</ul>
+<p class="evidence">No August ticket links to a team-board item; the planned insurance guarantee work is cited in comments but not linked.</p></dd>
+    <dt>What to do next</dt><dd>Insurance team (provider network data): take August bookings later cancelled by the office for an insurance reason, re-check each provider&#39;s accepted plans against the carrier directory, and compare the mismatch rate with July&#39;s. Confirmed if mismatches cluster in specific plan mappings or practices; refuted if listings match the carrier directory.</dd>
+    <dt>Evidence</dt><dd><details><summary>Likely cause, confidence, Jira searches and known issues</summary><p><strong>Likely cause:</strong> Likely: provider-maintained accepted-plan data drifting from what offices actually accept; triage expects the insurance guarantee project to address it but has not established a cause per listing.</p>      <p class="evidence">8 tickets read describing results, not individual listings. Quiet after June 2026, possibly absorbed into the AI search reports.</p>
+      <p><span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22in%20network%5C%22%22%20OR%20text%20~%20%22%5C%22out%20of%20network%5C%22%22%20OR%20text%20~%20%22%5C%22doesn%27t%20take%20my%20insurance%5C%22%22%20OR%20text%20~%20%22%5C%22not%20covered%5C%22%22%20OR%20text%20~%20%22%5C%22unexpected%20bill%5C%22%22%20OR%20text%20~%20%22%5C%22denied%20claim%5C%22%22%20OR%20text%20~%20%22%5C%22balance%20bill%5C%22%22%20OR%20text%20~%20%22%5C%22only%20out%20of%20network%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22in%20network%5C%22%22%20OR%20text%20~%20%22%5C%22out%20of%20network%5C%22%22%20OR%20text%20~%20%22%5C%22doesn%27t%20take%20my%20insurance%5C%22%22%20OR%20text%20~%20%22%5C%22not%20covered%5C%22%22%20OR%20text%20~%20%22%5C%22unexpected%20bill%5C%22%22%20OR%20text%20~%20%22%5C%22denied%20claim%5C%22%22%20OR%20text%20~%20%22%5C%22balance%20bill%5C%22%22%20OR%20text%20~%20%22%5C%22only%20out%20of%20network%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></p><p class="evidence approx">≈ approximate Jira text search — expect extra and missing results; login required.</p>
+<p class="evidence">Known issue: <a href="../issues/in-network-listing-wrong.html">Provider listed as in-network for the patient&#39;s plan turned out not to be</a></p><p class="evidence">Known issue: <a href="../issues/insurance-filter-returns-oon.html">Insurance-filtered search shows only out-of-network or self-pay providers</a></p></details></dd>
+  </dl>
+</article>
+<article class="card" id="ai-search-rollout">
+  <div class="card-head">
+    <h3><span class="rank">2.</span>Assistant-style search replaced classic search with no way to turn it off</h3>
+    <div class="pills"><span class="pill k-rising">▲ Rising</span><span class="pill c-MEDIUM" title="MEDIUM rule: 3 confirmed tickets with a consistent pattern, all linked to the open search feedback initiative. Not the top level: under 5 confirmed tickets.">Confidence: Medium</span>
+    <span class="pill tracked">✓ Tracked · gap</span>
+<span class="pill">Fix in progress</span></div>
+  </div>
+  <dl class="fields">
+    <dt>What's broken</dt><dd>Several patients said the assistant appears first on every search, the earlier option to skip it is gone, and they want a setting to turn it off and use regular search.</dd>
+    <dt>Who it hurts</dt><dd>None of the 3 said they lost a visit, trip or money; they wanted to search the old way and could not. <strong>3</strong> this month, <strong>0</strong> said they lost a visit, trip or money.</dd>
+    <dt>New, rising or chronic</dt><dd><div class="trend-row"><span class="pill k-rising">▲ Rising</span><svg class="spark" width="96" height="37" viewBox="0 0 96 37" role="img" tabindex="0" aria-label="AI search replaced classic search and filters, tickets per month: Dec 2025: 0, automatic estimate; Jan 2026: 0, automatic estimate; Feb 2026: 0, automatic estimate; Mar 2026: 0, automatic estimate; Apr 2026: 0, automatic estimate; May 2026: 2, automatic estimate; Jun 2026: 6, automatic estimate; Jul 2026: 6, automatic estimate; Aug 2026: 5, read" data-tip="Dec 2025: 0, automatic estimate; Jan 2026: 0, automatic estimate; Feb 2026: 0, automatic estimate; Mar 2026: 0, automatic estimate; Apr 2026: 0, automatic estimate; May 2026: 2, automatic estimate; Jun 2026: 6, automatic estimate; Jul 2026: 6, automatic estimate; Aug 2026: 5, read">
+  <line x1="0" x2="96" y1="36.5" y2="36.5"></line>
+  <rect class="hit" x="-1" y="0" width="10" height="37" aria-hidden="true" data-tip="Dec 25: 0 (automatic estimate)"></rect>
+  <rect class="hit" x="10" y="0" width="10" height="37" aria-hidden="true" data-tip="Jan 26: 0 (automatic estimate)"></rect>
+  <rect class="hit" x="21" y="0" width="10" height="37" aria-hidden="true" data-tip="Feb 26: 0 (automatic estimate)"></rect>
+  <rect class="hit" x="32" y="0" width="10" height="37" aria-hidden="true" data-tip="Mar 26: 0 (automatic estimate)"></rect>
+  <rect class="hit" x="43" y="0" width="10" height="37" aria-hidden="true" data-tip="Apr 26: 0 (automatic estimate)"></rect>
+<rect class="est" x="55" y="25" width="8" height="11" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="54" y="0" width="10" height="37" aria-hidden="true" data-tip="May 26: 2 (automatic estimate)"></rect>
+<rect class="est" x="66" y="2" width="8" height="34" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="65" y="0" width="10" height="37" aria-hidden="true" data-tip="Jun 26: 6 (automatic estimate)"></rect>
+<rect class="est" x="77" y="2" width="8" height="34" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="76" y="0" width="10" height="37" aria-hidden="true" data-tip="Jul 26: 6 (automatic estimate)"></rect>
+<rect class="read latest" x="88" y="8" width="8" height="28" rx="2" aria-hidden="true"></rect>  <rect class="hit" x="87" y="0" width="10" height="37" aria-hidden="true" data-tip="Aug 26: 5 (read)"></rect>
+</svg>
+<button class="toggle" type="button" aria-expanded="false" aria-controls="t-ai-search-rollout">Show as table</button>
+<div class="tablewrap" id="t-ai-search-rollout" hidden>
+<table><thead><tr><th class="n" scope="col">Dec 25</th><th class="n" scope="col">Jan 26</th><th class="n" scope="col">Feb 26</th><th class="n" scope="col">Mar 26</th><th class="n" scope="col">Apr 26</th><th class="n" scope="col">May 26</th><th class="n" scope="col">Jun 26</th><th class="n" scope="col">Jul 26</th><th class="n" scope="col">Aug 26</th></tr></thead>
+<tbody><tr><td class="n">0<span title="automatic estimate">*</span></td><td class="n">0<span title="automatic estimate">*</span></td><td class="n">0<span title="automatic estimate">*</span></td><td class="n">0<span title="automatic estimate">*</span></td><td class="n">0<span title="automatic estimate">*</span></td><td class="n">2<span title="automatic estimate">*</span></td><td class="n">6<span title="automatic estimate">*</span></td><td class="n">6<span title="automatic estimate">*</span></td><td class="n">5</td></tr></tbody></table>
+<p class="evidence">* automatic estimate — that month was not read ticket by ticket.</p></div></div>
+      <div class="legend"><span><span class="sw est"></span>automatic estimate</span><span><span class="sw"></span>read</span><span>flagged 3 months running</span></div>
+      <p class="evidence scope"><strong>Chart:</strong> whole theme (AI search replaced classic search and filters, theme trend: rising) — Dec 25–Jul 26: automatic estimate · Aug 26: read; 14 in Dec 25–Jul 26 (8 months) (automatic estimate), 5 read this month; peak 6 in Jul 26 (automatic estimate).
+<strong>This pattern (read):</strong> 8 in Dec 25–Jul 26 (8 months), in 3 of those months; 3 this month.</p>
+<p class="evidence">2 tickets in May, 4 in June, 2 in July and 3 in August: the fourth month in a row since the rollout began.</p></dd>
+    <dt>Is anyone on it</dt><dd><p><strong>Partly — tracked, with a gap.</strong> Triage linked all 3 to the open initiative that collects feedback on the new search; one comment says work on an on and off toggle is in progress.</p><ul class="track">
+<li>Search (Relevance)<span class="tsep">·</span><span class="type">Initiative</span><span class="tsep">·</span>To Do<span class="tsep">·</span>no fix version<span class="tsep">·</span>Collect all feedback on the new search</li>
+</ul>
+<p class="evidence">The only linked item collects feedback; the toggle work mentioned in comments has no linked item.</p></dd>
+    <dt>What to do next</dt><dd>Search team (assistant-style search): on current iPhone and Android builds in the rollout group, check whether a persistent setting turns the assistant off and returns classic search with filters. Confirmed if no such setting exists; refuted once the toggle ships and opt-out requests stop.</dd>
+    <dt>Evidence</dt><dd><details><summary>Likely cause, confidence, Jira searches and known issues</summary><p><strong>Likely cause:</strong> Likely: the rollout made the assistant the default entry with no opt-out; triage says a toggle is being built.</p>      <p class="evidence">MEDIUM rule: 3 confirmed tickets with a consistent pattern, all linked to the open search feedback initiative. Not the top level: under 5 confirmed tickets.</p>
+      <p><span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22ai%20search%5C%22%22%20OR%20text%20~%20%22%5C%22turn%20off%20ai%5C%22%22%20OR%20text%20~%20%22%5C%22opt%20out%5C%22%22%20OR%20text%20~%20%22%5C%22chatbot%5C%22%22%20OR%20text%20~%20%22%5C%22old%20search%5C%22%22%20OR%20text%20~%20%22%5C%22regular%20search%5C%22%22%20OR%20text%20~%20%22%5C%22can%27t%20search%20by%20name%5C%22%22%20OR%20text%20~%20%22%5C%22ai%20search%20results%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22ai%20search%5C%22%22%20OR%20text%20~%20%22%5C%22turn%20off%20ai%5C%22%22%20OR%20text%20~%20%22%5C%22opt%20out%5C%22%22%20OR%20text%20~%20%22%5C%22chatbot%5C%22%22%20OR%20text%20~%20%22%5C%22old%20search%5C%22%22%20OR%20text%20~%20%22%5C%22regular%20search%5C%22%22%20OR%20text%20~%20%22%5C%22can%27t%20search%20by%20name%5C%22%22%20OR%20text%20~%20%22%5C%22ai%20search%20results%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20REL%20AND%20%28text%20~%20%22%5C%22ai%20search%5C%22%22%20OR%20text%20~%20%22%5C%22turn%20off%20ai%5C%22%22%20OR%20text%20~%20%22%5C%22regular%20search%5C%22%22%29%20ORDER%20BY%20updated%20DESC" rel="noopener" title="Approximate text search on the team board">≈ Search (Relevance) board</a></span></p><p class="evidence approx">≈ approximate Jira text search — expect extra and missing results; login required.</p>
+<p class="evidence">Known issue: <a href="../issues/ai-search-forced.html">Assistant-style search replaced classic search with no way to turn it off</a></p><p class="evidence">Known issue: <a href="../issues/ai-search-degraded-results.html">AI search returns worse results: no name search, filters can&#39;t be changed</a></p></details></dd>
+  </dl>
+</article>
+
+<h2>Follow-up on last month</h2>
+<ul class="followup"><li><strong>Practice cancels or turns the patient away after the booking was confirmed</strong><br>Last month: 3 real tickets in July, 1 of them from a patient who said they lost a visit, trip or money.<br>This month: No August ticket was filed under this problem; the dashboard also counted 0 for the theme. One office cancellation over insurance is counted on the in-network card instead.<br><em>Quiet in reading this month, not fixed: the problem has gone quiet before and returned, and nothing tracks it.</em></li>
+<li><strong>Assistant-style search gives poor results for targeted searches</strong><br>Last month: 4 real tickets in July, the first month at the bar.<br>This month: 1 real ticket in August, asking for the earlier map-based search with filters, linked to the open search feedback initiative.<br><em>Down in reading and below the bar; the opt-out requests from the same rollout returned to the bar instead.</em></li>
+<li><strong>Provider listed as in-network for the patient&#39;s plan turned out not to be</strong><br>Last month: 3 real tickets in July and none of them said they lost a visit, trip or money.<br>This month: 4 real tickets in August, 1 of them from a patient billed out of network. Triage again pointed to the planned insurance guarantee work rather than checking each listing.<br><em>Up slightly in reading (the dashboard&#39;s theme count fell) and still untracked; the ninth month in a row with reports.</em></li>
+<li><strong>No bookable providers in the patient&#39;s area for their plan</strong><br>Last month: 3 real tickets in July, the highest month so far.<br>This month: 2 real tickets in August, both closed as working as intended and passed to the service team to review.<br><em>Below the bar this month, but still present; nothing tracks what search shows when there is nobody to book.</em></li>
+</ul>
+
+
+<h2>Who is on it</h2>
+<div class="tablewrap"><table><thead><tr><th scope="col">Card</th><th scope="col">Owner</th><th scope="col">Tracked</th><th scope="col">Fix version</th></tr></thead><tbody>
+<tr><td><a href="#insurance-network-accuracy">Provider listed as in-network for the patient&#39;s plan turned out not to be</a></td><td>Insurance team (provider network data)</td>
+<td class="untracked">Not tracked</td>
+<td>none</td></tr><tr><td><a href="#ai-search-rollout">Assistant-style search replaced classic search with no way to turn it off</a></td><td>Search team (assistant-style search)</td>
+<td class="tracked">Tracked · gap</td>
+<td>none</td></tr><tr><td><a href="../issues/saved-providers-unmanageable.html">Saved (hearted) providers can&#39;t be found or removed</a></td><td>Patient Home / Account</td><td>Marked fixed — still reported</td><td>last reported Jul 26</td></tr><tr><td><a href="../issues/ios-certificate-outage.html">Older iOS builds stopped working after a certificate outage (generic error / &#39;no connection&#39;)</a></td><td>App Platform (iOS release / platform)</td><td>Marked fixed — still reported</td><td>last reported Aug 26</td></tr></tbody></table></div>
+
+<h2>Watch list</h2>
+<details><summary>84 small signals — none reached the bar for a card (3 tickets, or 2 saying they lost a visit, trip or money) in a single month</summary>
+<p><strong>New this month</strong></p><ul class="list-compact"><li>Requests to turn off the assistant-style search returned to the bar at 3 tickets after 2 in July.</li><li>Health checklist tickets came back after two quiet months: 3 tickets, each about a different problem (booking links that do nothing, no way to undo a completed item, and a request for custom items).</li></ul><p><strong>This month</strong></p><ul class="list-compact"><li>Bookings not reaching the office: 1 ticket, and that patient said they lost a visit, trip or money after arriving to find no record of the booking. Below the bar of 3 confirmed tickets.</li><li>Search distance: 2 tickets said all results were far from the patient&#39;s location.</li><li>No bookable providers in the area: 2 tickets, both closed as working as intended.</li><li>Account email: 2 tickets asked how to change the email on the account; an open task tracks it.</li><li>Dark mode: 2 tickets asked for a dark display option.</li><li>Assistant-style search results: 1 ticket, below the bar on its own id and separate from the opt-out card.</li><li>One-offs that did not repeat: a locked account with no self-serve fix, a missed-visit warning sent after a patient cancellation, marketing messages the patient could not stop, and a booked visit type the office said it does not offer.</li></ul><p><strong>Earlier one-offs</strong></p>
+<div class="tablewrap"><table><thead><tr><th scope="col">Signal</th><th class="n" scope="col">Total Dec 25–Aug 26</th><th class="n" scope="col">Busiest month</th><th scope="col">Last seen</th></tr></thead><tbody>
+<tr><td>Reminders excessive or after visit</td><td class="n">6</td><td class="n">2</td><td>Aug 26</td></tr><tr><td>Provider location hours stale</td><td class="n">5</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Intake forms burden</td><td class="n">5</td><td class="n">2</td><td>Jul 26</td></tr><tr><td>Visit type mismatch</td><td class="n">3</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Dark mode request</td><td class="n">5</td><td class="n">2</td><td>Aug 26</td></tr><tr><td>Appointment missing from account</td><td class="n">3</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Search by name fails</td><td class="n">4</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Insurance plan missing picker</td><td class="n">3</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Provider services listing wrong</td><td class="n">3</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Dependent profile discoverability</td><td class="n">3</td><td class="n">2</td><td>Aug 26</td></tr><tr><td>Provider location wrong</td><td class="n">3</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Booking submit fails</td><td class="n">3</td><td class="n">2</td><td>Feb 26</td></tr><tr><td>Account deletion hard</td><td class="n">3</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Add to calendar broken</td><td class="n">3</td><td class="n">1</td><td>May 26</td></tr><tr><td>Add external appointments request</td><td class="n">3</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Secondary insurance unsupported</td><td class="n">3</td><td class="n">2</td><td>Jul 26</td></tr><tr><td>Office requires phone followup</td><td class="n">2</td><td class="n">1</td><td>Mar 26</td></tr><tr><td>Intake not passed to office</td><td class="n">2</td><td class="n">2</td><td>Jan 26</td></tr><tr><td>Insurance card capture quality</td><td class="n">2</td><td class="n">1</td><td>May 26</td></tr><tr><td>Insurance card upload crash</td><td class="n">2</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Account login fails</td><td class="n">2</td><td class="n">2</td><td>Apr 26</td></tr><tr><td>Calendar timezone wrong</td><td class="n">2</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Search filters reset</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Search day of week filter request</td><td class="n">2</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Insurance in network filter missing</td><td class="n">2</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Feature suggestions social and filters</td><td class="n">2</td><td class="n">1</td><td>May 26</td></tr><tr><td>Feedback email prefill missing</td><td class="n">2</td><td class="n">2</td><td>May 26</td></tr><tr><td>Provider missing from search</td><td class="n">2</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Support hard to reach</td><td class="n">2</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Review non booked visit</td><td class="n">1</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Provider specialty mismatch</td><td class="n">2</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Payment card security concern</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Account restricted after cancellations</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Suspicious texts</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Reschedule blocked</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Home search bar animated text</td><td class="n">1</td><td class="n">1</td><td>Mar 26</td></tr><tr><td>Intake signature android</td><td class="n">1</td><td class="n">1</td><td>Mar 26</td></tr><tr><td>Family profile switch reverts</td><td class="n">1</td><td class="n">1</td><td>Mar 26</td></tr><tr><td>Payment card charged unexpectedly</td><td class="n">1</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Address not tappable</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Partner app handoff confusion</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Checkin buttons unresponsive</td><td class="n">1</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Video visit mic permission</td><td class="n">1</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Well guide book links broken</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Push notification settings missing</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Email verification loop</td><td class="n">1</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Visit reason input fails</td><td class="n">1</td><td class="n">1</td><td>Dec 25</td></tr><tr><td>Oops error offline slot click</td><td class="n">1</td><td class="n">1</td><td>Dec 25</td></tr><tr><td>Book button disabled missing field</td><td class="n">1</td><td class="n">1</td><td>Dec 25</td></tr><tr><td>Account data missing</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Dependent profile contact details</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Well guide add own provider</td><td class="n">1</td><td class="n">1</td><td>Jan 26</td></tr><tr><td>Phone number add fails</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Issue report no record</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Spanish language support request</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Medical history fields request</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Search date filter request</td><td class="n">1</td><td class="n">1</td><td>Feb 26</td></tr><tr><td>Form progress lost on app switch</td><td class="n">1</td><td class="n">1</td><td>Mar 26</td></tr><tr><td>Unrequested appointment time no show bill</td><td class="n">1</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Visit summary request</td><td class="n">1</td><td class="n">1</td><td>Apr 26</td></tr><tr><td>Preferred name request</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Referral required not surfaced</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Booking validation outage auto cancel</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>No in app provider messaging</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Multiple accounts email mismatch</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Availability new patients only</td><td class="n">1</td><td class="n">1</td><td>May 26</td></tr><tr><td>Closed practice still bookable</td><td class="n">1</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Vague scheduling billing video confusion</td><td class="n">1</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Search lgbtq friendly filter request</td><td class="n">1</td><td class="n">1</td><td>Jun 26</td></tr><tr><td>Medicaid coverage gap</td><td class="n">1</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>App crash known fixed</td><td class="n">1</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Search no results</td><td class="n">1</td><td class="n">1</td><td>Jul 26</td></tr><tr><td>Ai chat box obstructs screen</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Well guide custom items request</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Search top result irrelevant</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Missed appointment warning wording</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr><tr><td>Practice reschedule patient waiting</td><td class="n">1</td><td class="n">1</td><td>Aug 26</td></tr></tbody></table></div></details>
+
+<h2>Everything else</h2>
+<details><summary>Got better or went quiet</summary><ul class="list-compact"><li>Practices cancelling after booking, as its own problem, fell from 3 real tickets in July to none in August; the dashboard also counted 0. The one August ticket about an office cancelling was over insurance and is counted on the in-network card. It has gone quiet before, so this is not yet a fix.</li><li>Poor results from the assistant-style search fell from 4 real tickets to 1.</li></ul></details><details><summary>Unconfirmed signals (5) — counts moved, nothing backs them yet</summary>
+<ul class="list-compact"><li><span class="pill k-rising">▲ Rising</span> Filters return the wrong providers — 4 this month · Read this month: 4, below the bar for a card (3 tickets, or 2 saying they lost a visit, trip or money) <span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22too%20far%20away%5C%22%22%20OR%20text%20~%20%22%5C%22miles%20away%5C%22%22%20OR%20text%20~%20%22%5C%22near%20me%5C%22%22%20OR%20text%20~%20%22%5C%22distance%20filter%5C%22%22%20OR%20text%20~%20%22%5C%22location%20services%5C%22%22%20OR%20text%20~%20%22%5C%22wrong%20state%5C%22%22%20OR%20text%20~%20%22%5C%22wrong%20specialty%5C%22%22%20OR%20text%20~%20%22%5C%22family%20medicine%20instead%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22too%20far%20away%5C%22%22%20OR%20text%20~%20%22%5C%22miles%20away%5C%22%22%20OR%20text%20~%20%22%5C%22near%20me%5C%22%22%20OR%20text%20~%20%22%5C%22distance%20filter%5C%22%22%20OR%20text%20~%20%22%5C%22location%20services%5C%22%22%20OR%20text%20~%20%22%5C%22wrong%20state%5C%22%22%20OR%20text%20~%20%22%5C%22wrong%20specialty%5C%22%22%20OR%20text%20~%20%22%5C%22family%20medicine%20instead%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></li><li><span class="pill k-chronic">● Chronic</span> Booking never reaches the practice — 2 this month · Read this month: 2, below the bar for a card (3 tickets, or 2 saying they lost a visit, trip or money) <span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22no%20record%20of%20my%20appointment%5C%22%22%20OR%20text%20~%20%22%5C%22office%20didn%27t%20have%20my%20appointment%5C%22%22%20OR%20text%20~%20%22%5C%22not%20communicating%20with%20providers%5C%22%22%20OR%20text%20~%20%22%5C%22turned%20away%5C%22%22%20OR%20text%20~%20%22%5C%22documents%20not%20received%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22no%20record%20of%20my%20appointment%5C%22%22%20OR%20text%20~%20%22%5C%22office%20didn%27t%20have%20my%20appointment%5C%22%22%20OR%20text%20~%20%22%5C%22not%20communicating%20with%20providers%5C%22%22%20OR%20text%20~%20%22%5C%22turned%20away%5C%22%22%20OR%20text%20~%20%22%5C%22documents%20not%20received%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></li><li><span class="pill k-chronic">● Chronic</span> Notifications &amp; email — 2 this month · Read this month: 2, below the bar for a card (3 tickets, or 2 saying they lost a visit, trip or money) <span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22promotional%20notifications%5C%22%22%20OR%20text%20~%20%22%5C%22marketing%20emails%5C%22%22%20OR%20text%20~%20%22%5C%22opt%20out%5C%22%22%20OR%20text%20~%20%22%5C%22turn%20off%20notifications%5C%22%22%20OR%20text%20~%20%22%5C%22review%20request%20emails%5C%22%22%20OR%20text%20~%20%22%5C%22april%20fools%5C%22%22%20OR%20text%20~%20%22%5C%22clickbait%20notification%5C%22%22%20OR%20text%20~%20%22%5C%22fake%20notification%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22promotional%20notifications%5C%22%22%20OR%20text%20~%20%22%5C%22marketing%20emails%5C%22%22%20OR%20text%20~%20%22%5C%22opt%20out%5C%22%22%20OR%20text%20~%20%22%5C%22turn%20off%20notifications%5C%22%22%20OR%20text%20~%20%22%5C%22review%20request%20emails%5C%22%22%20OR%20text%20~%20%22%5C%22april%20fools%5C%22%22%20OR%20text%20~%20%22%5C%22clickbait%20notification%5C%22%22%20OR%20text%20~%20%22%5C%22fake%20notification%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></li><li>Problems with an appointment already booked — 1 this month · Read this month: 1, below the bar for a card (3 tickets, or 2 saying they lost a visit, trip or money) <span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22add%20to%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22calendar%20sync%5C%22%22%20OR%20text%20~%20%22%5C%22google%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22only%20apple%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22calendar%20app%5C%22%22%20OR%20text%20~%20%22%5C%22save%20appointment%20to%20calendar%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22add%20to%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22calendar%20sync%5C%22%22%20OR%20text%20~%20%22%5C%22google%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22only%20apple%20calendar%5C%22%22%20OR%20text%20~%20%22%5C%22calendar%20app%5C%22%22%20OR%20text%20~%20%22%5C%22save%20appointment%20to%20calendar%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></li><li>Reviews &amp; ratings — 0 this month · None this month after reading every ticket; flagged on earlier months only <span class="evidence">
+<a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22write%5C%22%22%20OR%20text%20~%20%22%5C%22writing%5C%22%22%20OR%20text%20~%20%22%5C%22submit%5C%22%22%20OR%20text%20~%20%22%5C%22posting%5C%22%22%20OR%20text%20~%20%22%5C%22delete%5C%22%22%20OR%20text%20~%20%22%5C%22rating%5C%22%22%20OR%20text%20~%20%22%5C%22showed%5C%22%22%20OR%20text%20~%20%22%5C%22showing%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ this month's tickets</a> · <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222025-12-01%22%20AND%20created%20%3C%20%222026-09-01%22%20AND%20%28text%20~%20%22%5C%22write%5C%22%22%20OR%20text%20~%20%22%5C%22writing%5C%22%22%20OR%20text%20~%20%22%5C%22submit%5C%22%22%20OR%20text%20~%20%22%5C%22posting%5C%22%22%20OR%20text%20~%20%22%5C%22delete%5C%22%22%20OR%20text%20~%20%22%5C%22rating%5C%22%22%20OR%20text%20~%20%22%5C%22showed%5C%22%22%20OR%20text%20~%20%22%5C%22showing%5C%22%22%29%20ORDER%20BY%20created%20DESC" rel="noopener" title="Approximate Jira text search; over- and under-matches">≈ all months</a></span></li></ul></details><details><summary>Feedback matching no theme is taxonomy gap</summary><p>7 this month did not match any theme. The theme list needs a look.</p></details><details><summary>All themes — automatic estimate</summary>
+<p class="evidence">These counts come from keyword rules, not reading (accuracy: see How this is made).</p>
+<div class="tablewrap"><table><thead><tr><th scope="col">Theme</th><th scope="col">Area</th><th class="n" scope="col">Aug 26</th><th class="n" scope="col">Last 3 mo</th><th class="n" scope="col">Window</th></tr></thead><tbody>
+<tr><td>In-network status is wrong</td><td>Insurance</td><td class="n">4</td><td class="n">24</td><td class="n">46</td></tr><tr><td>Filters return the wrong providers</td><td>Search &amp; Discovery</td><td class="n">5</td><td class="n">17</td><td class="n">38</td></tr><tr><td>Notifications &amp; email</td><td>Notifications</td><td class="n">8</td><td class="n">11</td><td class="n">25</td></tr><tr><td>Matched no theme</td><td>—</td><td class="n">7</td><td class="n">13</td><td class="n">25</td></tr><tr><td>AI search replaced classic search and filters</td><td>Search &amp; Discovery</td><td class="n">5</td><td class="n">17</td><td class="n">19</td></tr><tr><td>Booking never reaches the practice</td><td>Booking</td><td class="n">1</td><td class="n">3</td><td class="n">18</td></tr><tr><td>Problems with an appointment already booked</td><td>Appointment Management</td><td class="n">0</td><td class="n">4</td><td class="n">15</td></tr><tr><td>Generic error / crash / will not load</td><td>App Platform</td><td class="n">0</td><td class="n">4</td><td class="n">15</td></tr><tr><td>Intake forms block or repeat</td><td>Booking</td><td class="n">1</td><td class="n">3</td><td class="n">12</td></tr><tr><td>Locked out of the account</td><td>Account &amp; Auth</td><td class="n">1</td><td class="n">3</td><td class="n">11</td></tr><tr><td>Well Guide checklist</td><td>Well Guide</td><td class="n">2</td><td class="n">2</td><td class="n">11</td></tr><tr><td>Provider listing does not match reality</td><td>Provider Data</td><td class="n">1</td><td class="n">5</td><td class="n">11</td></tr><tr><td>Practice cancels or drops the appointment after booking</td><td>Booking</td><td class="n">0</td><td class="n">3</td><td class="n">10</td></tr><tr><td>Cannot complete the booking flow</td><td>Booking</td><td class="n">0</td><td class="n">3</td><td class="n">8</td></tr><tr><td>Search returns nothing bookable</td><td>Search &amp; Discovery</td><td class="n">1</td><td class="n">3</td><td class="n">8</td></tr><tr><td>Cannot edit profile or contact details</td><td>Account &amp; Auth</td><td class="n">1</td><td class="n">2</td><td class="n">7</td></tr><tr><td>Plan missing or unselectable in the picker</td><td>Insurance</td><td class="n">0</td><td class="n">2</td><td class="n">7</td></tr><tr><td>Saved providers list is unusable</td><td>Account &amp; Auth</td><td class="n">0</td><td class="n">2</td><td class="n">6</td></tr><tr><td>Reviews &amp; ratings</td><td>Reviews</td><td class="n">0</td><td class="n">6</td><td class="n">6</td></tr><tr><td>Accessibility &amp; display</td><td>App Platform</td><td class="n">1</td><td class="n">3</td><td class="n">6</td></tr><tr><td>Cannot search for a provider by name</td><td>Search &amp; Discovery</td><td class="n">1</td><td class="n">3</td><td class="n">5</td></tr><tr><td>Family / dependent profiles</td><td>Account &amp; Auth</td><td class="n">1</td><td class="n">1</td><td class="n">5</td></tr><tr><td>Payments &amp; cost estimates</td><td>Payments</td><td class="n">0</td><td class="n">1</td><td class="n">4</td></tr><tr><td>Provider messaging</td><td>Messaging</td><td class="n">0</td><td class="n">0</td><td class="n">3</td></tr></tbody></table></div></details>
+
+<footer class="method">
+<p><strong>How this is made.</strong> Every ticket filed in August 2026 was read in full — complaint, comments and links. A theme becomes a card only when its counts move by more than chance (the last three months against its own earlier pace, or present 7 of the last 10 months with patients saying they lost a visit) <em>and</em> a reviewed issue or this month's reading backs it.
+ On this month's 59 tickets the automatic estimate put the ticket in the same theme as the reading 71% of the time (42 tickets matched). On tickets kept aside for testing, it is right 55% of the time (36 of 65). Trend tests use the automatic estimate for every month, because only 9 months in a row have been read in full; they switch to read counts after 1 more read month (10 in a row).</p>
+<p>No ticket numbers are published; ≈ links run a text search in Jira (login required).</p>
+<details><summary>Caveats</summary><ul class="list-compact"><li>Only 33 real reports, so every count is small. Two problems met the bar for a card; several more sat at 2 tickets each and are listed under watch this month without being added together.</li><li>The dashboard&#39;s theme labels matched reading on only 42 of 59 tickets (71%), close to July&#39;s 68%. The gap this month is mostly wrong-theme filings, not the spam rule: the dashboard counted fewer noise tickets than reading, not more, so its spam rule does not explain it. Treat dashboard theme counts as rough this month.</li><li>The dashboard counted 8 notification tickets; reading found 2. Treat that dashboard count, and the spike it shows, as high.</li><li>Both supply tickets and one of the in-network tickets were closed as working as intended without a tracking item, so not tracked does not mean not real.</li></ul></details><p>Generated 2026-08-31 · window 2025-12-01 – 2026-08-31</p>
+</footer>
+</main>
 </div>
-
-  <div class="container">
-    
-
-
-
-
-
-<div class="verdict">
-  <h2>What 2026-08 looked like</h2>
-  <p>
-    The worst theme of the month was
-    <strong>in-network status is wrong</strong> (Insurance) &mdash;
-    3 reports,
-    3 of which cost the patient the appointment or money.
-    It carried
-    <strong>39%</strong>
-    of the month's total harm across 15 active themes.
-    
-      Actionable volume fell 21
-      against 2026-07.
-    
-  </p>
-</div>
-
-
-<div class="kpi-grid">
-  <div class="kpi-card">
-    <div class="kpi-value">29</div>
-    <div class="kpi-label">Actionable</div>
-    <div class="kpi-sub">
-      -21 vs 2026-07
-    </div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value">6</div>
-    <div class="kpi-label">Blocking</div>
-    <div class="kpi-sub">1 said so &middot;
-      5 inferred from theme</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value">23</div>
-    <div class="kpi-label">Impact score</div>
-    <div class="kpi-sub">3&times;blocking + 1&times;degrading &middot;
-      83% of the blocking term inferred</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value">15</div>
-    <div class="kpi-label">Themes active</div>
-    <div class="kpi-sub">0 new &middot; 8 went quiet</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value">30</div>
-    <div class="kpi-label">Non-actionable</div>
-    <div class="kpi-sub">
-      51% of 59 tickets
-    </div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value">0</div>
-    <div class="kpi-label">App versions seen</div>
-    <div class="kpi-sub">where diagnostics exist</div>
-  </div>
-</div>
-
-
-
-
-<div class="alert" style="background:#f4fbf7;border-color:#c9ecd9;border-left-color:var(--green)">
-  <h3 style="color:var(--green)">Went quiet this month</h3>
-  <ul>
-    
-    <li><strong>Cannot complete the booking flow</strong> &mdash; 2 last month, none this month.</li>
-    
-    <li><strong>Generic error / crash / will not load</strong> &mdash; 2 last month, none this month.</li>
-    
-    <li><strong>Payments &amp; cost estimates</strong> &mdash; 1 last month, none this month.</li>
-    
-    <li><strong>Plan missing or unselectable in the picker</strong> &mdash; 2 last month, none this month.</li>
-    
-    <li><strong>Practice cancels or drops the appointment after booking</strong> &mdash; 3 last month, none this month.</li>
-    
-    <li><strong>Problems with an appointment already booked</strong> &mdash; 3 last month, none this month.</li>
-    
-    <li><strong>Reviews &amp; ratings</strong> &mdash; 4 last month, none this month.</li>
-    
-    <li><strong>Saved providers list is unusable</strong> &mdash; 1 last month, none this month.</li>
-    
-  </ul>
-</div>
-
-
-<div class="section-title">Where it hurt in 2026-08</div>
-<div class="section-note">
-  All 15 themes that saw at least one report, ranked by impact
-  &mdash; 3 points per report that cost the appointment or money, 1 per degraded
-  experience, 0 for a minor annoyance &mdash; not by raw count. The bar is that
-  theme's severity mix for the month. The sparkline is its whole history with
-  2026-08 marked in red; bars to the right of the mark are later months.
-  &ldquo;Peak&rdquo; means this was its busiest month on record.
-</div>
-<table>
-  <thead>
-    <tr>
-      <th>Theme</th><th>Area</th><th>Severity mix</th>
-      <th class="num">Reports</th><th class="num">Blocking</th><th class="num">Impact</th>
-      <th class="num">2026-07</th><th class="num">Change</th>
-      <th>History</th><th></th>
-    </tr>
-  </thead>
-  <tbody>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/insurance-network-accuracy.html">In-network status is wrong</a>
-        
-      </td>
-      <td><span class="area-chip">Insurance</span></td>
-      <td>
-        <div class="bar" title="3 blocking / 0 degrading / 0 minor">
-          <span class="b" style="width: 100%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">3</td>
-      <td class="num">3</td>
-      <td class="num"><strong>9</strong></td>
-      <td class="num">5</td>
-      <td class="num">
-        <span class="trend-down">-2</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="3, 3, 4, 6, 4, 2, 12, 5, 3, 2">
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 11px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 22px"></i>
-          
-          <i class=""
-             style="height: 9px"></i>
-          
-          <i class="now"
-             style="height: 6px"></i>
-          
-          <i class="after"
-             style="height: 4px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/search-filter-correctness.html">Filters return the wrong providers</a>
-        
-      </td>
-      <td><span class="area-chip">Search &amp; Discovery</span></td>
-      <td>
-        <div class="bar" title="1 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 50%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 50%"></span>
-        </div>
-      </td>
-      <td class="num">2</td>
-      <td class="num">1</td>
-      <td class="num"><strong>3</strong></td>
-      <td class="num">5</td>
-      <td class="num">
-        <span class="trend-down">-3</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="1, 0, 8, 3, 3, 4, 5, 5, 2, 3">
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 15px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 9px"></i>
-          
-          <i class=""
-             style="height: 9px"></i>
-          
-          <i class="now"
-             style="height: 4px"></i>
-          
-          <i class="after"
-             style="height: 6px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/booking-office-sync.html">Booking never reaches the practice</a>
-        
-      </td>
-      <td><span class="area-chip">Booking</span></td>
-      <td>
-        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
-          <span class="b" style="width: 100%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">1</td>
-      <td class="num"><strong>3</strong></td>
-      <td class="num">1</td>
-      <td class="num">
-        <span class="trend-flat">0</span>
-      </td>
-      <td>
-        <div class="spark" title="3, 3, 1, 5, 2, 1, 1, 1, 1, 0">
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 9px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/account-access.html">Locked out of the account</a>
-        
-      </td>
-      <td><span class="area-chip">Account &amp; Auth</span></td>
-      <td>
-        <div class="bar" title="1 blocking / 0 degrading / 0 minor">
-          <span class="b" style="width: 100%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">1</td>
-      <td class="num"><strong>3</strong></td>
-      <td class="num">1</td>
-      <td class="num">
-        <span class="trend-flat">0</span>
-      </td>
-      <td>
-        <div class="spark" title="0, 1, 0, 1, 4, 1, 1, 1, 1, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/unclassified.html">Unclassified</a>
-        
-      </td>
-      <td><span class="area-chip">Unclassified</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 2 degrading / 5 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 29%"></span>
-          <span class="a" style="width: 71%"></span>
-        </div>
-      </td>
-      <td class="num">7</td>
-      <td class="num">0</td>
-      <td class="num"><strong>2</strong></td>
-      <td class="num">4</td>
-      <td class="num">
-        <span class="trend-up">+3</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="2, 14, 6, 11, 4, 3, 1, 4, 7, 9">
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 26px"></i>
-          
-          <i class=""
-             style="height: 11px"></i>
-          
-          <i class=""
-             style="height: 20px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class="now"
-             style="height: 13px"></i>
-          
-          <i class="after"
-             style="height: 17px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/well-guide.html">Well Guide checklist</a>
-        
-      </td>
-      <td><span class="area-chip">Well Guide</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 1 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 50%"></span>
-          <span class="a" style="width: 50%"></span>
-        </div>
-      </td>
-      <td class="num">2</td>
-      <td class="num">0</td>
-      <td class="num"><strong>1</strong></td>
-      <td class="num">0</td>
-      <td class="num">
-        <span class="trend-up">+2</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 0, 1, 0, 0, 1, 0, 0, 2, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class="now"
-             style="height: 4px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td><span class="tag new">peak</span></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/search-name-lookup.html">Cannot search for a provider by name</a>
-        
-      </td>
-      <td><span class="area-chip">Search &amp; Discovery</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 1 degrading / 0 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 100%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>1</strong></td>
-      <td class="num">1</td>
-      <td class="num">
-        <span class="trend-flat">0</span>
-      </td>
-      <td>
-        <div class="spark" title="0, 1, 0, 0, 1, 0, 1, 1, 1, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td><span class="tag new">peak</span></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/provider-data-accuracy.html">Provider listing does not match reality</a>
-        
-      </td>
-      <td><span class="area-chip">Provider Data</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 1 degrading / 0 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 100%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>1</strong></td>
-      <td class="num">3</td>
-      <td class="num">
-        <span class="trend-down">-2</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 1, 0, 4, 0, 1, 1, 3, 1, 3">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 6px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/ai-search-rollout.html">AI search replaced classic search and filters</a>
-        
-      </td>
-      <td><span class="area-chip">Search &amp; Discovery</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 5 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">5</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">6</td>
-      <td class="num">
-        <span class="trend-down">-1</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 0, 0, 0, 0, 1, 6, 6, 5, 8">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 11px"></i>
-          
-          <i class=""
-             style="height: 11px"></i>
-          
-          <i class="now"
-             style="height: 9px"></i>
-          
-          <i class="after"
-             style="height: 15px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/app-accessibility.html">Accessibility &amp; display</a>
-        
-      </td>
-      <td><span class="area-chip">App Platform</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">2</td>
-      <td class="num">
-        <span class="trend-down">-1</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 0, 1, 1, 0, 1, 0, 2, 1, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/account-profile-editing.html">Cannot edit profile or contact details</a>
-        
-      </td>
-      <td><span class="area-chip">Account &amp; Auth</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">1</td>
-      <td class="num">
-        <span class="trend-flat">0</span>
-      </td>
-      <td>
-        <div class="spark" title="0, 0, 1, 1, 1, 2, 0, 1, 1, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/family-profiles.html">Family / dependent profiles</a>
-        
-      </td>
-      <td><span class="area-chip">Account &amp; Auth</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">0</td>
-      <td class="num">
-        <span class="trend-up">+1</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 0, 0, 1, 2, 0, 0, 0, 1, 1">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 2px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/booking-intake-forms.html">Intake forms block or repeat</a>
-        
-      </td>
-      <td><span class="area-chip">Booking</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">0</td>
-      <td class="num">
-        <span class="trend-up">+1</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="0, 2, 0, 1, 2, 2, 2, 0, 1, 0">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/notifications.html">Notifications &amp; email</a>
-        
-      </td>
-      <td><span class="area-chip">Notifications</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">1</td>
-      <td class="num">
-        <span class="trend-flat">0</span>
-      </td>
-      <td>
-        <div class="spark" title="0, 2, 2, 1, 4, 3, 1, 1, 1, 1">
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 7px"></i>
-          
-          <i class=""
-             style="height: 6px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 2px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-    <tr>
-      <td class="theme-name">
-        <a href="../themes/search-no-results.html">Search returns nothing bookable</a>
-        
-      </td>
-      <td><span class="area-chip">Search &amp; Discovery</span></td>
-      <td>
-        <div class="bar" title="0 blocking / 0 degrading / 1 minor">
-          <span class="b" style="width: 0%"></span>
-          <span class="d" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">2</td>
-      <td class="num">
-        <span class="trend-down">-1</span>
-        
-      </td>
-      <td>
-        <div class="spark" title="1, 2, 0, 0, 0, 2, 0, 2, 1, 0">
-          
-          <i class=""
-             style="height: 2px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class=""
-             style="height: 0px"></i>
-          
-          <i class=""
-             style="height: 4px"></i>
-          
-          <i class="now"
-             style="height: 2px"></i>
-          
-          <i class="after"
-             style="height: 0px"></i>
-          
-        </div>
-      </td>
-      <td></td>
-    </tr>
-  
-  </tbody>
-</table>
-
-
-<div class="two-col">
-  <div>
-    <div class="section-title">Rose the most</div>
-    <div class="section-note">Biggest increases against 2026-07.</div>
-    <table>
-      <thead><tr><th>Theme</th><th class="num">2026-07</th><th class="num">2026-08</th><th class="num">Change</th></tr></thead>
-      <tbody>
-      
-        <tr><td class="theme-name">Unclassified</td><td class="num">4</td>
-            <td class="num">7</td><td class="num"><span class="trend-up">+3</span></td></tr>
-      
-        <tr><td class="theme-name">Well Guide checklist</td><td class="num">0</td>
-            <td class="num">2</td><td class="num"><span class="trend-up">+2</span></td></tr>
-      
-        <tr><td class="theme-name">Family / dependent profiles</td><td class="num">0</td>
-            <td class="num">1</td><td class="num"><span class="trend-up">+1</span></td></tr>
-      
-      </tbody>
-    </table>
-  </div>
-  <div>
-    <div class="section-title">Fell the most</div>
-    <div class="section-note">Biggest decreases against 2026-07.</div>
-    <table>
-      <thead><tr><th>Theme</th><th class="num">2026-07</th><th class="num">2026-08</th><th class="num">Change</th></tr></thead>
-      <tbody>
-      
-        <tr><td class="theme-name">Reviews &amp; ratings</td><td class="num">4</td>
-            <td class="num">0</td><td class="num"><span class="trend-down">-4</span></td></tr>
-      
-        <tr><td class="theme-name">Filters return the wrong providers</td><td class="num">5</td>
-            <td class="num">2</td><td class="num"><span class="trend-down">-3</span></td></tr>
-      
-        <tr><td class="theme-name">Practice cancels or drops the appointment after booking</td><td class="num">3</td>
-            <td class="num">0</td><td class="num"><span class="trend-down">-3</span></td></tr>
-      
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-<div class="section-title">By product area in 2026-08</div>
-<div class="section-note">
-  The same reports rolled up to the team that would own the fix. The bar is the
-  share of that area's reports that blocked a booking outright.
-</div>
-<table>
-  <thead>
-    <tr><th>Area</th><th>Blocking share</th><th class="num">Reports</th>
-        <th class="num">Blocking</th><th class="num">Impact</th><th class="num">Themes</th></tr>
-  </thead>
-  <tbody>
-  
-    <tr>
-      <td><span class="area-chip">Insurance</span></td>
-      <td>
-        <div class="bar" title="3 of 3 reports in this area block booking">
-          <span class="b" style="width: 100%"></span>
-          <span class="a" style="width: 0%"></span>
-        </div>
-      </td>
-      <td class="num">3</td>
-      <td class="num">3</td>
-      <td class="num"><strong>9</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Search &amp; Discovery</span></td>
-      <td>
-        <div class="bar" title="1 of 9 reports in this area block booking">
-          <span class="b" style="width: 11%"></span>
-          <span class="a" style="width: 89%"></span>
-        </div>
-      </td>
-      <td class="num">9</td>
-      <td class="num">1</td>
-      <td class="num"><strong>4</strong></td>
-      <td class="num">4</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Account &amp; Auth</span></td>
-      <td>
-        <div class="bar" title="1 of 3 reports in this area block booking">
-          <span class="b" style="width: 33%"></span>
-          <span class="a" style="width: 67%"></span>
-        </div>
-      </td>
-      <td class="num">3</td>
-      <td class="num">1</td>
-      <td class="num"><strong>3</strong></td>
-      <td class="num">3</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Booking</span></td>
-      <td>
-        <div class="bar" title="1 of 2 reports in this area block booking">
-          <span class="b" style="width: 50%"></span>
-          <span class="a" style="width: 50%"></span>
-        </div>
-      </td>
-      <td class="num">2</td>
-      <td class="num">1</td>
-      <td class="num"><strong>3</strong></td>
-      <td class="num">2</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Unclassified</span></td>
-      <td>
-        <div class="bar" title="0 of 7 reports in this area block booking">
-          <span class="b" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">7</td>
-      <td class="num">0</td>
-      <td class="num"><strong>2</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Well Guide</span></td>
-      <td>
-        <div class="bar" title="0 of 2 reports in this area block booking">
-          <span class="b" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">2</td>
-      <td class="num">0</td>
-      <td class="num"><strong>1</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Provider Data</span></td>
-      <td>
-        <div class="bar" title="0 of 1 reports in this area block booking">
-          <span class="b" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>1</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">App Platform</span></td>
-      <td>
-        <div class="bar" title="0 of 1 reports in this area block booking">
-          <span class="b" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td><span class="area-chip">Notifications</span></td>
-      <td>
-        <div class="bar" title="0 of 1 reports in this area block booking">
-          <span class="b" style="width: 0%"></span>
-          <span class="a" style="width: 100%"></span>
-        </div>
-      </td>
-      <td class="num">1</td>
-      <td class="num">0</td>
-      <td class="num"><strong>0</strong></td>
-      <td class="num">1</td>
-    </tr>
-  
-  </tbody>
-</table>
-
-
-<div class="section-title">What specifically failed</div>
-<div class="section-note">
-  Sub-themes are the named failure inside a theme, so this is the closest the
-  published data gets to a bug list. Reports that matched a theme but no specific
-  pattern within it are excluded here &mdash; they appear in the theme totals above.
-</div>
-<table>
-  <thead><tr><th>Specific failure</th><th>Theme</th><th class="num">Reports</th></tr></thead>
-  <tbody>
-  
-    <tr>
-      <td>AI answers instead of a list of providers</td>
-      <td class="theme-name">
-        <a href="../themes/ai-search-rollout.html">AI search replaced classic search and filters</a>
-        
-      </td>
-      <td class="num">4</td>
-    </tr>
-  
-    <tr>
-      <td>Provider does not take the plan at all</td>
-      <td class="theme-name">
-        <a href="../themes/insurance-network-accuracy.html">In-network status is wrong</a>
-        
-      </td>
-      <td class="num">2</td>
-    </tr>
-  
-    <tr>
-      <td>Cannot log in or create an account</td>
-      <td class="theme-name">
-        <a href="../themes/account-access.html">Locked out of the account</a>
-        
-      </td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td>No way to opt out or get classic search back</td>
-      <td class="theme-name">
-        <a href="../themes/ai-search-rollout.html">AI search replaced classic search and filters</a>
-        
-      </td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td>Results are too far away</td>
-      <td class="theme-name">
-        <a href="../themes/search-filter-correctness.html">Filters return the wrong providers</a>
-        
-      </td>
-      <td class="num">1</td>
-    </tr>
-  
-    <tr>
-      <td>Too many notifications</td>
-      <td class="theme-name">
-        <a href="../themes/notifications.html">Notifications &amp; email</a>
-        
-      </td>
-      <td class="num">1</td>
-    </tr>
-  
-  </tbody>
-</table>
-
-
-<div class="two-col">
-  <div>
-    <div class="section-title">Platform</div>
-    <div class="section-note">
-      Known only where the ticket carried diagnostics. &ldquo;unknown&rdquo; is
-      not a third platform &mdash; it is missing data.
-    </div>
-    <table>
-      <thead><tr><th>Platform</th><th>Share</th><th class="num">Reports</th></tr></thead>
-      <tbody>
-      
-        <tr class="muted">
-          <td>unknown</td>
-          <td>
-            <div class="bar">
-              <span class="a"
-                    style="width: 90%"></span>
-            </div>
-          </td>
-          <td class="num">26</td>
-        </tr>
-      
-        <tr>
-          <td>iOS</td>
-          <td>
-            <div class="bar">
-              <span class="b"
-                    style="width: 10%"></span>
-            </div>
-          </td>
-          <td class="num">3</td>
-        </tr>
-      
-      </tbody>
-    </table>
-  </div>
-  <div>
-    <div class="section-title">App versions</div>
-    <div class="section-note">
-      Which builds the month's reports came from. A theme concentrated on one
-      build is a release regression; one spread across many is not.
-    </div>
-    <table>
-      <thead><tr><th>Version</th><th>Share</th><th class="num">Reports</th></tr></thead>
-      <tbody>
-      
-        <tr><td colspan="3">No diagnostics on any ticket this month.</td></tr>
-      
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div class="section-title">Signal quality in 2026-08</div>
-<div class="section-note">
-  What this month's feed could not tell you. Every row here is a limit on the
-  numbers above, not a footnote to them.
-</div>
-<div class="two-col">
-  <div>
-    <table>
-      <thead><tr><th>What was filtered out</th><th>Share</th><th class="num">Tickets</th></tr></thead>
-      <tbody>
-      
-        <tr class="muted">
-          <td>Spam Misrouted</td>
-          <td>
-            <div class="bar">
-              <span class="a" style="width: 19%"></span>
-            </div>
-          </td>
-          <td class="num">11</td>
-        </tr>
-      
-        <tr class="muted">
-          <td>Csat Survey Blast</td>
-          <td>
-            <div class="bar">
-              <span class="a" style="width: 15%"></span>
-            </div>
-          </td>
-          <td class="num">9</td>
-        </tr>
-      
-        <tr class="muted">
-          <td>Empty Submission</td>
-          <td>
-            <div class="bar">
-              <span class="a" style="width: 12%"></span>
-            </div>
-          </td>
-          <td class="num">7</td>
-        </tr>
-      
-        <tr class="muted">
-          <td>Low Signal Rant</td>
-          <td>
-            <div class="bar">
-              <span class="a" style="width: 3%"></span>
-            </div>
-          </td>
-          <td class="num">2</td>
-        </tr>
-      
-        <tr class="muted">
-          <td>Out Of Scope Clinical</td>
-          <td>
-            <div class="bar">
-              <span class="a" style="width: 2%"></span>
-            </div>
-          </td>
-          <td class="num">1</td>
-        </tr>
-      
-      </tbody>
-    </table>
-  </div>
-  <div>
-    <table>
-      <thead><tr><th>Coverage</th><th class="num">Tickets</th><th class="num">Share</th></tr></thead>
-      <tbody>
-        <tr><td>Tickets created in 2026-08</td>
-            <td class="num">59</td><td class="num">100%</td></tr>
-        <tr><td>Reached a theme</td><td class="num">29</td>
-            <td class="num">49%</td></tr>
-        <tr><td>Excluded as non-actionable</td><td class="num">30</td>
-            <td class="num">51%</td></tr>
-        <tr class="muted">
-            <td>Actionable but matched no theme</td><td class="num">7</td>
-            <td class="num">12%</td></tr>
-        <tr><td>Reports with no diagnostics</td>
-            <td class="num">29</td>
-            <td class="num">49%</td></tr>
-        <tr class="muted">
-            <td>Blocking inferred from a theme, not stated</td>
-            <td class="num">5</td>
-            <td class="num">83% of blocking</td></tr>
-      </tbody>
-    </table>
-    <div class="section-note" style="margin-top:0.75rem">
-      Grouping is a deterministic keyword classifier, first match wins, so each
-      ticket lands in exactly one theme and these counts add up.
-      
-      Its accuracy was not measured on this run.
-       Treat any single row as an estimate, and see
-      <a href="../index.html#method">how these numbers are made</a> before
-      acting on one.
-    </div>
-  </div>
-</div>
-
-<div class="phi">
-  <strong>Counts on this page are for 2026-08 alone.</strong> The main report is
-  cumulative across the whole window, so its theme totals will always be larger.
-  To read the tickets themselves use Jira, which is permission-gated:
-  <a href="https://zocdoc.atlassian.net/issues/?jql=project%20%3D%20AFH%20AND%20created%20%3E%3D%20%222026-08-01%22%20AND%20created%20%3C%20%222026-09-01%22%20ORDER%20BY%20created%20DESC">tickets created in 2026-08</a>.
-  Ticket keys are patient-level data and are never published here.
-</div>
-
-
-    <div class="footer">
-      Generated 2026-09-30 from Jira project AFH.
-      Counts are aggregates only &mdash; no ticket keys, patient text or device
-      identifiers are published here.
-    </div>
-  </div>
+<div id="tip" role="tooltip"></div>
 </body>
 </html>

@@ -1,0 +1,28 @@
+{
+  "month": "2026-09",
+  "month_label": "September 2026",
+  "headline": "Wrong in-network badges, phantom open times: 7 of 12 lost a visit, trip or money.",
+  "url": "https://allen-koickal1-zocdoc.github.io/afh-product-signal/months/2026-09.html",
+  "cards": [
+    {
+      "title": "Provider badged in-network for the patient's plan turned out not to be",
+      "kind": "chronic",
+      "tracked": false
+    },
+    {
+      "title": "Practice can't honour a time shown as open",
+      "kind": "rising",
+      "tracked": false
+    },
+    {
+      "title": "Patients can't find how to turn AI search off",
+      "kind": "rising",
+      "tracked": true
+    },
+    {
+      "title": "Patients can't choose or tell which practitioner they will see",
+      "kind": "chronic",
+      "tracked": true
+    }
+  ]
+}
